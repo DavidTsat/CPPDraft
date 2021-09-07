@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <memory>
 
+#include "builder.h"
+
 struct HtmlBuilder;
 
 struct HtmlElement {
@@ -92,6 +94,11 @@ HtmlBuilder HtmlElement::build_(const std::string& root_name) {
 }
 
 int main() {
+	Person p = Person::create().lives().at("123 London Road").with_postcode("SW 1GB").in("London").works().at("PragmaSoft").as_a("Consultant").earning(10e6);
+
+	p.pretty_print();
+
+	/*
 	// 1
 	std::string words[] = { "hello", "world" };
 	std::ostringstream oss;
@@ -111,7 +118,7 @@ int main() {
 	
 	std::cout << " 2 " << list.str() << std::endl;
 	*/
-
+	/*
 
 	// 3
 	HtmlBuilder builder(" <ul> ");
@@ -140,6 +147,6 @@ int main() {
 	HtmlElement bb = HtmlElement::build_(" <ul> ").add_child2(" <li> ", "hello").add_child2(" <li> ", "world");
 
 	std::cout << " 6 " << bb.str() << std::endl;
-	
+	*/
 	return 0;
 }
