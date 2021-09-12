@@ -72,8 +72,18 @@ namespace DSTL {
 			}
 		}
 
+		btree(std::initializer_list<V> values) {
+			for (typename std::initializer_list<V>::const_iterator it = values.begin(); it != values.end(); ++it) {
+				insert(std::make_pair(*it, *it));
+			}
+		}
+
 		~btree() {
 			__release__btree__(root);
+		}
+
+		std::pair<K, V>& insert(const ValueType& value) {
+			return insert(std::make_pair(value, value));
 		}
 
 		std::pair<K,V>& insert(const std::pair<KeyType, ValueType>& entry_) {
