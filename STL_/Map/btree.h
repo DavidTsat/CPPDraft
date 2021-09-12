@@ -50,6 +50,18 @@ namespace DSTL {
 			}
 		}
 
+		std::pair<K, V>& __search__(node* starting_node, const K& key) {
+			if (starting_node == nullptr, key == starting_node->entry.first) {
+				return starting_node->entry;
+			}
+			if (compare(key, starting_node->entry.first)) {
+				return __search__(starting_node->left_child, key);
+			}
+			else {
+				return __search__(starting_node->right_child, key);
+			}
+		}
+
 		void __release__btree__(node* starting_node) {
 			__postorder___traverse__(starting_node, [](node* cn) {
 #ifdef DEBUG_MODE
@@ -131,6 +143,10 @@ namespace DSTL {
 				postorder_traverse(starting_node->right_child, f);
 				f(starting_node->entry);
 			}
+		}
+
+		std::pair<K, V>& operator[](const K& key) {
+			return __search__(root, key);
 		}
 
 		friend void inorder_print<>(btree&);
