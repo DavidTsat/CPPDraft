@@ -4,6 +4,7 @@
 #include <iostream>
 #include <initializer_list>
 #include <vector>
+#include <utility>
 
 #define DEBUG_MODE
 
@@ -12,27 +13,30 @@ namespace DSTL {
 	/*
 	forward declaration
 	*/
-	template <typename KeyType, typename ValueType=KeyType, typename ComparisonPredicate = std::less<KeyType> >
+	template <typename KeyType, typename ValueType, typename ComparisonPredicate = std::less<KeyType> >
 	class btree;
 	
-	template <typename KeyType, typename ValueType = KeyType, typename ComparisonPredicate = std::less<KeyType> >
+	template <typename KeyType, typename ValueType, typename ComparisonPredicate = std::less<KeyType> >
 	void inorder_print(btree<KeyType, ValueType, ComparisonPredicate>& b);
 	
-	template <typename KeyType, typename ValueType = KeyType, typename ComparisonPredicate = std::less<KeyType> >
+	template <typename KeyType, typename ValueType, typename ComparisonPredicate = std::less<KeyType> >
 	void postorder_print(btree<KeyType, ValueType, ComparisonPredicate>& b);
 
 
 	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
 	class btree {
-		using T = ValueType;
+		using K = KeyType;
+		using V = ValueType;
+
 		struct node {
 			node* parent;
 			node* left_child;
 			node* right_child;
-			T value;
+			
+			std::pair<K, V> entry;
 
-			node(node* parent_ = nullptr, node* left_child_ = nullptr, node* right_child_ = nullptr, const T& value_ = T())
-				: parent(parent_), left_child(left_child_), right_child(right_child_), value(value_) {}
+			node(node* parent_ = nullptr, node* left_child_ = nullptr, node* right_child_ = nullptr, const std::pair<K, V>& entry_ = std::pair<K, V>())
+				: parent(parent_), left_child(left_child_), right_child(right_child_), entry(entry_) {}
 		};
 
 		ComparisonPredicate compare = ComparisonPredicate();
@@ -49,7 +53,7 @@ namespace DSTL {
 		void __release__btree__(node* starting_node) {
 			__postorder___traverse__(starting_node, [](node* cn) {
 #ifdef DEBUG_MODE
-				std::cout << "\nDeleting node with value: " << cn->value; 
+				std::cout << "\nDeleting node with value: " << cn->entry.second; 
 #endif // DEBUG_MODE
 				delete cn; 
 				});
@@ -62,8 +66,8 @@ namespace DSTL {
 	public:
 		btree() = default;
 
-		btree(std::initializer_list<T> values) {
-			for (typename std::initializer_list<T>::const_iterator it = values.begin(); it != values.end(); ++it) {
+		btree(std::initializer_list<std::pair<K, V>> entries) {
+			for (typename std::initializer_list<std::pair<K, V>>::const_iterator it = entries.begin(); it != entries.end(); ++it) {
 				insert(*it);
 			}
 		}
@@ -72,14 +76,14 @@ namespace DSTL {
 			__release__btree__(root);
 		}
 
-		T& insert(const T& value_) {
+		std::pair<K,V>& insert(const std::pair<KeyType, ValueType>& entry_) {
 			node* temp_parent_node = nullptr;
 			node* temp_current_node = root;
 
 			while (temp_current_node != nullptr) {
 				temp_parent_node = temp_current_node;
 
-				if (compare(value_, temp_current_node->value)) {
+				if (compare(entry_.first, temp_current_node->entry.first)) {
 					temp_current_node = temp_current_node->left_child;
 				}
 				else {
@@ -87,35 +91,35 @@ namespace DSTL {
 				}
 			}
 
-			node* new_node = new node(temp_parent_node, nullptr, nullptr, value_);
+			node* new_node = new node(temp_parent_node, nullptr, nullptr, entry_);
 
 			if (temp_parent_node == nullptr) {
 				root = new_node;
 			}
-			else if (compare(value_, temp_parent_node->value)) {
+			else if (compare(entry_.first, temp_parent_node->entry.first)) {
 				temp_parent_node->left_child = new_node;
 			}
 			else {
 				temp_parent_node->right_child = new_node;
 			}
 
-			return new_node->value;
+			return new_node->entry;
 		}
 
-		void inorder_traverse(node* starting_node, std::function<void(T& value_)> f) {
+		void inorder_traverse(node* starting_node, std::function<void(std::pair<K, V>&)> f) {
 			if (starting_node != nullptr) {
 				inorder_traverse(starting_node->left_child, f);
-				f(starting_node->value);
+				f(starting_node->entry);
 				inorder_traverse(starting_node->right_child, f);
 			}
 		}
 
 
-		void postorder_traverse(node* starting_node, std::function<void(T& value_)> f) {
+		void postorder_traverse(node* starting_node, std::function<void(std::pair<K,V>&)> f) {
 			if (starting_node != nullptr) {
 				postorder_traverse(starting_node->left_child, f);
 				postorder_traverse(starting_node->right_child, f);
-				f(starting_node->value);
+				f(starting_node->entry);
 			}
 		}
 
@@ -125,12 +129,12 @@ namespace DSTL {
 
 	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
 	void inorder_print(btree<KeyType, ValueType, ComparisonPredicate>& b) {
-		b.inorder_traverse(b.root, [](ValueType& v) {std::cout << v << ' '; });
+		b.inorder_traverse(b.root, [](std::pair<KeyType, ValueType>& v) {std::cout << v.second << ' '; });
 	}
 
 	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
 	void postorder_print(btree<KeyType, ValueType, ComparisonPredicate>& b) {
-		b.postorder_traverse(b.root, [](ValueType& v) {std::cout << v << ' '; });
+		b.postorder_traverse(b.root, [](std::pair<KeyType, ValueType>& v) {std::cout << v.second << ' '; });
 	}
 }
 
