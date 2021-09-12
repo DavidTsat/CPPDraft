@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main() {
-	DSTL::btree<double> b;
+	DSTL::btree<double, double, std::greater<double>> b;
 
 	b.insert(15);
 	b.insert(6);
@@ -23,8 +23,10 @@ int main() {
 
 	DSTL::btree<double> b2({ 6,1,5,15,18,45,0 });
 	std::cout << std::endl;
+/*
 	inorder_print(b2);
 
 	DSTL::btree<int> bi;
+	*/
 	return 0;
 }

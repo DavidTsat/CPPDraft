@@ -12,18 +12,19 @@ namespace DSTL {
 	/*
 	forward declaration
 	*/
-	template <typename T>
+	template <typename ValueType, typename KeyType = ValueType, typename ComparisonPredicate = std::less<KeyType> >
 	class btree;
 	
-	template<typename T>
-	void inorder_print(btree<T>& b);
+	template <typename ValueType, typename KeyType = ValueType, typename ComparisonPredicate = std::less<KeyType> >
+	void inorder_print(btree<ValueType, KeyType, ComparisonPredicate>& b);
 	
-	template<typename T>
-	void postorder_print(btree<T>& b);
+	template <typename ValueType, typename KeyType = ValueType, typename ComparisonPredicate = std::less<KeyType> >
+	void postorder_print(btree<ValueType, KeyType, ComparisonPredicate>& b);
 
 
-	template <typename T>
+	template <typename ValueType, typename KeyType, typename ComparisonPredicate>
 	class btree {
+		using T = ValueType;
 		struct node {
 			node* parent;
 			node* left_child;
@@ -34,6 +35,7 @@ namespace DSTL {
 				: parent(parent_), left_child(left_child_), right_child(right_child_), value(value_) {}
 		};
 
+		ComparisonPredicate compare = ComparisonPredicate();
 		node* root = nullptr;
 
 		void __postorder___traverse__(node* starting_node, std::function<void(node*)> f) {
@@ -71,13 +73,13 @@ namespace DSTL {
 		}
 
 		T& insert(const T& value_) {
-			btree<T>::node* temp_parent_node = nullptr;
-			btree<T>::node* temp_current_node = root;
+			node* temp_parent_node = nullptr;
+			node* temp_current_node = root;
 
 			while (temp_current_node != nullptr) {
 				temp_parent_node = temp_current_node;
 
-				if (value_ < temp_current_node->value) {
+				if (compare(value_, temp_current_node->value)) {
 					temp_current_node = temp_current_node->left_child;
 				}
 				else {
@@ -85,18 +87,17 @@ namespace DSTL {
 				}
 			}
 
-			btree<T>::node* new_node = new btree<T>::node(temp_parent_node, nullptr, nullptr, value_);
+			node* new_node = new node(temp_parent_node, nullptr, nullptr, value_);
 
 			if (temp_parent_node == nullptr) {
 				root = new_node;
 			}
-			else if (value_ < temp_parent_node->value) {
+			else if (compare(value_, temp_parent_node->value)) {
 				temp_parent_node->left_child = new_node;
 			}
 			else {
 				temp_parent_node->right_child = new_node;
 			}
-
 
 			return new_node->value;
 		}
@@ -122,14 +123,14 @@ namespace DSTL {
 		friend void postorder_print<>(btree&);
 	}; 
 
-	template<typename T>
-	void inorder_print(btree<T>& b) {
-		b.inorder_traverse(b.root, [](T& v) {std::cout << v << ' '; });
+	template <typename ValueType, typename KeyType, typename ComparisonPredicate>
+	void inorder_print(btree<ValueType, KeyType, ComparisonPredicate>& b) {
+		b.inorder_traverse(b.root, [](ValueType& v) {std::cout << v << ' '; });
 	}
 
-	template<typename T>
-	void postorder_print(btree<T>& b) {
-		b.postorder_traverse(b.root, [](T& v) {std::cout << v << ' '; });
+	template <typename ValueType, typename KeyType, typename ComparisonPredicate>
+	void postorder_print(btree<ValueType, KeyType, ComparisonPredicate>& b) {
+		b.postorder_traverse(b.root, [](ValueType& v) {std::cout << v << ' '; });
 	}
 }
 
