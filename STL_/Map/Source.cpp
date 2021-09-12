@@ -18,5 +18,11 @@ int main() {
 	b.insert(3);
 
 	b.inorder_print();
+
+	btree<double> b2({ 6,1,5,15,18,45,0 });
+	std::cout << std::endl;
+	b2.inorder_print();
+
+	btree<int> bi;
 	return 0;
 }

@@ -2,6 +2,10 @@
 
 #include <functional>
 #include <iostream>
+#include <initializer_list>
+#include <vector>
+
+#define DEBUG_MODE
 
 template <typename T>
 class btree {
@@ -9,14 +13,52 @@ class btree {
 		node* parent;
 		node* left_child;
 		node* right_child;
-
 		T value;
 
-		node(node* parent_ = nullptr, node* left_child_ = nullptr, node* right_child_ = nullptr, const T& value_ = T()) : left_child(left_child_), right_child(right_child_), value(value_) {}
+		node(node* parent_ = nullptr, node* left_child_ = nullptr, node* right_child_ = nullptr, const T& value_ = T()) 
+			: parent(parent_), left_child(left_child_), right_child(right_child_), value(value_) {}
 	};
+	
 	node* root = nullptr;
+
+	void __get__nodes__inorder__traverse__(node* starting_node, std::vector<node*>& v) {
+		if (starting_node != nullptr) {
+			__get__nodes__inorder__traverse__(starting_node->left_child, v);
+			v.push_back(starting_node);
+			__get__nodes__inorder__traverse__(starting_node->right_child, v);
+		}
+	}
+
+	void __release__btree__(node* starting_node) {
+		std::vector<node*> nodes;
+		__get__nodes__inorder__traverse__(root, nodes);
+
+#ifdef DEBUG_MODE
+		std::cout << std::endl;
+#endif // DEBUG_MODE
+
+		for (node* current_node : nodes) {
+#ifdef DEBUG_MODE
+			std::cout << "deleting node with value: " << current_node->value; 
+			std::cout << std::endl;
+#endif // DEBUG_MODE
+			delete current_node; 
+		}
+	}
+
+
 public:
-	btree() = default;
+	btree() = default; 
+
+	btree(std::initializer_list<T> values) {
+		for (typename std::initializer_list<T>::const_iterator it = values.begin(); it != values.end(); ++it) {
+			insert(*it);
+		}
+	}
+
+	~btree() {
+		__release__btree__(root);
+	}
 
 	T& insert(const T& value_) {
 		btree<T>::node* temp_parent_node = nullptr;
