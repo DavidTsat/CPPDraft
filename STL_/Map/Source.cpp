@@ -21,12 +21,14 @@ int main() {
 	postorder_print(b);
 
 
-	DSTL::btree<double> b2({ 6,1,5,15,18,45,0 });
+	DSTL::btree<int> b2({ 6,1,5,15,18,45,0 });
 	std::cout << std::endl;
-/*
+
 	inorder_print(b2);
+	std::cout << std::endl;
+	postorder_print(b2);
 
 	DSTL::btree<int> bi;
-	*/
+	
 	return 0;
 }

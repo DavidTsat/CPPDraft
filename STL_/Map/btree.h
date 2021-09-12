@@ -12,17 +12,17 @@ namespace DSTL {
 	/*
 	forward declaration
 	*/
-	template <typename ValueType, typename KeyType = ValueType, typename ComparisonPredicate = std::less<KeyType> >
+	template <typename KeyType, typename ValueType=KeyType, typename ComparisonPredicate = std::less<KeyType> >
 	class btree;
 	
-	template <typename ValueType, typename KeyType = ValueType, typename ComparisonPredicate = std::less<KeyType> >
-	void inorder_print(btree<ValueType, KeyType, ComparisonPredicate>& b);
+	template <typename KeyType, typename ValueType = KeyType, typename ComparisonPredicate = std::less<KeyType> >
+	void inorder_print(btree<KeyType, ValueType, ComparisonPredicate>& b);
 	
-	template <typename ValueType, typename KeyType = ValueType, typename ComparisonPredicate = std::less<KeyType> >
-	void postorder_print(btree<ValueType, KeyType, ComparisonPredicate>& b);
+	template <typename KeyType, typename ValueType = KeyType, typename ComparisonPredicate = std::less<KeyType> >
+	void postorder_print(btree<KeyType, ValueType, ComparisonPredicate>& b);
 
 
-	template <typename ValueType, typename KeyType, typename ComparisonPredicate>
+	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
 	class btree {
 		using T = ValueType;
 		struct node {
@@ -123,13 +123,13 @@ namespace DSTL {
 		friend void postorder_print<>(btree&);
 	}; 
 
-	template <typename ValueType, typename KeyType, typename ComparisonPredicate>
-	void inorder_print(btree<ValueType, KeyType, ComparisonPredicate>& b) {
+	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
+	void inorder_print(btree<KeyType, ValueType, ComparisonPredicate>& b) {
 		b.inorder_traverse(b.root, [](ValueType& v) {std::cout << v << ' '; });
 	}
 
-	template <typename ValueType, typename KeyType, typename ComparisonPredicate>
-	void postorder_print(btree<ValueType, KeyType, ComparisonPredicate>& b) {
+	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
+	void postorder_print(btree<KeyType, ValueType, ComparisonPredicate>& b) {
 		b.postorder_traverse(b.root, [](ValueType& v) {std::cout << v << ' '; });
 	}
 }
