@@ -9,6 +9,9 @@
 
 namespace DSTL {
 
+	/*
+	forward declaration
+	*/
 	template <typename T>
 	class btree;
 	
@@ -42,7 +45,12 @@ namespace DSTL {
 		}
 
 		void __release__btree__(node* starting_node) {
-			__postorder___traverse__(starting_node, [](node* cn) {std::cout << "\nDeleting node with value: " << cn->value; delete cn; });
+			__postorder___traverse__(starting_node, [](node* cn) {
+#ifdef DEBUG_MODE
+				std::cout << "\nDeleting node with value: " << cn->value; 
+#endif // DEBUG_MODE
+				delete cn; 
+				});
 #ifdef DEBUG_MODE
 			std::cout << std::endl;
 #endif // DEBUG_MODE
@@ -124,4 +132,5 @@ namespace DSTL {
 		b.postorder_traverse(b.root, [](T& v) {std::cout << v << ' '; });
 	}
 }
+
 //#include "btree.cpp"
