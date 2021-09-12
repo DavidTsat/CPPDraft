@@ -139,12 +139,12 @@ namespace DSTL {
 
 	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
 	void inorder_print(btree<KeyType, ValueType, ComparisonPredicate>& b) {
-		b.inorder_traverse(b.root, [](std::pair<KeyType, ValueType>& v) {std::cout << v.second << ' '; });
+		b.inorder_traverse(b.root, [](std::pair<KeyType, ValueType>& v) {std::cout << v.first << ':' << v.second << ' '; });
 	}
 
 	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
 	void postorder_print(btree<KeyType, ValueType, ComparisonPredicate>& b) {
-		b.postorder_traverse(b.root, [](std::pair<KeyType, ValueType>& v) {std::cout << v.second << ' '; });
+		b.postorder_traverse(b.root, [](std::pair<KeyType, ValueType>& v) {std::cout << v.first << ':' << v.second << ' '; });
 	}
 }
 

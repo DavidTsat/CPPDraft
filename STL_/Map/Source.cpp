@@ -28,7 +28,10 @@ int main() {
 	std::cout << std::endl;
 	postorder_print(b2);
 
-	DSTL::btree<int, int> bi;
-	
+	std::cout << std::endl;
+	DSTL::btree<std::string, int> bs({ {"David", 7}, {"Armen", 0}, {"Yuri", 4}, {"Narek", 5}, {"Sergey", 8} });
+	inorder_print(bs);
+	std::cout << std::endl;
+	postorder_print(bs);
 	return 0;
 }
