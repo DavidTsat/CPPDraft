@@ -20,14 +20,22 @@ int main() {
 	std::cout << std::endl;
 	postorder_print(b);
 
-	
+	b.delete_entry(18);
+
+	std::cout << std::endl;
+	std::cout << std::endl;
+	inorder_print(b);
+	std::cout << std::endl;
+	postorder_print(b);
+
+	/*
 	DSTL::btree<int, int> b2({6, 1, 5, 15, 18, 45, 0});
 	std::cout << std::endl;
 
 	inorder_print(b2);
 	std::cout << std::endl;
 	postorder_print(b2);
-
+	*/
 
 	return 0;
 }

@@ -44,9 +44,11 @@ namespace DSTL {
 		node* root = nullptr;
 
 		void __postorder___traverse__(node*, std::function<void(node*)>);
-		std::pair<K, V>& __search__(node*, const K&);
+		node* __search__(node*, const K&);
 		void __release__btree__(node*);
-
+		node* __minimum__(node*);
+		void __transplant__(node*, node*);
+		void __delete_entry__(node*);
 	public:
 		btree() = default;
 
@@ -57,6 +59,7 @@ namespace DSTL {
 
 		std::pair<K, V>& insert(const V&);
 		std::pair<K, V>& insert(const std::pair<K, V>&);
+		void delete_entry(const K&);
 		void inorder_traverse(node* starting_node, std::function<void(std::pair<K, V>&)>);
 		void postorder_traverse(node* starting_node, std::function<void(std::pair<K, V>&)>);
 		std::pair<K, V>& operator[](const K&);
@@ -76,9 +79,9 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
-	std::pair<K, V>& btree<K, V, C>::__search__(btree<K,V,C>::node* starting_node, const K& key) noexcept(false) {
+	typename btree<K, V, C>::node* btree<K, V, C>::__search__(btree<K,V,C>::node* starting_node, const K& key) noexcept(false) {
 		if (starting_node == nullptr || key == starting_node->entry.first) {
-			return starting_node == nullptr ? throw (empty_btree_exception()) : starting_node->entry;
+			return starting_node == nullptr ? throw (key_not_found_exception()) : starting_node;
 		}
 		if (compare(key, starting_node->entry.first)) {
 			return __search__(starting_node->left_child, key);
@@ -99,6 +102,56 @@ namespace DSTL {
 #ifdef DEBUG_MODE
 		std::cout << std::endl;
 #endif // DEBUG_MODE
+	}
+
+
+	template <typename K, typename V, typename C>
+	typename btree<K, V, C>::node* btree<K, V, C>::__minimum__(btree<K, V, C>::node* starting_node) {
+		if (starting_node == nullptr) {
+			return starting_node;
+		}
+		typename btree<K, V, C>::node* min_node = starting_node;
+		while (starting_node->left_child != nullptr) {
+			min_node = starting_node->left_child;
+		}
+		return min_node;
+	}
+
+	template <typename K, typename V, typename C>
+	void btree<K, V, C>::__transplant__(btree<K, V, C>::node* to_remove, btree<K, V, C>::node* to_add) {
+		if (to_remove->parent == nullptr) {
+			root = to_add;
+		}
+		else if (to_remove == to_remove->parent->left_child) {
+			to_remove->parent->left_child = to_add;
+		}
+		else {
+			to_remove->parent->right_child = to_add;
+		}
+		if (to_add != nullptr) {
+			to_add->parent = to_remove->parent;
+		}
+	}
+
+	template <typename K, typename V, typename C>
+	void btree<K, V, C>::__delete_entry__(btree<K, V, C>::node* node_to_delete) {
+		if (node_to_delete->left_child == nullptr) {
+			__transplant__(node_to_delete, node_to_delete->right_child);
+		}
+		else if (node_to_delete->right_child == nullptr) {
+			__transplant__(node_to_delete, node_to_delete->left_child);
+		}
+		else {
+			typename btree<K, V, C>::node* min = __minimum__(node_to_delete->right_child);
+			if (min->parent != node_to_delete) {
+				__transplant__(min, min->right_child);
+				min->right_child = node_to_delete->right_child;
+				node_to_delete->right_child->parent = min;
+			}
+			__transplant__(node_to_delete, min);
+			min->left_child = node_to_delete->left_child;
+			min->left_child->parent = min;
+		}
 	}
 
 	template <typename K, typename V, typename C>
@@ -162,6 +215,15 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
+	void btree<K, V, C>::delete_entry(const K& key) noexcept(false) {
+		typename btree<K, V, C>::node* node_to_delete = __search__(root, key);
+		if (node_to_delete == nullptr) {
+			return;
+		}
+		__delete_entry__(node_to_delete);
+	}
+
+	template <typename K, typename V, typename C>
 	void btree<K, V, C>::inorder_traverse(node* starting_node, std::function<void(std::pair<K, V>&)> f) {
 		if (starting_node != nullptr) {
 			inorder_traverse(starting_node->left_child, f);
@@ -181,7 +243,7 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	std::pair<K, V>& btree<K, V, C>::operator[](const K& key) {
-		return __search__(root, key);
+		return __search__(root, key)->entry;
 	}
 
 

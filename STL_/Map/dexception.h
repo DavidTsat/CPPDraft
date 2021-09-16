@@ -5,10 +5,10 @@
 
 namespace DSTL {
 
-	class empty_btree_exception : public std::exception {
+	class key_not_found_exception : public std::exception {
 		const std::string message;
 	public:
-		empty_btree_exception(const std::string& message_ = "The btree object is empty!") : message(message_) {}
+		key_not_found_exception(const std::string& message_ = "Given key is not present in the btree!") : message(message_) {}
 
 		virtual const char* what() const override {
 			std::cout << message << std::endl;
