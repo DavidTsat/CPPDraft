@@ -5,6 +5,7 @@
 #include <initializer_list>
 #include <vector>
 #include <utility>
+#include "dexception.h"
 
 #define DEBUG_MODE
 
@@ -75,9 +76,9 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
-	std::pair<K, V>& btree<K, V, C>::__search__(btree<K,V,C>::node* starting_node, const K& key) {
+	std::pair<K, V>& btree<K, V, C>::__search__(btree<K,V,C>::node* starting_node, const K& key) noexcept(false) {
 		if (starting_node == nullptr || key == starting_node->entry.first) {
-			return starting_node->entry;
+			return starting_node == nullptr ? throw (empty_btree_exception()) : starting_node->entry;
 		}
 		if (compare(key, starting_node->entry.first)) {
 			return __search__(starting_node->left_child, key);
@@ -125,12 +126,17 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
-	std::pair<K, V>& btree<K, V, C>::insert(const std::pair<K, V>& entry_) {
+	std::pair<K, V>& btree<K, V, C>::insert(const std::pair<K, V>& entry_) noexcept(false) {
 		node* temp_parent_node = nullptr;
 		node* temp_current_node = root;
 
 		while (temp_current_node != nullptr) {
 			temp_parent_node = temp_current_node;
+
+			if (entry_.first == temp_current_node->entry.first) {
+				__release__btree__(root);
+				throw repeated_key_exception();
+			}
 
 			if (compare(entry_.first, temp_current_node->entry.first)) {
 				temp_current_node = temp_current_node->left_child;

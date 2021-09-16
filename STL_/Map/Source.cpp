@@ -28,12 +28,6 @@ int main() {
 	std::cout << std::endl;
 	postorder_print(b2);
 
-	std::cout << std::endl;
-	DSTL::btree<std::string, int> bs({ {"David", 7}, {"Armen", 0}, {"Yuri", 4}, {"Narek", 5}, {"Arman", 9}, {"Hayk", 14}, {"Sergey", 8} });
-	inorder_print(bs);
-	std::cout << std::endl;
-	postorder_print(bs);
 
-	std::cout << std::endl << "SEARCH: " << bs["Narek"].first << " : " << bs["Narek"].second << std::endl;
 	return 0;
 }
