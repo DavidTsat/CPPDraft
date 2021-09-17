@@ -26,6 +26,7 @@ namespace DSTL {
 
 	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
 	class btree {
+
 		using K = KeyType;
 		using V = ValueType;
 
@@ -43,13 +44,19 @@ namespace DSTL {
 		ComparisonPredicate compare = ComparisonPredicate();
 		node* root = nullptr;
 
-		void __postorder___traverse__(node*, std::function<void(node*)>);
-		node* __search__(node*, const K&);
-		void __release__btree__(node*);
-		node* __minimum__(node*);
-		void __transplant__(node*, node*);
-		void __delete_entry__(node*);
 	public:
+		class const_iterator {
+			const node* node_;
+		public:
+			const_iterator(const node* node__) : node_(node__) {}
+			void operator++();
+			void operator--();
+			bool operator!=(const const_iterator&);
+
+			const std::pair<K, V>* operator->() const;
+			operator const node* () const;
+		};
+
 		btree() = default;
 
 		btree(std::initializer_list<std::pair<K, V>>);
@@ -66,6 +73,21 @@ namespace DSTL {
 
 		friend void inorder_print<>(btree&);
 		friend void postorder_print<>(btree&);
+
+		const_iterator begin() const;
+		const_iterator end() const;
+
+	private:
+		void __postorder___traverse__(node*, std::function<void(node*)>);
+		node* __search__(node*, const K&);
+		void __release__btree__(node*);
+		node* __minimum__(const node*);
+		const node* __minimum__(btree::const_iterator) const;
+		node* __maximum__(const node*);
+		const node* __maximum__(btree::const_iterator) const;
+		void __transplant__(node*, node*);
+		void __delete_entry__(node*);
+		node* __successor__(btree::const_iterator) const;
 	}; 
 
 
@@ -106,7 +128,7 @@ namespace DSTL {
 
 
 	template <typename K, typename V, typename C>
-	typename btree<K, V, C>::node* btree<K, V, C>::__minimum__(btree<K, V, C>::node* starting_node) {
+	typename btree<K, V, C>::node* btree<K, V, C>::__minimum__(const btree<K, V, C>::node* starting_node) {
 		if (starting_node == nullptr) {
 			return starting_node;
 		}
@@ -115,6 +137,42 @@ namespace DSTL {
 			min_node = starting_node->left_child;
 		}
 		return min_node;
+	}
+
+	template <typename K, typename V, typename C>
+	const typename btree<K, V, C>::node* btree<K, V, C>::__minimum__(btree<K, V, C>::const_iterator starting_node) const {
+		if (starting_node == nullptr) {
+			return starting_node;
+		}
+		typename btree<K, V, C>::node* min_node = starting_node;
+		while (starting_node->left_child != nullptr) {
+			min_node = starting_node->left_child;
+		}
+		return min_node;
+	}
+
+	template <typename K, typename V, typename C>
+	typename btree<K, V, C>::node* btree<K, V, C>::__maximum__(const btree<K, V, C>::node* starting_node) {
+		if (starting_node == nullptr) {
+			return starting_node;
+		}
+		typename btree<K, V, C>::node* max_node = starting_node;
+		while (starting_node->right_child != nullptr) {
+			max_node = starting_node->right_child;
+		}
+		return max_node;
+	}
+
+	template <typename K, typename V, typename C>
+	const typename btree<K, V, C>::node* btree<K, V, C>::__maximum__(btree<K, V, C>::const_iterator starting_node) const {
+		if (starting_node == nullptr) {
+			return starting_node;
+		}
+		const typename btree<K, V, C>::node* max_node = starting_node;
+		while (max_node->right_child != nullptr) {
+			max_node = max_node->right_child;
+		}
+		return max_node;
 	}
 
 	template <typename K, typename V, typename C>
@@ -142,16 +200,29 @@ namespace DSTL {
 			__transplant__(node_to_delete, node_to_delete->left_child);
 		}
 		else {
-			typename btree<K, V, C>::node* min = __minimum__(node_to_delete->right_child);
-			if (min->parent != node_to_delete) {
-				__transplant__(min, min->right_child);
-				min->right_child = node_to_delete->right_child;
-				node_to_delete->right_child->parent = min;
+			typename btree<K, V, C>::node* min_node = __minimum__(node_to_delete->right_child);
+			if (min_node->parent != node_to_delete) {
+				__transplant__(min_node, min_node->right_child);
+				min_node->right_child = node_to_delete->right_child;
+				node_to_delete->right_child->parent = min_node;
 			}
-			__transplant__(node_to_delete, min);
-			min->left_child = node_to_delete->left_child;
-			min->left_child->parent = min;
+			__transplant__(node_to_delete, min_node);
+			min_node->left_child = node_to_delete->left_child;
+			min_node->left_child->parent = min_node;
 		}
+	}
+
+	template <typename K, typename V, typename C>
+	typename btree<K, V, C>::node* btree<K, V, C>::__successor__(btree<K, V, C>::const_iterator starting_node) const {
+		if (starting_node->right_child == nullptr) {
+			return __minimum__(starting_node->right_child);
+		}
+		typename btree<K, V, C>::node* parent_node = starting_node->parent;
+		while (parent_node != nullptr && starting_node == parent_node->right_child) {
+			starting_node = parent_node;
+			parent_node = parent_node->parent;
+		}
+		return parent_node;
 	}
 
 	template <typename K, typename V, typename C>
@@ -257,4 +328,64 @@ namespace DSTL {
 		b.postorder_traverse(b.root, [](std::pair<K,V>& v) {std::cout << v.first << ':' << v.second << ' '; });
 	}
 
+	template <typename K, typename V, typename C>
+	typename btree<K, V, C>::const_iterator btree<K, V, C>::begin() const {
+		if (root == nullptr) {
+			return root;
+		}
+		const typename btree<K, V, C>::node* min_node = root;
+		while (min_node->left_child != nullptr) {
+			min_node = min_node->left_child;
+		}
+		return min_node;
+	}
+	
+	template <typename K, typename V, typename C>
+	typename btree<K, V, C>::const_iterator btree<K, V, C>::end() const {
+		const typename btree<K, V, C>::node* max_node = __maximum__(root);
+		return max_node->left_child;
+	}
+
+	template <typename K, typename V, typename C>
+	void btree<K, V, C>::const_iterator::operator++() {
+		if (node_ == nullptr) {
+			return;
+		}
+
+		if (node_->right_child != nullptr) {
+			const typename btree<K, V, C>::node* right_subtree = node_->right_child;
+			while (right_subtree->left_child != nullptr) {
+				right_subtree = right_subtree->left_child;
+			}
+			node_ = right_subtree;
+			return;
+		}
+		typename btree<K, V, C>::node* parent_node = node_->parent;
+		while (parent_node != nullptr && node_ == parent_node->right_child) {
+			node_ = parent_node;
+			parent_node = parent_node->parent;
+		}
+
+		node_ =  parent_node;
+	}
+
+	template <typename K, typename V, typename C>
+	void btree<K, V, C>::const_iterator::operator--() {
+	// TODO
+	}
+
+	template <typename K, typename V, typename C>
+	bool btree<K, V, C>::const_iterator::operator!=(const const_iterator& rhs) {
+		return node_ != rhs.node_;
+	}
+
+	template <typename K, typename V, typename C>
+	const std::pair<K, V>* btree<K, V, C>::const_iterator::operator->() const {
+		return &node_->entry;
+	}
+
+	template <typename K, typename V, typename C>
+	btree<K, V, C>::const_iterator::operator typename const btree<K, V, C>::node* () const {
+		return node_;
+	}
 }
