@@ -222,6 +222,7 @@ namespace DSTL {
 			min_node->left_child = node_to_delete->left_child;
 			min_node->left_child->parent = min_node;
 		}
+		delete node_to_delete;
 	}
 
 	template <typename K, typename V, typename C>
