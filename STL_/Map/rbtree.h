@@ -45,10 +45,10 @@ namespace DSTL {
 		class iterator {
 			friend class const_iterator;
 			node* node_;
-
+			const node* nil_;
 		public:
 
-			iterator(node* node__) : node_(node__) {}
+			iterator(node* node__, const node* nil__) : node_(node__), nil_(nil__) {}
 			void operator++();
 			void operator--();
 			bool operator!=(const iterator&);
@@ -59,9 +59,10 @@ namespace DSTL {
 
 		class const_iterator {
 			const node* node_;
+			const node* nil_;
 		public:
-			const_iterator(iterator it_) : node_(it_.node_) {}
-			const_iterator(const node* node__) : node_(node__) {}
+			const_iterator(iterator it_) : node_(it_.node_), nil_(it_.nil_) {}
+			const_iterator(const node* node__, const node* nil__) : node_(node__), nil_(nil__) {}
 			void operator++();
 			void operator--();
 			bool operator!=(const const_iterator&) const;
@@ -104,10 +105,10 @@ namespace DSTL {
 		void __release__rbtree__(node*);
 		void __transplant__(node*, node*);
 
-		rbtree::iterator __minimum__(rbtree::iterator);
-		rbtree::const_iterator __minimum__(rbtree::const_iterator) const;
-		rbtree::iterator __maximum__(rbtree::iterator);
-		rbtree::const_iterator __maximum__(rbtree::const_iterator) const;
+		node* __minimum__(node*);
+		const node* __minimum__(const node*) const;
+		node* __maximum__(node*);
+		const node* __maximum__(const node*) const;
 		
 	};
 
@@ -299,14 +300,14 @@ namespace DSTL {
 	////////////////////////////////////
 	template <typename K, typename V, typename C>
 	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::begin() const {
-		if (root == nullptr) {
-			return root;
+		if (root == nil) {
+			return nullptr;
 		}
 		const typename rbtree<K, V, C>::node* min_node = root;
-		while (min_node->left_child != nullptr) {
+		while (min_node->left_child != nil) {
 			min_node = min_node->left_child;
 		}
-		return min_node;
+		return { min_node, nil };
 	}
 
 	template <typename K, typename V, typename C>
@@ -317,38 +318,38 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	typename rbtree<K, V, C>::iterator rbtree<K, V, C>::begin() {
-		if (root == nullptr) {
-			return root;
+		if (root == nil) {
+			return { root, nil };
 		}
 		typename rbtree<K, V, C>::node* min_node = root;
-		while (min_node->left_child != nullptr) {
+		while (min_node->left_child != nil) {
 			min_node = min_node->left_child;
 		}
-		return min_node;
+		return { min_node, nil };
 	}
 
 	template <typename K, typename V, typename C>
 	typename rbtree<K, V, C>::iterator rbtree<K, V, C>::end() {
 		typename rbtree<K, V, C>::node* max_node = __maximum__(root);
-		return max_node->left_child;
+		return { max_node->left_child, nil };
 	}
 
 	template <typename K, typename V, typename C>
 	void rbtree<K, V, C>::const_iterator::operator++() {
-		if (node_ == nullptr) {
+		if (node_ == nil_) {
 			return;
 		}
 
-		if (node_->right_child != nullptr) {
+		if (node_->right_child != nil_) {
 			const typename rbtree<K, V, C>::node* right_subtree = node_->right_child;
-			while (right_subtree->left_child != nullptr) {
+			while (right_subtree->left_child != nil_) {
 				right_subtree = right_subtree->left_child;
 			}
 			node_ = right_subtree;
 			return;
 		}
 		const typename rbtree<K, V, C>::node* parent_node = node_->parent;
-		while (parent_node != nullptr && node_ == parent_node->right_child) {
+		while (parent_node != nil_ && node_ == parent_node->right_child) {
 			node_ = parent_node;
 			parent_node = parent_node->parent;
 		}
@@ -383,20 +384,20 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	void rbtree<K, V, C>::iterator::operator++() {
-		if (node_ == nullptr) {
+		if (node_ == nil_) {
 			return;
 		}
 
-		if (node_->right_child != nullptr) {
+		if (node_->right_child != nil_) {
 			typename rbtree<K, V, C>::node* right_subtree = node_->right_child;
-			while (right_subtree->left_child != nullptr) {
+			while (right_subtree->left_child != nil_) {
 				right_subtree = right_subtree->left_child;
 			}
 			node_ = right_subtree;
 			return;
 		}
 		typename rbtree<K, V, C>::node* parent_node = node_->parent;
-		while (parent_node != nullptr && node_ == parent_node->right_child) {
+		while (parent_node != nil_ && node_ == parent_node->right_child) {
 			node_ = parent_node;
 			parent_node = parent_node->parent;
 		}
@@ -429,4 +430,54 @@ namespace DSTL {
 		return node_;
 	}
 
+	template <typename K, typename V, typename C>
+	typename rbtree<K, V, C>::node* rbtree<K, V, C>::__minimum__(rbtree<K, V, C>::node* starting_node) {
+		typename rbtree<K, V, C>::node* min_node = starting_node;
+
+		if (min_node == nil) {
+			return min_node;
+		}
+		while (min_node->left_child != nil) {
+			min_node = min_node->left_child;
+		}
+		return min_node;
+	}
+
+	template <typename K, typename V, typename C>
+	const typename rbtree<K, V, C>::node* rbtree<K, V, C>::__minimum__(const rbtree<K, V, C>::node* starting_node) const {
+		const typename rbtree<K, V, C>::node* min_node = starting_node;
+
+		if (min_node == nil) {
+			return min_node;
+		}
+		while (min_node->left_child != nil) {
+			min_node = min_node->left_child;
+		}
+		return min_node;
+	}
+
+	template <typename K, typename V, typename C>
+	typename rbtree<K, V, C>::node* rbtree<K, V, C>::__maximum__(rbtree<K, V, C>::node* starting_node) {
+		typename rbtree<K, V, C>::node* max_node = starting_node;
+		if (max_node == nil) {
+			return max_node;
+		}
+		while (max_node->right_child != nil) {
+			max_node = max_node->right_child;
+		}
+		return max_node;
+	}
+
+	template <typename K, typename V, typename C>
+	const typename rbtree<K, V, C>::node* rbtree<K, V, C>::__maximum__(const rbtree<K, V, C>::node* starting_node) const {
+		const typename rbtree<K, V, C>::node* max_node = starting_node;
+
+		if (max_node == nil) {
+			return max_node;
+		}
+		while (max_node->right_child != nil) {
+			max_node = max_node->right_child;
+		}
+		return max_node;
+	}
 }
