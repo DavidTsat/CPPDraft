@@ -7,7 +7,7 @@
 #include <utility>
 #include "dexception.h"
 
-//#define DEBUG_MODE
+#define DEBUG_MODE
 
 namespace DSTL {
 
@@ -270,12 +270,163 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
+	void rbtree<K, V, C>::inorder_traverse(node* starting_node, std::function<void(std::pair<const K, V>&)> f) {
+		if (starting_node != nullptr) {
+			inorder_traverse(starting_node->left_child, f);
+			f(starting_node->entry);
+			inorder_traverse(starting_node->right_child, f);
+		}
+	}
+
+	template <typename K, typename V, typename C>
+	void rbtree<K, V, C>::postorder_traverse(node* starting_node, std::function<void(std::pair<const K, V>&)> f) {
+		if (starting_node != nullptr) {
+			postorder_traverse(starting_node->left_child, f);
+			postorder_traverse(starting_node->right_child, f);
+			f(starting_node->entry);
+		}
+	}
+
+	template <typename K, typename V, typename C>
 	void rbtree<K, V, C>::__postorder___traverse__(rbtree<K, V, C>::node* starting_node, std::function<void(node*)> f) {
 		if (starting_node != nil) {
 			__postorder___traverse__(starting_node->left_child, f);
 			__postorder___traverse__(starting_node->right_child, f);
 			f(starting_node);
 		}
+	}
+
+	////////////////////////////////////
+	template <typename K, typename V, typename C>
+	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::begin() const {
+		if (root == nullptr) {
+			return root;
+		}
+		const typename rbtree<K, V, C>::node* min_node = root;
+		while (min_node->left_child != nullptr) {
+			min_node = min_node->left_child;
+		}
+		return min_node;
+	}
+
+	template <typename K, typename V, typename C>
+	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::end() const {
+		const typename rbtree<K, V, C>::node* max_node = __maximum__(root);
+		return max_node->left_child;
+	}
+
+	template <typename K, typename V, typename C>
+	typename rbtree<K, V, C>::iterator rbtree<K, V, C>::begin() {
+		if (root == nullptr) {
+			return root;
+		}
+		typename rbtree<K, V, C>::node* min_node = root;
+		while (min_node->left_child != nullptr) {
+			min_node = min_node->left_child;
+		}
+		return min_node;
+	}
+
+	template <typename K, typename V, typename C>
+	typename rbtree<K, V, C>::iterator rbtree<K, V, C>::end() {
+		typename rbtree<K, V, C>::node* max_node = __maximum__(root);
+		return max_node->left_child;
+	}
+
+	template <typename K, typename V, typename C>
+	void rbtree<K, V, C>::const_iterator::operator++() {
+		if (node_ == nullptr) {
+			return;
+		}
+
+		if (node_->right_child != nullptr) {
+			const typename rbtree<K, V, C>::node* right_subtree = node_->right_child;
+			while (right_subtree->left_child != nullptr) {
+				right_subtree = right_subtree->left_child;
+			}
+			node_ = right_subtree;
+			return;
+		}
+		const typename rbtree<K, V, C>::node* parent_node = node_->parent;
+		while (parent_node != nullptr && node_ == parent_node->right_child) {
+			node_ = parent_node;
+			parent_node = parent_node->parent;
+		}
+
+		node_ = parent_node;
+	}
+
+	template <typename K, typename V, typename C>
+	void rbtree<K, V, C>::const_iterator::operator--() {
+		// TODO
+	}
+
+	template <typename K, typename V, typename C>
+	bool rbtree<K, V, C>::const_iterator::operator!=(const const_iterator& rhs) const {
+		return node_ != rhs.node_;
+	}
+
+	template <typename K, typename V, typename C>
+	const std::pair<const K, V>* rbtree<K, V, C>::const_iterator::operator->() const {
+		return &node_->entry;
+	}
+
+	template <typename K, typename V, typename C>
+	const  std::pair<const K, V>& rbtree<K, V, C>::const_iterator::operator*() const {
+		return node_->entry;
+	}
+
+	template <typename K, typename V, typename C>
+	rbtree<K, V, C>::const_iterator::operator typename const rbtree<K, V, C>::node* () const {
+		return node_;
+	}
+
+	template <typename K, typename V, typename C>
+	void rbtree<K, V, C>::iterator::operator++() {
+		if (node_ == nullptr) {
+			return;
+		}
+
+		if (node_->right_child != nullptr) {
+			typename rbtree<K, V, C>::node* right_subtree = node_->right_child;
+			while (right_subtree->left_child != nullptr) {
+				right_subtree = right_subtree->left_child;
+			}
+			node_ = right_subtree;
+			return;
+		}
+		typename rbtree<K, V, C>::node* parent_node = node_->parent;
+		while (parent_node != nullptr && node_ == parent_node->right_child) {
+			node_ = parent_node;
+			parent_node = parent_node->parent;
+		}
+
+		node_ = parent_node;
+	}
+
+	template <typename K, typename V, typename C>
+	void rbtree<K, V, C>::iterator::operator--() {
+		// TODO
+	}
+
+	template <typename K, typename V, typename C>
+	bool rbtree<K, V, C>::iterator::operator!=(const iterator& rhs) {
+		return node_ != rhs.node_;
+	}
+
+	template <typename K, typename V, typename C>
+	std::pair<const K, V>* rbtree<K, V, C>::iterator::operator->() {
+		return &node_->entry;
+	}
+
+	template <typename K, typename V, typename C>
+	std::pair<const K, V>& rbtree<K, V, C>::iterator::operator*() {
+		return node_->entry;
+	}
+
+	template <typename K, typename V, typename C>
+	rbtree<K, V, C>::iterator::operator typename rbtree<K, V, C>::node* () {
+		return node_;
 	}
 
 }

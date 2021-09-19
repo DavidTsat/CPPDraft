@@ -13,9 +13,19 @@ void postorder_print(DSTL::btree<K, V, C>& b) {
 	b.postorder_traverse(b.begin(), [](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
 }
 
+template <typename K, typename V, typename C>
+void inorder_print(DSTL::rbtree<K, V, C>& b) {
+	b.inorder_traverse(b.begin(), [](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
+}
+
+template <typename K, typename V, typename C>
+void postorder_print(DSTL::rbtree<K, V, C>& b) {
+	b.postorder_traverse(b.begin(), [](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
+}
+
 int main() {
 
-	DSTL::rbtree<double, double, std::less<double>> b;
+	DSTL::btree<double, double, std::less<double>> b;
 	//b.insert(std::make_pair(15, 14));
 	b.insert(15);
 	b.insert(6);
@@ -28,6 +38,10 @@ int main() {
 	b.insert(7);
 	b.insert(2);
 	b.insert(3);
+
+	postorder_print(b);
+	std::cout << std::endl;
+	//postorder_print(b);
 	/*
 	DSTL::btree<double, double, std::less<double>> b;
 
