@@ -35,5 +35,8 @@
     <ClInclude Include="dexception.h">
       <Filter>Header Files\dexceptions</Filter>
     </ClInclude>
+    <ClInclude Include="rbtree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

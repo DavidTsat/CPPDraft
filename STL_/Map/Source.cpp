@@ -1,4 +1,5 @@
 #include "btree.h"
+#include "rbtree.h"
 #include <iostream>
 #include <map>
 
@@ -13,6 +14,21 @@ void postorder_print(DSTL::btree<K, V, C>& b) {
 }
 
 int main() {
+
+	DSTL::rbtree<double, double, std::less<double>> b;
+	//b.insert(std::make_pair(15, 14));
+	b.insert(15);
+	b.insert(6);
+	b.insert(18);
+	b.insert(13);
+	b.insert(9);
+	b.insert(17);
+	b.insert(20);
+	b.insert(4);
+	b.insert(7);
+	b.insert(2);
+	b.insert(3);
+	/*
 	DSTL::btree<double, double, std::less<double>> b;
 
 	b.insert(15);
@@ -72,6 +88,6 @@ int main() {
 	std::cout << std::endl;
 	postorder_print(b2);
 	*/
-
+	
 	return 0;
 }
