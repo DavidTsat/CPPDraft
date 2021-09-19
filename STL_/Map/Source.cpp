@@ -5,27 +5,27 @@
 
 template <typename K, typename V, typename C>
 void inorder_print(DSTL::btree<K, V, C>& b) {
-	b.inorder_traverse(b.begin(), [](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
+	b.inorder_traverse([](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
 }
 
 template <typename K, typename V, typename C>
 void postorder_print(DSTL::btree<K, V, C>& b) {
-	b.postorder_traverse(b.begin(), [](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
+	b.postorder_traverse([](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
 }
 
 template <typename K, typename V, typename C>
 void inorder_print(DSTL::rbtree<K, V, C>& b) {
-	b.inorder_traverse(b.begin(), [](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
+	b.inorder_traverse([](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
 }
 
 template <typename K, typename V, typename C>
 void postorder_print(DSTL::rbtree<K, V, C>& b) {
-	b.postorder_traverse(b.begin(), [](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
+	b.postorder_traverse([](std::pair<const K, V>& v) {std::cout << v.first << ':' << v.second << ' '; });
 }
 
 int main() {
-
-	DSTL::rbtree<double, double, std::less<double>> b;
+	
+	DSTL::btree<double, double, std::less<double>> b;
 	//b.insert(std::make_pair(15, 14));
 	b.insert(15);
 	b.insert(6);
@@ -39,12 +39,17 @@ int main() {
 	b.insert(2);
 	b.insert(3);
 
-	//postorder_print(b);
-	//std::cout << std::endl;
+	postorder_print(b);
+	std::cout << std::endl;
+	inorder_print(b);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << std::endl;
 
-	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b.begin(); it != b.end(); ++it) {
+	for (DSTL::btree<double, double, std::less<double>>::const_iterator it = b.begin(); it != b.end(); ++it) {
 		std::cout << it->first << ":" << it->second << ' ';
 	}
+	
 	//postorder_print(b);
 	/*
 	DSTL::btree<double, double, std::less<double>> b;
