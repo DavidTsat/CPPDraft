@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include "btree.h"
-
+#include "rbtree.h"
 
 std::vector<std::pair<int, int>> get_random_pairs(int sz = 1000) {
 	std::vector<std::pair<int, int>> random_pairs;
@@ -22,6 +22,8 @@ std::vector<std::pair<int, int>> get_random_pairs(int sz = 1000) {
 	}
 	return random_pairs;
 }
+
+
 
 // throw exception if same key is given twice
 BOOST_AUTO_TEST_CASE(myTestCase1)
@@ -151,5 +153,107 @@ BOOST_AUTO_TEST_CASE(myTestCase6)
 	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itbb != bdstl.end(); ++its, ++itbb) {
 		BOOST_CHECK(itbb->first == its->first);
 		BOOST_CHECK(itbb->second == its->second);
-	}	
+	}
+}
+
+/*
+rbtree tests
+*/
+
+// throw exception if same key is given twice
+BOOST_AUTO_TEST_CASE(myTestCase7)
+{
+	try {
+		DSTL::rbtree<std::string, int> b({ {"David", 7}, {"Armen", 0}, {"Yuri", 4}, {"Narek", 5}, {"Arman", 9}, {"Hayk", 14}, {"Sergey", 8},  { "Arman", 99 } });
+		BOOST_CHECK(false);
+	}
+	catch (const DSTL::repeated_key_exception& e) {
+		e.what();
+		BOOST_CHECK(true);
+	}
+}
+
+
+// checking key_not_found_exception exception
+BOOST_AUTO_TEST_CASE(myTestCase8)
+{
+	DSTL::rbtree<int, int> b;
+	try {
+		b.insert(4);
+		b.insert(7);
+		auto c = b[5];
+		BOOST_CHECK(false);
+	}
+	catch (const DSTL::key_not_found_exception& e) {
+		e.what();
+		BOOST_CHECK(true);
+	}
+}
+
+
+// checking subscript operator
+BOOST_AUTO_TEST_CASE(myTestCase9)
+{
+	try {
+		DSTL::rbtree<std::string, int> b({ {"David", 7}, {"Armen", 0}, {"Yuri", 4}, {"Narek", 5}, {"Arman", 9}, {"Hayk", 14}, {"Sergey", 8} });
+		std::pair<std::string, int> p = b["David"];
+		BOOST_CHECK(p.second == 7);
+	}
+	catch (const DSTL::repeated_key_exception& e) {
+		e.what();
+		BOOST_CHECK(false);
+	}
+}
+
+
+// test forward iterator
+BOOST_AUTO_TEST_CASE(myTestCase10)
+{
+	DSTL::rbtree<int, int> bdstl;
+	std::map<int, int> bstd;
+	std::vector<std::pair<int, int>> random_pairs = get_random_pairs();
+
+	for (const std::pair<int, int>& p : random_pairs) {
+		bdstl.insert(p);
+		bstd.insert(p);
+	}
+
+	DSTL::rbtree<int, int>::const_iterator itb = bdstl.begin();
+	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itb != bdstl.end(); ++its, ++itb) {
+		BOOST_CHECK(itb->first == its->first);
+		BOOST_CHECK(itb->second == its->second);
+		//	std::cout << itb->first << ' ' << itb->first << ' ' << its->second << ' ' << itb->second;
+		//	std::cout << std::endl;
+	}
+}
+
+// test changing value with iterator
+BOOST_AUTO_TEST_CASE(myTestCase11)
+{
+	int i = 0;
+	DSTL::rbtree<int, int> bdstl;
+	std::map<int, int> bstd;
+	boost::random::mt19937 rng;
+
+	const std::vector<std::pair<int, int>> random_pairs = get_random_pairs();
+	boost::random::uniform_int_distribution<> rand_dist(1, 1000);
+
+	for (const std::pair<int, int>& p : random_pairs) {
+		bdstl.insert(p);
+		bstd.insert(p);
+	}
+
+	DSTL::rbtree<int, int>::iterator itb = bdstl.begin();
+	for (std::map<int, int>::iterator its = bstd.begin(); ++i != 100; ++its, ++itb) {
+		int rv = rand_dist(rng);
+
+		itb->second = rv;
+		its->second = rv;
+	}
+
+	DSTL::rbtree<int, int>::const_iterator itbb = bdstl.begin();
+	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itbb != bdstl.end(); ++its, ++itbb) {
+		BOOST_CHECK(itbb->first == its->first);
+		BOOST_CHECK(itbb->second == its->second);
+	}
 }

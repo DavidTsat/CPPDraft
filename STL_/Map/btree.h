@@ -7,7 +7,7 @@
 #include <utility>
 #include "dexception.h"
 
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 namespace DSTL {
 

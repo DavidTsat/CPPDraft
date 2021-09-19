@@ -7,7 +7,7 @@
 #include <utility>
 #include "dexception.h"
 
-#define DEBUG_MODE
+//#define DEBUG_MODE
 
 namespace DSTL {
 
@@ -119,20 +119,27 @@ namespace DSTL {
 	std::pair<const K, V>& rbtree<K, V, C>::insert(const std::pair<const K, V>& entry_) noexcept(false) {
 		node* y = nil;
 		node* x = root;
-		node* z = new node(nullptr, nil, nil, entry_, node::Color::red);
+	
 		while (x != nil) {
 			y = x;
-			if (z->entry.first < x->entry.first) {
+
+			if (entry_.first == x->entry.first) {
+			//	__release__rbtree__(root); TODO
+				throw repeated_key_exception();
+			}
+
+			if (compare(entry_.first, x->entry.first)) {
 				x = x->left_child;
 			}
 			else {
 				x = x->right_child;
 			}
+
 		}
+		node* z = new node(nullptr, nil, nil, entry_, node::Color::red);
 		z->parent = y;
 		if (y == nil) {
 			root = z; // tree is empty
-		//	root->color = node::Color::black;
 		}
 		else if (z->entry.first < y->entry.first) {
 			y->left_child = z;
@@ -141,11 +148,6 @@ namespace DSTL {
 			y->right_child = z;
 		}
 
-		/*
-		if (z->parent->parent == nil) {
-			return z->entry;
-		}
-		*/
 		__insert_fixup__(z);
 		return z->entry;
 	}
@@ -236,14 +238,14 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
-	rbtree<K, V, C>::rbtree(std::initializer_list<std::pair<const K, V>> entries) {
+	rbtree<K, V, C>::rbtree(std::initializer_list<std::pair<const K, V>> entries) : rbtree() {
 		for (typename std::initializer_list<std::pair<const K, V>>::const_iterator it = entries.begin(); it != entries.end(); ++it) {
 			insert(*it);
 		}
 	}
 
 	template <typename K, typename V, typename C>
-	rbtree<K, V, C>::rbtree(std::initializer_list<V> values) {
+	rbtree<K, V, C>::rbtree(std::initializer_list<V> values) : rbtree() {
 		for (typename std::initializer_list<V>::const_iterator it = values.begin(); it != values.end(); ++it) {
 			insert(std::make_pair(*it, *it));
 		}
@@ -252,7 +254,6 @@ namespace DSTL {
 	template <typename K, typename V, typename C>
 	rbtree<K, V, C>::~rbtree() {
 		__release__rbtree__(root);
-		delete nil;
 	}
 
 	template <typename K, typename V, typename C>
@@ -271,6 +272,7 @@ namespace DSTL {
 #ifdef DEBUG_MODE
 		std::cout << std::endl;
 #endif // DEBUG_MODE
+		delete nil;
 	}
 
 	template <typename K, typename V, typename C>
@@ -310,6 +312,23 @@ namespace DSTL {
 		}
 	}
 
+	template <typename K, typename V, typename C>
+	typename rbtree<K, V, C>::node* rbtree<K, V, C>::__search__(rbtree<K, V, C>::node* starting_node, const K& key) noexcept(false) {
+		if (starting_node == nullptr || key == starting_node->entry.first) {
+			return starting_node == nullptr ? throw (key_not_found_exception()) : starting_node;
+		}
+		if (compare(key, starting_node->entry.first)) {
+			return __search__(starting_node->left_child, key);
+		}
+		else {
+			return __search__(starting_node->right_child, key);
+		}
+	}
+
+	template <typename K, typename V, typename C>
+	std::pair<const K, V>& rbtree<K, V, C>::operator[](const K& key) {
+		return __search__(root, key)->entry;
+	}
 
 	template <typename K, typename V, typename C>
 	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::begin() const {
