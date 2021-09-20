@@ -11,7 +11,7 @@ std::vector<std::pair<int, int>> get_random_pairs(int sz = 1000) {
 	std::vector<std::pair<int, int>> random_pairs;
 
 	boost::random::mt19937 rng;
-	boost::random::uniform_int_distribution<> rand_dist(1, 1000);
+	boost::random::uniform_int_distribution<> rand_dist(1, 100000);
 
 	for (int i = 0; i < sz; ++i) {
 		int rk = rand_dist(rng);
@@ -105,6 +105,10 @@ BOOST_AUTO_TEST_CASE(myTestCase5)
 		bstd.insert(p);
 	}
 
+	std::cout << "btree.size: " << bdstl.get_size() << " btree.height: " << bdstl.get_height();
+	std::cout << "std::map.size: " << bstd.size();
+	std::cout << std::endl;
+
 	DSTL::btree<int, int>::iterator itb = bdstl.begin();
 	for (std::map<int, int>::iterator its = bstd.begin(); ++i != 100; ++its, ++itb) {
 		int rv = rand_dist(rng);
@@ -120,7 +124,7 @@ BOOST_AUTO_TEST_CASE(myTestCase5)
 	}
 }
 
-// test changing delete
+// test checking  delete
 BOOST_AUTO_TEST_CASE(myTestCase6)
 {
 	int i = 0;
@@ -206,7 +210,7 @@ BOOST_AUTO_TEST_CASE(myTestCase9)
 }
 
 
-// test forward iterator
+// test forward iterator rbtree
 BOOST_AUTO_TEST_CASE(myTestCase10)
 {
 	DSTL::rbtree<int, int> bdstl;
@@ -256,4 +260,24 @@ BOOST_AUTO_TEST_CASE(myTestCase11)
 		BOOST_CHECK(itbb->first == its->first);
 		BOOST_CHECK(itbb->second == its->second);
 	}
+}
+
+// test compare heights of btree and rbtree
+BOOST_AUTO_TEST_CASE(myTestCase12)
+{
+	DSTL::btree<int, int> btree_;
+	DSTL::rbtree<int, int> rbtree_;
+
+	const std::vector<std::pair<int, int>> random_pairs = get_random_pairs(10000);
+
+	for (const std::pair<int, int>& p : random_pairs) {
+		btree_.insert(p);
+		rbtree_.insert(p);
+	}
+
+	std::cout << "btree size: " << btree_.get_size() << " btree height: " << btree_.get_height() << std::endl;
+	std::cout << "rbtree size: " << rbtree_.get_size() << " rbtree height: " << rbtree_.get_height() << std::endl;
+
+	BOOST_CHECK(btree_.get_size() == rbtree_.get_size());
+	BOOST_CHECK(btree_.get_height() >= rbtree_.get_height());
 }

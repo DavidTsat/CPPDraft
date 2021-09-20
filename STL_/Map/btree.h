@@ -36,7 +36,8 @@ namespace DSTL {
 
 		ComparisonPredicate compare = ComparisonPredicate();
 		node* root = nullptr;
-
+		std::size_t height = 0;
+		std::size_t size = 0;
 	public:
 
 		class iterator {
@@ -79,6 +80,8 @@ namespace DSTL {
 		void delete_entry(const K&);
 		void inorder_traverse(std::function<void(std::pair<const K, V>&)>);
 		void postorder_traverse(std::function<void(std::pair<const K, V>&)>);
+		std::size_t get_height() const;
+		std::size_t get_size() const;
 		std::pair<const K, V>& operator[](const K&);
 
 		const_iterator begin() const;
@@ -272,6 +275,7 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	std::pair<const K, V>& btree<K, V, C>::insert(const std::pair<const K, V>& entry_) noexcept(false) {
+		std::size_t height_counter = 1;
 		node* temp_parent_node = nullptr;
 		node* temp_current_node = root;
 
@@ -289,6 +293,7 @@ namespace DSTL {
 			else {
 				temp_current_node = temp_current_node->right_child;
 			}
+			++height_counter;
 		}
 
 		node* new_node = new node(temp_parent_node, nullptr, nullptr, entry_);
@@ -301,6 +306,11 @@ namespace DSTL {
 		}
 		else {
 			temp_parent_node->right_child = new_node;
+		}
+
+		++size;
+		if (height < height_counter) {
+			height = height_counter;
 		}
 
 		return new_node->entry;
@@ -330,6 +340,15 @@ namespace DSTL {
 		return __search__(root, key)->entry;
 	}
 
+	template <typename K, typename V, typename C>
+	std::size_t btree<K, V, C>::get_height() const {
+		return height;
+	}
+
+	template <typename K, typename V, typename C>
+	std::size_t btree<K, V, C>::get_size() const {
+		return size;
+	}
 
 	template <typename K, typename V, typename C>
 	typename btree<K, V, C>::const_iterator btree<K, V, C>::begin() const {

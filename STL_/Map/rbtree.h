@@ -40,6 +40,8 @@ namespace DSTL {
 		ComparisonPredicate compare = ComparisonPredicate();
 		node* root;
 		node* nil;
+		std::size_t height;
+		std::size_t size;
 	public:
 		
 		class iterator {
@@ -71,7 +73,7 @@ namespace DSTL {
 			operator const node* () const;
 		};
 		
-		rbtree() {
+		rbtree() : height(0), size(0) {
 			nil = new node(nullptr, nullptr, nullptr, std::pair<const K, V>(), node::Color::black);
 			root = nil;
 		}
@@ -88,6 +90,8 @@ namespace DSTL {
 		void inorder_traverse(std::function<void(std::pair<const K, V>&)>);
 		void postorder_traverse(std::function<void(std::pair<const K, V>&)>);
 		std::pair<const K, V>& operator[](const K&);
+		std::size_t get_height() const;
+		std::size_t get_size() const;
 
 		const_iterator begin() const;
 		const_iterator end() const;
@@ -117,6 +121,7 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	std::pair<const K, V>& rbtree<K, V, C>::insert(const std::pair<const K, V>& entry_) noexcept(false) {
+		std::size_t height_counter = 1;
 		node* y = nil;
 		node* x = root;
 	
@@ -134,7 +139,7 @@ namespace DSTL {
 			else {
 				x = x->right_child;
 			}
-
+			++height_counter;
 		}
 		node* z = new node(nullptr, nil, nil, entry_, node::Color::red);
 		z->parent = y;
@@ -149,6 +154,11 @@ namespace DSTL {
 		}
 
 		__insert_fixup__(z);
+
+		++size;
+		if (height < height_counter) {
+			height = height_counter;
+		}
 		return z->entry;
 	}
 	
@@ -511,5 +521,15 @@ namespace DSTL {
 			max_node = max_node->right_child;
 		}
 		return max_node;
+	}
+
+	template <typename K, typename V, typename C>
+	std::size_t rbtree<K, V, C>::get_height() const {
+		return height;
+	}
+
+	template <typename K, typename V, typename C>
+	std::size_t rbtree<K, V, C>::get_size() const {
+		return size;
 	}
 }
