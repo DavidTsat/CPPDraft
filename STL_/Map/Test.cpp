@@ -24,6 +24,40 @@ std::vector<std::pair<int, int>> get_random_pairs(int sz = 1000) {
 	return random_pairs;
 }
 
+
+template <typename It, typename Cmp>
+bool check_if_bst(It i, const It end, Cmp cmp) {
+	while (i != end) {
+		const auto& left_child = i->first;
+		if (++i != end) {
+			const auto& parent = i->first;
+			BOOST_CHECK(cmp(left_child, parent));
+
+			if (++i != end) {
+				const auto& right_child = i->first;
+				BOOST_CHECK(cmp(parent, right_child));
+			}
+		}
+	}
+	return true;
+}
+
+// checking subscript operator
+BOOST_AUTO_TEST_CASE(myTestCase889)
+{
+	try {
+		DSTL::rbtree<std::string, int> b({ {"David", 7}, {"Armen", 0}, {"Yuri", 4}, {"Narek", 5}, {"Arman", 9}, {"Hayk", 14}, {"Sergey", 8} });
+		std::pair<std::string, int> p = b["David"];
+
+		check_if_bst<DSTL::rbtree<std::string, int>::iterator>(b.begin(), b.end(), std::less<std::string>());
+
+		BOOST_CHECK(p.second == 7);
+	}
+	catch (const DSTL::repeated_key_exception& e) {
+		e.what();
+		BOOST_CHECK(false);
+	}
+}
 // throw exception if same key is given twice
 BOOST_AUTO_TEST_CASE(myTestCase1)
 {
@@ -59,6 +93,8 @@ BOOST_AUTO_TEST_CASE(myTestCase3)
 	try {
 		DSTL::btree<std::string, int> b({ {"David", 7}, {"Armen", 0}, {"Yuri", 4}, {"Narek", 5}, {"Arman", 9}, {"Hayk", 14}, {"Sergey", 8}});
 		std::pair<std::string, int> p = b["David"];
+
+
 		BOOST_CHECK(p.second == 7);
 	}
 	catch (const DSTL::repeated_key_exception& e) {
@@ -184,6 +220,7 @@ BOOST_AUTO_TEST_CASE(myTestCase8)
 	try {
 		b.insert(4);
 		b.insert(7);
+		check_if_bst<DSTL::rbtree<int, int>::iterator>(b.begin(), b.end(), std::less<int>());
 		auto c = b[5];
 		BOOST_CHECK(false);
 	}
@@ -200,6 +237,9 @@ BOOST_AUTO_TEST_CASE(myTestCase9)
 	try {
 		DSTL::rbtree<std::string, int> b({ {"David", 7}, {"Armen", 0}, {"Yuri", 4}, {"Narek", 5}, {"Arman", 9}, {"Hayk", 14}, {"Sergey", 8} });
 		std::pair<std::string, int> p = b["David"];
+
+		check_if_bst<DSTL::rbtree<std::string, int>::iterator>(b.begin(), b.end(), std::less<std::string>());
+
 		BOOST_CHECK(p.second == 7);
 	}
 	catch (const DSTL::repeated_key_exception& e) {
@@ -510,6 +550,8 @@ BOOST_AUTO_TEST_CASE(myTestCase20)
 		b1.insert(p);
 	}
 
+	check_if_bst<DSTL::rbtree<int, int>::iterator>(b1.begin(), b1.end(), std::less<int>());
+
 	std::cout << "b1 size: " << b1.get_size() << " b1 height: " << b1.get_height() << std::endl;
 
 	const std::vector<std::pair<int, int>> random_pairs2 = get_random_pairs(10000);
@@ -518,9 +560,9 @@ BOOST_AUTO_TEST_CASE(myTestCase20)
 		b2.insert(p);
 	}
 
-	auto b(b2);
+	check_if_bst<DSTL::rbtree<int, int>::iterator>(b2.begin(), b2.end(), std::less<int>());
 
-	b1 = std::move(b2);
+	auto b(b2);
 
 	auto start_time_copy = std::chrono::high_resolution_clock::now();
 	b1 = b2; // copy
@@ -528,7 +570,7 @@ BOOST_AUTO_TEST_CASE(myTestCase20)
 	auto time_copy = end_time_copy - start_time_copy;
 
 	auto start_time_move = std::chrono::high_resolution_clock::now();
-	b2 = std::move(b); // move
+	b1 = std::move(b); // move
 	auto end_time_move = std::chrono::high_resolution_clock::now();
 	auto time_move = start_time_move - end_time_move;
 

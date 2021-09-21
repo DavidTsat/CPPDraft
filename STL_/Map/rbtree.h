@@ -56,7 +56,7 @@ namespace DSTL {
 		public:
 
 			iterator(node* node__, const node* nil__) : node_(node__), nil_(nil__) {}
-			void operator++();
+			iterator& operator++();
 			void operator--();
 			bool operator!=(const iterator&);
 			std::pair<const K, V>* operator->();
@@ -70,7 +70,7 @@ namespace DSTL {
 		public:
 			const_iterator(iterator it_) : node_(it_.node_), nil_(it_.nil_) {}
 			const_iterator(const node* node__, const node* nil__) : node_(node__), nil_(nil__) {}
-			void operator++();
+			const_iterator& operator++();
 			void operator--();
 			bool operator!=(const const_iterator&) const;
 			const std::pair<const K, V>* operator->() const;
@@ -261,9 +261,16 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	rbtree<K, V, C>::rbtree(const rbtree<K, V, C>& rhs) : rbtree() {
+/*
+		for (const_iterator it = rhs.begin(); it != rhs.end(); ++it) {
+			this->insert(*it);
+		}
+		*/
+		
 		__postorder___traverse__(rhs.root, [this](node* cn) {
 			this->insert(cn->entry);
 			}, rhs.nil);
+			
 	}
 
 	template <typename K, typename V, typename C>
@@ -425,9 +432,9 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
-	void rbtree<K, V, C>::const_iterator::operator++() {
+	typename rbtree<K, V, C>::const_iterator& rbtree<K, V, C>::const_iterator::operator++() {
 		if (node_ == nil_) {
-			return;
+			return *this;
 		}
 
 		if (node_->right_child != nil_) {
@@ -436,7 +443,7 @@ namespace DSTL {
 				right_subtree = right_subtree->left_child;
 			}
 			node_ = right_subtree;
-			return;
+			return *this;
 		}
 		const typename rbtree<K, V, C>::node* parent_node = node_->parent;
 		while (parent_node != nil_ && node_ == parent_node->right_child) {
@@ -445,6 +452,8 @@ namespace DSTL {
 		}
 
 		node_ = parent_node;
+
+		return *this;
 	}
 
 	template <typename K, typename V, typename C>
@@ -473,9 +482,9 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
-	void rbtree<K, V, C>::iterator::operator++() {
+	typename rbtree<K, V, C>::iterator& rbtree<K, V, C>::iterator::operator++() {
 		if (node_ == nil_) {
-			return;
+			return *this;
 		}
 
 		if (node_->right_child != nil_) {
@@ -484,7 +493,7 @@ namespace DSTL {
 				right_subtree = right_subtree->left_child;
 			}
 			node_ = right_subtree;
-			return;
+			return *this;
 		}
 		typename rbtree<K, V, C>::node* parent_node = node_->parent;
 		while (parent_node != nil_ && node_ == parent_node->right_child) {
@@ -493,6 +502,8 @@ namespace DSTL {
 		}
 
 		node_ = parent_node;
+
+		return *this;
 	}
 
 	template <typename K, typename V, typename C>
