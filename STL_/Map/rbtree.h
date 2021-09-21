@@ -5,6 +5,8 @@
 #include <initializer_list>
 #include <vector>
 #include <utility>
+#include <algorithm>
+
 #include "dexception.h"
 
 //#define DEBUG_MODE
@@ -16,6 +18,9 @@ namespace DSTL {
 	*/
 	template <typename KeyType, typename ValueType, typename ComparisonPredicate = std::less<KeyType> >
 	class rbtree;
+
+	template <typename KeyType, typename ValueType, typename ComparisonPredicate = std::less<KeyType> >
+	void swap(rbtree<KeyType, ValueType, ComparisonPredicate>&, rbtree<KeyType, ValueType, ComparisonPredicate>&);
 
 	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
 	class rbtree {
@@ -78,6 +83,9 @@ namespace DSTL {
 			root = nil;
 		}
 		
+		rbtree(const rbtree&);
+		rbtree(rbtree&&);
+
 		rbtree(std::initializer_list<std::pair<const K, V>>);
 		rbtree(std::initializer_list<V>);
 
@@ -99,6 +107,7 @@ namespace DSTL {
 		iterator begin();
 		iterator end();
 
+		friend void swap<>(rbtree&, rbtree&);
 	private:
 		void __insert_fixup__(node*);
 		void __left_rotate__(node*);
@@ -248,6 +257,18 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
+	rbtree<K, V, C>::rbtree(const rbtree<K, V, C>& rhs) : rbtree() {
+		for (const_iterator it = rhs.begin(); it != rhs.end(); ++it) {
+			insert(*it);
+		}
+	}
+
+	template <typename K, typename V, typename C>
+	rbtree<K, V, C>::rbtree(rbtree<K, V, C>&& rhs) : rbtree() {
+		swap(*this, rhs);
+	}
+
+	template <typename K, typename V, typename C>
 	rbtree<K, V, C>::rbtree(std::initializer_list<std::pair<const K, V>> entries) : rbtree() {
 		for (typename std::initializer_list<std::pair<const K, V>>::const_iterator it = entries.begin(); it != entries.end(); ++it) {
 			insert(*it);
@@ -343,7 +364,7 @@ namespace DSTL {
 	template <typename K, typename V, typename C>
 	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::begin() const {
 		if (root == nil) {
-			return nullptr;
+			return { nullptr, nil };
 		}
 		const typename rbtree<K, V, C>::node* min_node = root;
 		while (min_node->left_child != nil) {
@@ -355,7 +376,7 @@ namespace DSTL {
 	template <typename K, typename V, typename C>
 	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::end() const {
 		const typename rbtree<K, V, C>::node* max_node = __maximum__(root);
-		return max_node->left_child;
+		return { max_node->left_child, nil };
 	}
 
 	template <typename K, typename V, typename C>
@@ -374,6 +395,15 @@ namespace DSTL {
 	typename rbtree<K, V, C>::iterator rbtree<K, V, C>::end() {
 		typename rbtree<K, V, C>::node* max_node = __maximum__(root);
 		return { max_node->left_child, nil };
+	}
+
+	template <typename K, typename V, typename C>
+	void swap(rbtree<K, V, C>& l, rbtree<K, V, C>& r) {
+		std::swap(l.root, r.root);
+		std::swap(l.nil, r.nil);
+		std::swap(l.height, r.height);
+		std::swap(l.size, r.size);
+		std::swap(l.compare, r.compare);
 	}
 
 	template <typename K, typename V, typename C>

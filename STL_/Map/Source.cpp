@@ -25,7 +25,7 @@ void postorder_print(DSTL::rbtree<K, V, C>& b) {
 
 int main() {
 	
-	DSTL::btree<double, double, std::less<double>> b;
+	DSTL::rbtree<double, double, std::less<double>> b;
 	//b.insert(std::make_pair(15, 14));
 	b.insert(15);
 	b.insert(6);
@@ -39,6 +39,9 @@ int main() {
 	b.insert(2);
 	b.insert(3);
 
+	DSTL::rbtree<double, double, std::less<double>> b2(b);
+	
+
 	postorder_print(b);
 	std::cout << std::endl;
 	inorder_print(b);
@@ -46,10 +49,42 @@ int main() {
 	std::cout << std::endl;
 	std::cout << std::endl;
 
-	for (DSTL::btree<double, double, std::less<double>>::const_iterator it = b.begin(); it != b.end(); ++it) {
+	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b.begin(); it != b.end(); ++it) {
 		std::cout << it->first << ":" << it->second << ' ';
 	}
+
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << std::endl;
+
+	postorder_print(b2);
+	std::cout << std::endl;
+	inorder_print(b2);
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << std::endl;
+
+	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b2.begin(); it != b2.end(); ++it) {
+		std::cout << it->first << ":" << it->second << ' ';
+	}
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << std::endl;
+	std::cout << b.get_height() << " " << b.get_size() << " " << b2.get_height() << b2.get_size() << std::endl;
 	
+	DSTL::rbtree<double, double, std::less<double>> b3(std::move(b2));
+	std::cout << "\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n";
+	postorder_print(b2);
+	std::cout << std::endl;
+	inorder_print(b2);
+	std::cout << "\nVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV\n";
+	postorder_print(b3);
+	std::cout << std::endl;
+	inorder_print(b3);
+	std::cout << std::endl;
+	std::cout << b2.get_height() << " " << b2.get_size() << " " << b3.get_height() << b3.get_size() << std::endl;
+
 	//postorder_print(b);
 	/*
 	DSTL::btree<double, double, std::less<double>> b;
