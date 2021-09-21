@@ -40,7 +40,6 @@ int main() {
 	b.insert(3);
 
 	DSTL::rbtree<double, double, std::less<double>> b2(b);
-	
 
 	postorder_print(b);
 	std::cout << std::endl;
@@ -85,6 +84,14 @@ int main() {
 	std::cout << std::endl;
 	std::cout << b2.get_height() << " " << b2.get_size() << " " << b3.get_height() << b3.get_size() << std::endl;
 
+
+	DSTL::rbtree<double, double> b44 = std::move(b);
+
+
+	DSTL::rbtree<double, double> b4({ {6,14}, {1,0}, {5,54}, {15,4}, {18,8}, {45,4}, {-10, 0} });
+	//b4 = b3;
+	b4 = std::move(b3);
+	int a = 4;
 	//postorder_print(b);
 	/*
 	DSTL::btree<double, double, std::less<double>> b;

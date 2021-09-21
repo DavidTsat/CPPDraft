@@ -20,7 +20,7 @@ namespace DSTL {
 	class rbtree;
 
 	template <typename KeyType, typename ValueType, typename ComparisonPredicate = std::less<KeyType> >
-	void swap(rbtree<KeyType, ValueType, ComparisonPredicate>&, rbtree<KeyType, ValueType, ComparisonPredicate>&);
+	void swap(rbtree<KeyType, ValueType, ComparisonPredicate>&, rbtree<KeyType, ValueType, ComparisonPredicate>&) noexcept;
 
 	template <typename KeyType, typename ValueType, typename ComparisonPredicate>
 	class rbtree {
@@ -84,7 +84,10 @@ namespace DSTL {
 		}
 		
 		rbtree(const rbtree&);
-		rbtree(rbtree&&);
+		rbtree(rbtree&&) noexcept;
+		
+		rbtree& operator=(const rbtree&);
+		rbtree& operator=(rbtree&&) noexcept;
 
 		rbtree(std::initializer_list<std::pair<const K, V>>);
 		rbtree(std::initializer_list<V>);
@@ -107,15 +110,15 @@ namespace DSTL {
 		iterator begin();
 		iterator end();
 
-		friend void swap<>(rbtree&, rbtree&);
+		friend void swap<>(rbtree&, rbtree&) noexcept;
 	private:
 		void __insert_fixup__(node*);
 		void __left_rotate__(node*);
 		void __right_rotate__(node*);
 
-		void __postorder___traverse__(node*, std::function<void(node*)>);
-		void __postorder___traverse__(node*, std::function<void(std::pair<const K, V>&)>);
-		void __inorder___traverse__(node*, std::function<void(std::pair<const K, V>&)>);
+		void __postorder___traverse__(node*, std::function<void(node*)>, node* nil_);
+		void __postorder___traverse__(node*, std::function<void(std::pair<const K, V>&)>, node* nil_);
+		void __inorder___traverse__(node*, std::function<void(std::pair<const K, V>&)>, node* nil_);
 
 		node* __search__(node*, const K&);
 		void __release__rbtree__(node*);
@@ -258,14 +261,27 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	rbtree<K, V, C>::rbtree(const rbtree<K, V, C>& rhs) : rbtree() {
-		for (const_iterator it = rhs.begin(); it != rhs.end(); ++it) {
-			insert(*it);
-		}
+		__postorder___traverse__(rhs.root, [this](node* cn) {
+			this->insert(cn->entry);
+			}, rhs.nil);
 	}
 
 	template <typename K, typename V, typename C>
-	rbtree<K, V, C>::rbtree(rbtree<K, V, C>&& rhs) : rbtree() {
+	rbtree<K, V, C>::rbtree(rbtree<K, V, C>&& rhs) noexcept : rbtree() {
 		swap(*this, rhs);
+	}
+
+	template <typename K, typename V, typename C>
+	rbtree<K, V, C>& rbtree<K, V, C>::operator=(const rbtree<K, V, C>& rhs) {
+		rbtree temp(rhs);
+		swap(*this, temp);
+		return *this;
+	}
+
+	template <typename K, typename V, typename C>
+	rbtree<K, V, C>& rbtree<K, V, C>::operator=(rbtree<K, V, C>&& rhs) noexcept {
+		swap(*this, rhs);
+		return *this;
 	}
 
 	template <typename K, typename V, typename C>
@@ -299,47 +315,49 @@ namespace DSTL {
 			std::cout << "\nDeleting node with value: " << cn->entry.second;
 #endif // DEBUG_MODE
 			delete cn;
-			});
+			}, nil);
 #ifdef DEBUG_MODE
 		std::cout << std::endl;
 #endif // DEBUG_MODE
 		delete nil;
+		height = 0;
+		size = 0;
 	}
 
 	template <typename K, typename V, typename C>
 	void rbtree<K, V, C>::inorder_traverse(std::function<void(std::pair<const K, V>&)> f) {
-		__inorder___traverse__(root, f);
+		__inorder___traverse__(root, f, nil);
 	}
 
 	template <typename K, typename V, typename C>
 	void rbtree<K, V, C>::postorder_traverse(std::function<void(std::pair<const K, V>&)> f) {
-		__postorder___traverse__(root, f);
+		__postorder___traverse__(root, f, nil);
 	}
 
 	template <typename K, typename V, typename C>
-	void rbtree<K, V, C>::__postorder___traverse__(rbtree<K, V, C>::node* starting_node, std::function<void(node*)> f) {
-		if (starting_node != nil) {
-			__postorder___traverse__(starting_node->left_child, f);
-			__postorder___traverse__(starting_node->right_child, f);
+	void rbtree<K, V, C>::__postorder___traverse__(rbtree<K, V, C>::node* starting_node, std::function<void(node*)> f, rbtree<K, V, C>::node* nil_) {
+		if (starting_node != nil_) {
+			__postorder___traverse__(starting_node->left_child, f, nil_);
+			__postorder___traverse__(starting_node->right_child, f, nil_);
 			f(starting_node);
 		}
 	}
 
 	template <typename K, typename V, typename C>
-	void rbtree<K, V, C>::__postorder___traverse__(rbtree<K, V, C>::node* starting_node, std::function<void(std::pair<const K, V>&)> f) {
-		if (starting_node != nil) {
-			__postorder___traverse__(starting_node->left_child, f);
-			__postorder___traverse__(starting_node->right_child, f);
+	void rbtree<K, V, C>::__postorder___traverse__(rbtree<K, V, C>::node* starting_node, std::function<void(std::pair<const K, V>&)> f, rbtree<K, V, C>::node* nil_) {
+		if (starting_node != nil_) {
+			__postorder___traverse__(starting_node->left_child, f, nil_);
+			__postorder___traverse__(starting_node->right_child, f, nil_);
 			f(starting_node->entry);
 		}
 	}
 
 	template <typename K, typename V, typename C>
-	void rbtree<K, V, C>::__inorder___traverse__(rbtree<K, V, C>::node* starting_node, std::function<void(std::pair<const K, V>&)> f) {
-		if (starting_node != nil) {
-			__inorder___traverse__(starting_node->left_child, f);
+	void rbtree<K, V, C>::__inorder___traverse__(rbtree<K, V, C>::node* starting_node, std::function<void(std::pair<const K, V>&)> f, rbtree<K, V, C>::node* nil_) {
+		if (starting_node != nil_) {
+			__inorder___traverse__(starting_node->left_child, f, nil_);
 			f(starting_node->entry);
-			__inorder___traverse__(starting_node->right_child, f);
+			__inorder___traverse__(starting_node->right_child, f, nil_);
 		}
 	}
 
@@ -398,7 +416,7 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
-	void swap(rbtree<K, V, C>& l, rbtree<K, V, C>& r) {
+	void swap(rbtree<K, V, C>& l, rbtree<K, V, C>& r) noexcept {
 		std::swap(l.root, r.root);
 		std::swap(l.nil, r.nil);
 		std::swap(l.height, r.height);
