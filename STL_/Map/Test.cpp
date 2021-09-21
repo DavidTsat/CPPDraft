@@ -6,11 +6,12 @@
 #include <algorithm>
 #include "btree.h"
 #include "rbtree.h"
+#include <chrono>
 
 std::vector<std::pair<int, int>> get_random_pairs(int sz = 1000) {
 	std::vector<std::pair<int, int>> random_pairs;
 
-	boost::random::mt19937 rng;
+	boost::random::mt19937 rng(static_cast<unsigned int>(std::time(0)));
 	boost::random::uniform_int_distribution<> rand_dist(1, 100000);
 
 	for (int i = 0; i < sz; ++i) {
@@ -22,8 +23,6 @@ std::vector<std::pair<int, int>> get_random_pairs(int sz = 1000) {
 	}
 	return random_pairs;
 }
-
-
 
 // throw exception if same key is given twice
 BOOST_AUTO_TEST_CASE(myTestCase1)
@@ -261,7 +260,7 @@ BOOST_AUTO_TEST_CASE(myTestCase11)
 		BOOST_CHECK(itbb->second == its->second);
 	}
 }
-
+/*
 // test compare heights of btree and rbtree
 BOOST_AUTO_TEST_CASE(myTestCase12)
 {
@@ -280,4 +279,271 @@ BOOST_AUTO_TEST_CASE(myTestCase12)
 
 	BOOST_CHECK(btree_.get_size() == rbtree_.get_size());
 	BOOST_CHECK(btree_.get_height() >= rbtree_.get_height());
+}
+*/
+
+/*
+Copy and move tests
+*/
+// copy constructor test 1
+BOOST_AUTO_TEST_CASE(myTestCase13)
+{
+	DSTL::rbtree<std::string, int> b({ {"Karen", 74}, {"Armenak", 14}, {"Arsen", 454}, {"Artak", 85}, {"Narek", 58}, {"Sergey", 94}, {"Rafael", 145}, {"Alex", 85}, {"Vahe", 45}, {"Kostya", 7778}, {"Danil", 495} });
+
+	std::cout << "b size: " << b.get_size() << " b height: " << b.get_height() << std::endl;
+	
+	auto b2(b);
+
+	std::cout << "b2 size: " << b2.get_size() << " b2 height: " << b2.get_height() << std::endl;
+	BOOST_CHECK(b.get_size() == b2.get_size());
+
+
+	DSTL::rbtree<std::string, int>::const_iterator it2 = b2.begin();
+	for (DSTL::rbtree<std::string, int>::const_iterator it = b.begin(); it != b.end(), it2 != b2.end(); ++it, ++it2) {
+	//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
+	//	std::cout << std::endl;
+		BOOST_CHECK(it->first == it2->first);
+		BOOST_CHECK(it->second == it2->second);
+	}
+}
+
+// copy constructor test 2
+BOOST_AUTO_TEST_CASE(myTestCase14)
+{
+	DSTL::rbtree<int, int> b;
+
+	const std::vector<std::pair<int, int>> random_pairs = get_random_pairs();
+	boost::random::uniform_int_distribution<> rand_dist(1, 1000);
+
+	for (const std::pair<int, int>& p : random_pairs) {
+		b.insert(p);
+	}
+
+	std::cout << "b size: " << b.get_size() << " b height: " << b.get_height() << std::endl;
+
+	auto b2(b);
+
+	std::cout << "b2 size: " << b2.get_size() << " b2 height: " << b2.get_height() << std::endl;
+
+	BOOST_CHECK(b.get_size() == b2.get_size());
+
+
+	DSTL::rbtree<int, int>::const_iterator it2 = b2.begin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b.begin(); it != b.end(), it2 != b2.end(); ++it, ++it2) {
+		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
+		//	std::cout << std::endl;
+		BOOST_CHECK(it->first == it2->first);
+		BOOST_CHECK(it->second == it2->second);
+	}
+}
+
+// move constructor test 1
+BOOST_AUTO_TEST_CASE(myTestCase15)
+{
+	DSTL::rbtree<std::string, int> b({ {"Karen", 74}, {"Armenak", 14}, {"Arsen", 454}, {"Artak", 85}, {"Narek", 58}, {"Sergey", 94}, {"Rafael", 145}, {"Alex", 85}, {"Vahe", 45}, {"Kostya", 7778}, {"Danil", 495} });
+
+	auto b2(b);
+
+	auto b3(std::move(b));
+
+	/*
+	for (DSTL::rbtree<std::string, int>::const_iterator it = b3.begin(); it != b3.end(); ++it) {
+		std::cout << it->first << " " << it->second;
+		std::cout << std::endl;
+	}
+	*/
+	DSTL::rbtree<std::string, int>::const_iterator it2 = b2.begin();
+	for (DSTL::rbtree<std::string, int>::const_iterator it = b3.begin(); it != b3.end(), it2 != b2.end(); ++it, ++it2) {
+	//		std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
+	//		std::cout << std::endl;
+		BOOST_CHECK(it->first == it2->first);
+		BOOST_CHECK(it->second == it2->second);
+	}
+	
+}
+
+// move constructor test 2
+BOOST_AUTO_TEST_CASE(myTestCase16)
+{
+	DSTL::rbtree<int, int> b;
+
+	const std::vector<std::pair<int, int>> random_pairs = get_random_pairs();
+	boost::random::uniform_int_distribution<> rand_dist(1, 1000);
+
+	for (const std::pair<int, int>& p : random_pairs) {
+		b.insert(p);
+	}
+
+	std::cout << "b size: " << b.get_size() << " b height: " << b.get_height() << std::endl;
+
+	auto b3(b);
+
+	auto b2(std::move(b));
+
+	std::cout << "b2 size: " << b2.get_size() << " b2 height: " << b2.get_height() << std::endl;
+
+	BOOST_CHECK(b3.get_size() == b2.get_size());
+
+
+	DSTL::rbtree<int, int>::const_iterator it2 = b2.begin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b3.begin(); it != b3.end(), it2 != b2.end(); ++it, ++it2) {
+		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
+		//	std::cout << std::endl;
+		BOOST_CHECK(it->first == it2->first);
+		BOOST_CHECK(it->second == it2->second);
+	}
+}
+
+// a performance test copy vs move
+BOOST_AUTO_TEST_CASE(myTestCase17)
+{
+	DSTL::rbtree<int, int> b;
+
+	const std::vector<std::pair<int, int>> random_pairs = get_random_pairs(10000);
+
+	for (const std::pair<int, int>& p : random_pairs) {
+		b.insert(p);
+	}
+
+	std::cout << "b size: " << b.get_size() << " b height: " << b.get_height() << std::endl;
+
+	auto start_time_copy = std::chrono::high_resolution_clock::now();
+	auto b3(b); // copy
+	auto end_time_copy = std::chrono::high_resolution_clock::now();
+	auto time_copy = end_time_copy - start_time_copy;
+
+	auto start_time_move = std::chrono::high_resolution_clock::now();
+	auto b2(std::move(b));
+	auto end_time_move = std::chrono::high_resolution_clock::now();
+	auto time_move = start_time_move - end_time_move;
+
+	std::cout << std::endl;
+	std::cout << "copy time: " << time_copy / std::chrono::milliseconds(1) << std::endl;
+	std::cout << "move time: " << time_move / std::chrono::milliseconds(1) << std::endl;
+
+	BOOST_CHECK(time_move < time_copy);
+
+	// check values
+	DSTL::rbtree<int, int>::const_iterator it2 = b2.begin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b3.begin(); it != b3.end(), it2 != b2.end(); ++it, ++it2) {
+		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
+		//	std::cout << std::endl;
+		BOOST_CHECK(it->first == it2->first);
+		BOOST_CHECK(it->second == it2->second);
+	}
+}
+
+// copy assignment test
+BOOST_AUTO_TEST_CASE(myTestCase18)
+{
+	DSTL::rbtree<int, int> b1;
+	DSTL::rbtree<int, int> b2;
+
+	const std::vector<std::pair<int, int>> random_pairs1 = get_random_pairs(10000);
+
+	for (const std::pair<int, int>& p : random_pairs1) {
+		b1.insert(p);
+	}
+
+	std::cout << "b1 size: " << b1.get_size() << " b1 height: " << b1.get_height() << std::endl;
+
+	const std::vector<std::pair<int, int>> random_pairs2 = get_random_pairs(10000);
+
+	for (const std::pair<int, int>& p : random_pairs2) {
+		b2.insert(p);
+	}
+
+	b1 = b2;
+	
+	DSTL::rbtree<int, int>::const_iterator it2 = b2.begin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b1.begin(); it != b1.end(), it2 != b2.end(); ++it, ++it2) {
+		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
+		//	std::cout << std::endl;
+		BOOST_CHECK(it->first == it2->first);
+		BOOST_CHECK(it->second == it2->second);
+	}
+}
+
+// move assignment test
+BOOST_AUTO_TEST_CASE(myTestCase19)
+{
+	DSTL::rbtree<int, int> b1;
+	DSTL::rbtree<int, int> b2;
+
+	const std::vector<std::pair<int, int>> random_pairs1 = get_random_pairs(10000);
+
+	for (const std::pair<int, int>& p : random_pairs1) {
+		b1.insert(p);
+	}
+
+	std::cout << "b1 size: " << b1.get_size() << " b1 height: " << b1.get_height() << std::endl;
+
+	const std::vector<std::pair<int, int>> random_pairs2 = get_random_pairs(10000);
+
+	for (const std::pair<int, int>& p : random_pairs2) {
+		b2.insert(p);
+	}
+
+	auto b(b2);
+
+	b1 = std::move(b2);
+
+	DSTL::rbtree<int, int>::const_iterator it2 = b.begin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b1.begin(); it != b1.end(), it2 != b.end(); ++it, ++it2) {
+		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
+		//	std::cout << std::endl;
+		BOOST_CHECK(it->first == it2->first);
+		BOOST_CHECK(it->second == it2->second);
+	}
+}
+
+
+// a performance test: copy assignment vs move assignment
+BOOST_AUTO_TEST_CASE(myTestCase20)
+{
+	DSTL::rbtree<int, int> b1;
+	DSTL::rbtree<int, int> b2;
+
+	const std::vector<std::pair<int, int>> random_pairs1 = get_random_pairs(10000);
+
+	for (const std::pair<int, int>& p : random_pairs1) {
+		b1.insert(p);
+	}
+
+	std::cout << "b1 size: " << b1.get_size() << " b1 height: " << b1.get_height() << std::endl;
+
+	const std::vector<std::pair<int, int>> random_pairs2 = get_random_pairs(10000);
+
+	for (const std::pair<int, int>& p : random_pairs2) {
+		b2.insert(p);
+	}
+
+	auto b(b2);
+
+	b1 = std::move(b2);
+
+	auto start_time_copy = std::chrono::high_resolution_clock::now();
+	b1 = b2; // copy
+	auto end_time_copy = std::chrono::high_resolution_clock::now();
+	auto time_copy = end_time_copy - start_time_copy;
+
+	auto start_time_move = std::chrono::high_resolution_clock::now();
+	b2 = std::move(b); // move
+	auto end_time_move = std::chrono::high_resolution_clock::now();
+	auto time_move = start_time_move - end_time_move;
+
+	std::cout << std::endl;
+	std::cout << "copy time: " << time_copy / std::chrono::milliseconds(1) << std::endl;
+	std::cout << "move time: " << time_move / std::chrono::milliseconds(1) << std::endl;
+
+	BOOST_CHECK(time_move < time_copy);
+
+	// check values
+	DSTL::rbtree<int, int>::const_iterator it2 = b2.begin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b1.begin(); it != b1.end(), it2 != b2.end(); ++it, ++it2) {
+		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
+		//	std::cout << std::endl;
+		BOOST_CHECK(it->first == it2->first);
+		BOOST_CHECK(it->second == it2->second);
+	}
 }
