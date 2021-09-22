@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE(myTestCase11)
 		BOOST_CHECK(itbb->second == its->second);
 	}
 }
-/*
+
 // test compare heights of btree and rbtree
 BOOST_AUTO_TEST_CASE(myTestCase12)
 {
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE(myTestCase12)
 	BOOST_CHECK(btree_.get_size() == rbtree_.get_size());
 	BOOST_CHECK(btree_.get_height() >= rbtree_.get_height());
 }
-*/
+
 
 /*
 Copy and move tests
@@ -551,6 +551,13 @@ BOOST_AUTO_TEST_CASE(myTestCase20)
 	}
 
 	check_if_bst<DSTL::rbtree<int, int>::iterator>(b1.begin(), b1.end(), std::less<int>());
+
+#ifdef DEBUG_MODE
+	bool is_rbtree = b1.check_rbtree_properties();
+	BOOST_CHECK(is_rbtree);
+	std::cout << "is_rbtree: " << is_rbtree << std::endl;
+#endif // DEBUG_MODE
+
 
 	std::cout << "b1 size: " << b1.get_size() << " b1 height: " << b1.get_height() << std::endl;
 

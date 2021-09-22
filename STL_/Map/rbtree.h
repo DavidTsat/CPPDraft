@@ -9,7 +9,7 @@
 
 #include "dexception.h"
 
-//#define DEBUG_MODE
+#define DEBUG_MODE
 
 namespace DSTL {
 
@@ -109,6 +109,10 @@ namespace DSTL {
 
 		iterator begin();
 		iterator end();
+
+#ifdef DEBUG_MODE
+		bool check_rbtree_properties();
+#endif // DEBUG_MODE
 
 		friend void swap<>(rbtree&, rbtree&) noexcept;
 	private:
@@ -421,6 +425,60 @@ namespace DSTL {
 		typename rbtree<K, V, C>::node* max_node = __maximum__(root);
 		return { max_node->left_child, nil };
 	}
+
+#ifdef DEBUG_MODE
+	template <typename K, typename V, typename C>
+	bool rbtree<K, V, C>::check_rbtree_properties() {
+		std::map<K, std::size_t> leaf_keys;
+		bool res = true;
+		// 1 & 2
+		if (root->color != node::Color::black && nil->color != node::Color::black) {
+			std::cout << "root is not black!!!\n";
+			res = false;
+			return res;
+		}
+		// 3.
+		__postorder___traverse__(root, [&res, this](typename rbtree<K, V, C>::node* node_) {
+			res = node_->color == node::Color::red || node_->color == node::Color::black; },
+			nil);
+		// 4.
+		__postorder___traverse__(root, [&res, this](typename rbtree<K, V, C>::node* node_) {
+			if (node_->color == node::Color::red) {
+				res = node_->left_child->color == node::Color::black && node_->right_child->color == node::Color::black;
+			} },
+			nil);
+		// 5.
+		__postorder___traverse__(root, [&leaf_keys, this](typename rbtree<K, V, C>::node* node_) {
+			if (node_->left_child == nil && node_->right_child == nil) { // leaf node
+				leaf_keys[node_->entry.first] = 0;
+			} },
+			nil);
+		
+		for (const auto& key_ : leaf_keys) {
+			const node* starting_node = root;
+			std::size_t black_count = 0;
+
+			while (starting_node->entry.first != key_.first) {
+
+				if (compare(key_.first, starting_node->entry.first)) {
+					starting_node = starting_node->left_child;
+				}
+				else {
+					starting_node = starting_node->right_child;
+				}
+				if (starting_node->color == node::Color::black) {
+					++black_count;
+				}
+			}
+			leaf_keys[starting_node->entry.first] = black_count;
+		}
+		std::size_t first_leaf_bc = leaf_keys.begin()->second;
+		std::cout << "first_leaf_bc: " << first_leaf_bc << std::endl;
+		res = std::all_of(std::next(leaf_keys.begin()), leaf_keys.end(),
+			[first_leaf_bc](typename std::map<K, std::size_t>::const_reference t) { return t.second == first_leaf_bc; });
+		return res;
+	}
+#endif // DEBUG_MODE
 
 	template <typename K, typename V, typename C>
 	void swap(rbtree<K, V, C>& l, rbtree<K, V, C>& r) noexcept {
