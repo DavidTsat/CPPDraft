@@ -24,7 +24,6 @@ std::vector<std::pair<int, int>> get_random_pairs(int sz = 1000) {
 	return random_pairs;
 }
 
-
 template <typename It, typename Cmp>
 bool check_if_bst(It i, const It end, Cmp cmp) {
 	while (i != end) {
@@ -42,22 +41,6 @@ bool check_if_bst(It i, const It end, Cmp cmp) {
 	return true;
 }
 
-// checking subscript operator
-BOOST_AUTO_TEST_CASE(myTestCase889)
-{
-	try {
-		DSTL::rbtree<std::string, int> b({ {"David", 7}, {"Armen", 0}, {"Yuri", 4}, {"Narek", 5}, {"Arman", 9}, {"Hayk", 14}, {"Sergey", 8} });
-		std::pair<std::string, int> p = b["David"];
-
-		check_if_bst<DSTL::rbtree<std::string, int>::iterator>(b.begin(), b.end(), std::less<std::string>());
-
-		BOOST_CHECK(p.second == 7);
-	}
-	catch (const DSTL::repeated_key_exception& e) {
-		e.what();
-		BOOST_CHECK(false);
-	}
-}
 // throw exception if same key is given twice
 BOOST_AUTO_TEST_CASE(myTestCase1)
 {
@@ -537,7 +520,6 @@ BOOST_AUTO_TEST_CASE(myTestCase19)
 	}
 }
 
-
 // a performance test: copy assignment vs move assignment
 BOOST_AUTO_TEST_CASE(myTestCase20)
 {
@@ -594,5 +576,36 @@ BOOST_AUTO_TEST_CASE(myTestCase20)
 		//	std::cout << std::endl;
 		BOOST_CHECK(it->first == it2->first);
 		BOOST_CHECK(it->second == it2->second);
+	}
+}
+
+// checking subscript operator
+BOOST_AUTO_TEST_CASE(myTestCase21)
+{
+	try {
+		DSTL::rbtree<std::string, int> b({ {"David", 7}, {"Armen", 0}, {"Yuri", 4}, {"Narek", 5}, {"Arman", 9}, {"Hayk", 14}, {"Sergey", 8} });
+		std::pair<std::string, int> p = b["David"];
+
+		BOOST_CHECK(p.second == 7);
+	}
+	catch (const DSTL::repeated_key_exception& e) {
+		e.what();
+		BOOST_CHECK(false);
+	}
+}
+
+// checking key_not_found_exception exception
+BOOST_AUTO_TEST_CASE(myTestCase22)
+{
+	DSTL::rbtree<int, int> b;
+	try {
+		b.insert(4);
+		b.insert(7);
+		auto c = b[5];
+		BOOST_CHECK(false);
+	}
+	catch (const DSTL::key_not_found_exception& e) {
+		e.what();
+		BOOST_CHECK(true);
 	}
 }

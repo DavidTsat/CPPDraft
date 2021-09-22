@@ -322,14 +322,14 @@ namespace DSTL {
 	template <typename K, typename V, typename C>
 	void rbtree<K, V, C>::__release__rbtree__(rbtree<K, V, C>::node* starting_node) {
 		__postorder___traverse__(starting_node, [](node* cn) {
-#ifdef DEBUG_MODE
-			std::cout << "\nDeleting node with value: " << cn->entry.second;
-#endif // DEBUG_MODE
+//#ifdef DEBUG_MODE
+//			std::cout << "\nDeleting node with value: " << cn->entry.second;
+//#endif // DEBUG_MODE
 			delete cn;
 			}, nil);
-#ifdef DEBUG_MODE
-		std::cout << std::endl;
-#endif // DEBUG_MODE
+//#ifdef DEBUG_MODE
+//		std::cout << std::endl;
+//#endif // DEBUG_MODE
 		delete nil;
 		height = 0;
 		size = 0;
@@ -374,8 +374,8 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	typename rbtree<K, V, C>::node* rbtree<K, V, C>::__search__(rbtree<K, V, C>::node* starting_node, const K& key) noexcept(false) {
-		if (starting_node == nullptr || key == starting_node->entry.first) {
-			return starting_node == nullptr ? throw (key_not_found_exception()) : starting_node;
+		if (starting_node == nil || key == starting_node->entry.first) {
+			return starting_node == nil ? throw (key_not_found_exception()) : starting_node;
 		}
 		if (compare(key, starting_node->entry.first)) {
 			return __search__(starting_node->left_child, key);
