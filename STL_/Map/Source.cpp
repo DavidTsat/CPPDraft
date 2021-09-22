@@ -26,19 +26,29 @@ void postorder_print(DSTL::rbtree<K, V, C>& b) {
 int main() {
 	
 	DSTL::rbtree<double, double, std::less<double>> b;
-	//b.insert(std::make_pair(15, 14));
-	b.insert(15);
-	b.insert(6);
-	b.insert(18);
-	b.insert(13);
-	b.insert(9);
-	b.insert(17);
-	b.insert(20);
-	b.insert(4);
-	b.insert(7);
-	b.insert(2);
-	b.insert(3);
+	
+	std::vector<std::pair<int, int>> entries({ {15, 55}, {6, 74}, {18, -45}, {13, 133}, {9,-9}, {17, 0}, {20, 45}, {4, 49}, {7, 78}, {2, 45}, {3, 33} });
+	for (const auto& entry : entries) {
+		b.insert(entry);
+	}
 
+	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b.begin(); it != b.end(); ++it) {
+		std::cout << it->first << ":" << it->second << ' ';
+	}
+	std::cout << std::endl;
+	
+	//b.delete_entry(7);
+	
+	for (const auto& entry : entries) {
+		b.delete_entry(entry.first);
+	}
+	
+
+	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b.begin(); it != b.end(); ++it) {
+		std::cout << it->first << ":" << it->second << ' ';
+	}
+
+	/*
 	DSTL::rbtree<double, double, std::less<double>> b2(b);
 
 	postorder_print(b);

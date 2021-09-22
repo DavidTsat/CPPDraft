@@ -6,7 +6,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
-
+#include <map>
 #include "dexception.h"
 
 #define DEBUG_MODE
@@ -92,6 +92,8 @@ namespace DSTL {
 		rbtree(std::initializer_list<std::pair<const K, V>>);
 		rbtree(std::initializer_list<V>);
 
+		void delete_entry(const K&);
+
 		~rbtree();
 
 		std::pair<const K, V>& insert(const V&);
@@ -126,7 +128,9 @@ namespace DSTL {
 
 		node* __search__(node*, const K&);
 		void __release__rbtree__(node*);
-		void __transplant__(node*, node*);
+		void __rb__transplant__(node*, node*);
+		void __rb__delete_entry__(node*);
+		void __rb__delete_fixup__(node*);
 
 		node* __minimum__(node*);
 		const node* __minimum__(const node*) const;
@@ -315,6 +319,127 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
+	void rbtree<K, V, C>::__rb__transplant__(rbtree<K, V, C>::node* u, rbtree<K, V, C>::node* v) {
+		if (u->parent == nil) {
+			root = v;
+		}
+		else if (u == u->parent->left_child) {
+			u->parent->left_child = v;
+		}
+		else {
+			u->parent->right_child = v;
+		}
+		v->parent = u->parent;
+	}
+
+	template <typename K, typename V, typename C>
+	void rbtree<K, V, C>::__rb__delete_entry__(rbtree<K, V, C>::node* z) {
+		node* x;
+		node* y = z;
+		typename node::Color y_original_color = y->color;
+		
+		if (z->left_child == nil) {
+			x = z->right_child;
+			__rb__transplant__(z, z->right_child);
+		} 
+		else if (z->right_child == nil) {
+			x = z->left_child;
+			__rb__transplant__(z, z->left_child);
+		}
+		else {
+			y = __minimum__(z->right_child);
+			y_original_color = y->color;
+			x = y->right_child;
+			if (y->parent == z) {
+				x->parent = y;
+			}
+			else {
+				__rb__transplant__(y, y->right_child);
+				y->right_child = z->right_child;
+				y->right_child->parent = y;
+			}
+			__rb__transplant__(z, y);
+			y->left_child = z->left_child;
+			y->left_child->parent = y;
+			y->color = z->color;
+		}
+		if (y_original_color == node::Color::black) {
+			__rb__delete_fixup__(x);
+		}
+
+	}
+
+	template <typename K, typename V, typename C>
+	void rbtree<K, V, C>::__rb__delete_fixup__(rbtree<K, V, C>::node* x) {
+		while (x != root && x->color == node::Color::black) {
+			if (x == x->parent->left_child) {
+				node* w = x->parent->right_child;
+				if (w->color == node::Color::red) {
+					w->color = node::Color::black;
+					x->parent->color = node::Color::red;
+					__left_rotate__(x->parent);
+					w = x->parent->right_child;
+				}
+				if (w->left_child->color == node::Color::black && w->right_child->color == node::Color::black) {
+					w->color = node::Color::red;
+					x = x->parent;
+				}
+				else {
+					if (w->right_child->color == node::Color::black) {
+						w->left_child->color = node::Color::black;
+						w->color = node::Color::red;
+						__right_rotate__(w);
+						w = x->parent->right_child;
+					}
+					w->color = x->parent->color;
+					x->parent->color = node::Color::black;
+					w->right_child->color = node::Color::black;
+					__left_rotate__(x->parent);
+					x = root;
+				}
+			}
+			else {
+				if (x == x->parent->right_child) {
+					node* w = x->parent->left_child;
+					if (w->color == node::Color::red) {
+						w->color = node::Color::black;
+						x->parent->color = node::Color::red;
+						__right_rotate__(x->parent);
+						w = x->parent->left_child;
+					}
+					if (w->right_child->color == node::Color::black && w->left_child->color == node::Color::black) {
+						w->color = node::Color::red;
+						x = x->parent;
+					}
+					else {
+						if (w->left_child->color == node::Color::black) {
+							w->right_child->color = node::Color::black;
+							w->color = node::Color::red;
+							__left_rotate__(w);
+							w = x->parent->left_child;
+						}
+						w->color = x->parent->color;
+						x->parent->color = node::Color::black;
+						w->left_child->color = node::Color::black;
+						__right_rotate__(x->parent);
+						x = root;
+					}
+				}
+			}
+		}
+		x->color = node::Color::black;
+	}
+
+	template <typename K, typename V, typename C>
+	void rbtree<K, V, C>::delete_entry(const K& key) noexcept(false) {
+		typename rbtree<K, V, C>::node* node_to_delete = __search__(root, key);
+		if (node_to_delete == nil) {
+			return;
+		}
+		__rb__delete_entry__(node_to_delete);
+	}
+
+	template <typename K, typename V, typename C>
 	std::pair<const K, V>& rbtree<K, V, C>::insert(const V& value) {
 		return insert(std::make_pair(value, value));
 	}
@@ -404,6 +529,9 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::end() const {
+		if (root == nil) {
+			return { nil, nil };
+		}
 		const typename rbtree<K, V, C>::node* max_node = __maximum__(root);
 		return { max_node->left_child, nil };
 	}
@@ -422,6 +550,9 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	typename rbtree<K, V, C>::iterator rbtree<K, V, C>::end() {
+		if (root == nil) {
+			return { nil, nil };
+		}
 		typename rbtree<K, V, C>::node* max_node = __maximum__(root);
 		return { max_node->left_child, nil };
 	}
