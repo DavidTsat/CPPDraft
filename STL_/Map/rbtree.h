@@ -6,10 +6,13 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
-#include <map>
 #include "dexception.h"
 
 #define DEBUG_MODE
+
+#ifdef DEBUG_MODE
+#include <map>
+#endif
 
 namespace DSTL {
 
@@ -45,7 +48,9 @@ namespace DSTL {
 		ComparisonPredicate compare = ComparisonPredicate();
 		node* root;
 		node* nil;
-		std::size_t height;
+#ifdef DEBUG_MODE
+		std::size_t max_height;
+#endif
 		std::size_t size;
 	public:
 		
@@ -78,9 +83,12 @@ namespace DSTL {
 			operator const node* () const;
 		};
 		
-		rbtree() : height(0), size(0) {
+		rbtree() : size(0) {
 			nil = new node(nullptr, nullptr, nullptr, std::pair<const K, V>(), node::Color::black);
 			root = nil;
+#ifdef DEBUG_MODE
+			max_height = 0;
+#endif // DEBUG_MODE
 		}
 		
 		rbtree(const rbtree&);
@@ -103,7 +111,6 @@ namespace DSTL {
 		void inorder_traverse(std::function<void(std::pair<const K, V>&)>);
 		void postorder_traverse(std::function<void(std::pair<const K, V>&)>);
 		std::pair<const K, V>& operator[](const K&);
-		std::size_t get_height() const;
 		std::size_t get_size() const;
 
 		const_iterator begin() const;
@@ -113,7 +120,10 @@ namespace DSTL {
 		iterator end();
 
 #ifdef DEBUG_MODE
+		std::size_t leaf_node_distance(const std::pair<K, std::size_t>&);
+		std::map<K, std::size_t> get_leaf_nodes();
 		bool check_rbtree_properties();
+		std::size_t get_height() const;
 #endif // DEBUG_MODE
 
 		friend void swap<>(rbtree&, rbtree&) noexcept;
@@ -125,7 +135,6 @@ namespace DSTL {
 		void __postorder___traverse__(node*, std::function<void(node*)>, node* nil_);
 		void __postorder___traverse__(node*, std::function<void(std::pair<const K, V>&)>, node* nil_);
 		void __inorder___traverse__(node*, std::function<void(std::pair<const K, V>&)>, node* nil_);
-
 		node* __search__(node*, const K&);
 		void __release__rbtree__(node*);
 		void __rb__transplant__(node*, node*);
@@ -159,7 +168,6 @@ namespace DSTL {
 			else {
 				x = x->right_child;
 			}
-			++height_counter;
 		}
 		node* z = new node(nullptr, nil, nil, entry_, node::Color::red);
 		z->parent = y;
@@ -174,11 +182,16 @@ namespace DSTL {
 		}
 
 		__insert_fixup__(z);
-
 		++size;
-		if (height < height_counter) {
-			height = height_counter;
+
+#ifdef DEBUG_MODE
+		if (z->left_child == nil && z->right_child == nil) {
+			height_counter = leaf_node_distance(z->entry);
+			if (height_counter > max_height) {
+				max_height = height_counter;
+			}
 		}
+#endif // DEBUG_MODE
 		return z->entry;
 	}
 	
@@ -433,10 +446,27 @@ namespace DSTL {
 	template <typename K, typename V, typename C>
 	void rbtree<K, V, C>::delete_entry(const K& key) noexcept(false) {
 		typename rbtree<K, V, C>::node* node_to_delete = __search__(root, key);
-		if (node_to_delete == nil) {
-			return;
-		}
 		__rb__delete_entry__(node_to_delete);
+		--size;
+		
+#ifdef DEBUG_MODE
+		std::map<K, std::size_t> leaf_nodes = get_leaf_nodes();
+		for (const std::pair<K, std::size_t>& leaf_node : leaf_nodes) {
+			
+			const node* starting_node = root;
+			std::size_t height_count = 0;
+
+			height_count = leaf_node_distance(leaf_node);
+			leaf_nodes[starting_node->entry.first] = height_count;
+		}
+		for (const std::pair<K, std::size_t>& leaf_node : leaf_nodes) {
+			if (leaf_node.second < max_height) {
+				max_height = leaf_node.second;
+			}
+		}
+#endif
+
+		delete node_to_delete;
 	}
 
 	template <typename K, typename V, typename C>
@@ -456,7 +486,9 @@ namespace DSTL {
 //		std::cout << std::endl;
 //#endif // DEBUG_MODE
 		delete nil;
-		height = 0;
+#ifdef DEBUG_MODE
+		max_height = 0;
+#endif
 		size = 0;
 	}
 
@@ -558,9 +590,40 @@ namespace DSTL {
 	}
 
 #ifdef DEBUG_MODE
+
+	template <typename K, typename V, typename C>
+	std::size_t rbtree<K, V, C>::leaf_node_distance(const std::pair<K, std::size_t>& leaf_node) {
+		const node* starting_node = root;
+		std::size_t height_count = 0;
+
+		while (starting_node->entry.first != leaf_node.first) {
+
+			if (compare(leaf_node.first, starting_node->entry.first)) {
+				starting_node = starting_node->left_child;
+			}
+			else {
+				starting_node = starting_node->right_child;
+			}
+			++height_count;
+		}
+		return height_count;
+	}
+
+	template <typename K, typename V, typename C>
+	std::map<K, std::size_t> rbtree<K, V, C>::get_leaf_nodes() {
+		std::map<K, std::size_t> leaf_nodes;
+		__postorder___traverse__(root, [&leaf_nodes, this](typename rbtree<K, V, C>::node* node_) {
+			if (node_->left_child == nil && node_->right_child == nil) { // leaf node
+				leaf_nodes[node_->entry.first] = node_->entry.second;
+			} },
+			nil);
+
+		return leaf_nodes;
+	}
+
 	template <typename K, typename V, typename C>
 	bool rbtree<K, V, C>::check_rbtree_properties() {
-		std::map<K, std::size_t> leaf_keys;
+		std::map<K, std::size_t> leaf_nodes;
 		bool res = true;
 		// 1 & 2
 		if (root->color != node::Color::black && nil->color != node::Color::black) {
@@ -579,13 +642,9 @@ namespace DSTL {
 			} },
 			nil);
 		// 5.
-		__postorder___traverse__(root, [&leaf_keys, this](typename rbtree<K, V, C>::node* node_) {
-			if (node_->left_child == nil && node_->right_child == nil) { // leaf node
-				leaf_keys[node_->entry.first] = 0;
-			} },
-			nil);
+		leaf_nodes = get_leaf_nodes();
 		
-		for (const auto& key_ : leaf_keys) {
+		for (const auto& key_ : leaf_nodes) {
 			const node* starting_node = root;
 			std::size_t black_count = 0;
 
@@ -601,11 +660,11 @@ namespace DSTL {
 					++black_count;
 				}
 			}
-			leaf_keys[starting_node->entry.first] = black_count;
+			leaf_nodes[starting_node->entry.first] = black_count;
 		}
-		std::size_t first_leaf_bc = leaf_keys.begin()->second;
+		std::size_t first_leaf_bc = leaf_nodes.begin()->second;
 		std::cout << "first_leaf_bc: " << first_leaf_bc << std::endl;
-		res = std::all_of(std::next(leaf_keys.begin()), leaf_keys.end(),
+		res = std::all_of(std::next(leaf_nodes.begin()), leaf_nodes.end(),
 			[first_leaf_bc](typename std::map<K, std::size_t>::const_reference t) { return t.second == first_leaf_bc; });
 		return res;
 	}
@@ -615,7 +674,9 @@ namespace DSTL {
 	void swap(rbtree<K, V, C>& l, rbtree<K, V, C>& r) noexcept {
 		std::swap(l.root, r.root);
 		std::swap(l.nil, r.nil);
-		std::swap(l.height, r.height);
+#ifdef DEBUG_MODE
+		std::swap(l.max_height, r.max_height);
+#endif
 		std::swap(l.size, r.size);
 		std::swap(l.compare, r.compare);
 	}
@@ -771,10 +832,12 @@ namespace DSTL {
 		return max_node;
 	}
 
+#ifdef DEBUG_MODE
 	template <typename K, typename V, typename C>
 	std::size_t rbtree<K, V, C>::get_height() const {
-		return height;
+		return max_height;
 	}
+#endif
 
 	template <typename K, typename V, typename C>
 	std::size_t rbtree<K, V, C>::get_size() const {

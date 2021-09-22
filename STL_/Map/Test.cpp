@@ -298,10 +298,16 @@ BOOST_AUTO_TEST_CASE(myTestCase12)
 	}
 
 	std::cout << "btree size: " << btree_.get_size() << " btree height: " << btree_.get_height() << std::endl;
-	std::cout << "rbtree size: " << rbtree_.get_size() << " rbtree height: " << rbtree_.get_height() << std::endl;
+	std::cout << "rbtree size: " << rbtree_.get_size() << " rbtree height: " <<
+#ifdef DEBUG_MODE
+		rbtree_.get_height() << 
+#endif
+		std::endl;
 
 	BOOST_CHECK(btree_.get_size() == rbtree_.get_size());
+#ifdef DEBUG_MODE
 	BOOST_CHECK(btree_.get_height() >= rbtree_.get_height());
+#endif
 }
 
 
@@ -313,11 +319,19 @@ BOOST_AUTO_TEST_CASE(myTestCase13)
 {
 	DSTL::rbtree<std::string, int> b({ {"Karen", 74}, {"Armenak", 14}, {"Arsen", 454}, {"Artak", 85}, {"Narek", 58}, {"Sergey", 94}, {"Rafael", 145}, {"Alex", 85}, {"Vahe", 45}, {"Kostya", 7778}, {"Danil", 495} });
 
-	std::cout << "b size: " << b.get_size() << " b height: " << b.get_height() << std::endl;
+	std::cout << "b size: " << b.get_size() << " b height: " << 
+#ifdef DEBUG_MODE
+		b.get_height() <<
+#endif // DEBUG_MODE
+		std::endl;
 	
 	auto b2(b);
 
-	std::cout << "b2 size: " << b2.get_size() << " b2 height: " << b2.get_height() << std::endl;
+	std::cout << "b2 size: " << b2.get_size() << " b2 height: " << 
+#ifdef DEBUG_MODE
+		b2.get_height() <<
+#endif
+		std::endl;
 	BOOST_CHECK(b.get_size() == b2.get_size());
 
 
@@ -342,11 +356,19 @@ BOOST_AUTO_TEST_CASE(myTestCase14)
 		b.insert(p);
 	}
 
-	std::cout << "b size: " << b.get_size() << " b height: " << b.get_height() << std::endl;
+	std::cout << "b size: " << b.get_size() << " b height: " <<
+#ifdef DEBUG_MODE
+		b.get_height() <<
+#endif
+	std::endl;
 
 	auto b2(b);
 
-	std::cout << "b2 size: " << b2.get_size() << " b2 height: " << b2.get_height() << std::endl;
+	std::cout << "b2 size: " << b2.get_size() << " b2 height: " <<
+#ifdef DEBUG_MODE
+		b2.get_height() << 
+#endif
+		std::endl;
 
 	BOOST_CHECK(b.get_size() == b2.get_size());
 
@@ -397,13 +419,21 @@ BOOST_AUTO_TEST_CASE(myTestCase16)
 		b.insert(p);
 	}
 
-	std::cout << "b size: " << b.get_size() << " b height: " << b.get_height() << std::endl;
+	std::cout << "b size: " << b.get_size() << " b height: " << 
+#ifdef DEBUG_MODE
+		b.get_height() << 
+#endif
+		std::endl;
 
 	auto b3(b);
 
 	auto b2(std::move(b));
 
-	std::cout << "b2 size: " << b2.get_size() << " b2 height: " << b2.get_height() << std::endl;
+	std::cout << "b2 size: " << b2.get_size() << " b2 height: " << 
+#ifdef DEBUG_MODE
+		b2.get_height() << 
+#endif
+		std::endl;
 
 	BOOST_CHECK(b3.get_size() == b2.get_size());
 
@@ -428,7 +458,11 @@ BOOST_AUTO_TEST_CASE(myTestCase17)
 		b.insert(p);
 	}
 
-	std::cout << "b size: " << b.get_size() << " b height: " << b.get_height() << std::endl;
+	std::cout << "b size: " << b.get_size() << " b height: " <<
+#ifdef DEBUG_MODE
+		b.get_height() << 
+#endif
+		std::endl;
 
 	auto start_time_copy = std::chrono::high_resolution_clock::now();
 	auto b3(b); // copy
@@ -468,7 +502,11 @@ BOOST_AUTO_TEST_CASE(myTestCase18)
 		b1.insert(p);
 	}
 
-	std::cout << "b1 size: " << b1.get_size() << " b1 height: " << b1.get_height() << std::endl;
+	std::cout << "b1 size: " << b1.get_size() << " b1 height: " <<
+#ifdef DEBUG_MODE
+		b1.get_height() <<
+#endif
+		std::endl;
 
 	const std::vector<std::pair<int, int>> random_pairs2 = get_random_pairs(10000);
 
@@ -499,7 +537,11 @@ BOOST_AUTO_TEST_CASE(myTestCase19)
 		b1.insert(p);
 	}
 
-	std::cout << "b1 size: " << b1.get_size() << " b1 height: " << b1.get_height() << std::endl;
+	std::cout << "b1 size: " << b1.get_size() << " b1 height: " << 
+#ifdef DEBUG_MODE
+		b1.get_height() << 
+#endif
+		std::endl;
 
 	const std::vector<std::pair<int, int>> random_pairs2 = get_random_pairs(10000);
 
@@ -541,7 +583,11 @@ BOOST_AUTO_TEST_CASE(myTestCase20)
 #endif // DEBUG_MODE
 
 
-	std::cout << "b1 size: " << b1.get_size() << " b1 height: " << b1.get_height() << std::endl;
+	std::cout << "b1 size: " << b1.get_size() << " b1 height: " << 
+#ifdef DEBUG_MODE
+		b1.get_height() << 
+#endif
+		std::endl;
 
 	const std::vector<std::pair<int, int>> random_pairs2 = get_random_pairs(10000);
 
@@ -607,5 +653,86 @@ BOOST_AUTO_TEST_CASE(myTestCase22)
 	catch (const DSTL::key_not_found_exception& e) {
 		e.what();
 		BOOST_CHECK(true);
+	}
+}
+
+/*
+delete tests
+*/
+// test checking  delete1
+BOOST_AUTO_TEST_CASE(myTestCase23)
+{
+	int i = 0;
+	DSTL::rbtree<int, int> bdstl;	
+	boost::random::mt19937 rng;
+
+	const std::vector<std::pair<int, int>> random_pairs = get_random_pairs();
+	boost::random::uniform_int_distribution<> rand_dist(0, random_pairs.size() - 1);
+
+	for (const std::pair<int, int>& p : random_pairs) {
+		bdstl.insert(p);
+	}
+	std::cout << "size: " << bdstl.get_size() << std::endl;
+#ifdef DEBUG_MODE
+	std::cout << "height: " << bdstl.get_height() << std::endl;
+#endif
+	BOOST_CHECK(bdstl.get_size() > 0);
+	BOOST_CHECK(bdstl.get_height() > 0);
+
+	for (const auto& entry : random_pairs) {
+		bdstl.delete_entry(entry.first);
+	}
+
+	std::cout << "size: " << bdstl.get_size() << std::endl;
+#ifdef DEBUG_MODE
+	std::cout << "height: " << bdstl.get_height() << std::endl;
+#endif
+	BOOST_CHECK(bdstl.get_size() == 0);
+	BOOST_CHECK(bdstl.get_height() == 0);
+}
+
+// test checking  delete2
+BOOST_AUTO_TEST_CASE(myTestCase24)
+{
+	int i = 0;
+	DSTL::rbtree<int, int> bdstl;
+	std::map<int, int> bstd;
+	boost::random::mt19937 rng;
+	std::vector<int> rand_keys;
+
+	const std::vector<std::pair<int, int>> random_pairs = get_random_pairs();
+	boost::random::uniform_int_distribution<> rand_dist(0, random_pairs.size() - 1);
+
+	for (const std::pair<int, int>& p : random_pairs) {
+		bdstl.insert(p);
+		bstd.insert(p);
+	}
+	std::cout << "size: " << bdstl.get_size() << std::endl;
+#ifdef DEBUG_MODE
+	std::cout << "height: " << bdstl.get_height() << std::endl;
+#endif
+	for (int i = 0; i < 100; ++i) {
+		int rand_idx = rand_dist(rng);
+		int rand_key = random_pairs[rand_idx].first;
+		if (std::find(rand_keys.begin(), rand_keys.end(), rand_key) == rand_keys.end()) {
+			rand_keys.push_back(rand_key);
+		}
+	}
+
+	
+	for (int rand_key : rand_keys) {
+		int c = bstd.erase(rand_key);
+		bdstl.delete_entry(rand_key);
+	}
+
+	std::cout << "size: " << bdstl.get_size() << std::endl;
+#ifdef DEBUG_MODE
+	std::cout << "height: " << bdstl.get_height() << std::endl;
+#endif
+	BOOST_CHECK(bdstl.get_size() == bstd.size());
+	DSTL::rbtree<int, int>::const_iterator itbb = bdstl.begin();
+	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itbb != bdstl.end(); ++its, ++itbb) {
+		BOOST_CHECK(itbb->first == its->first);
+		BOOST_CHECK(itbb->second == its->second);
 	}
 }
