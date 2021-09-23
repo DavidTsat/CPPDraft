@@ -61,6 +61,7 @@ namespace DSTL {
 		public:
 
 			iterator(node* node__, const node* nil__) : node_(node__), nil_(nil__) {}
+			iterator(const iterator& r) : node_(r.node_), nil_(r.nil_) {}
 			iterator& operator++();
 			void operator--();
 			bool operator!=(const iterator&);
@@ -73,8 +74,8 @@ namespace DSTL {
 			const node* node_;
 			const node* nil_;
 		public:
-			const_iterator(iterator it_) : node_(it_.node_), nil_(it_.nil_) {}
 			const_iterator(const node* node__, const node* nil__) : node_(node__), nil_(nil__) {}
+			const_iterator(const const_iterator& r) : node_(r.node_), nil_(r.nil_) {}
 			const_iterator& operator++();
 			void operator--();
 			bool operator!=(const const_iterator&) const;
@@ -113,8 +114,8 @@ namespace DSTL {
 		std::pair<const K, V>& operator[](const K&);
 		std::size_t get_size() const;
 
-		const_iterator begin() const;
-		const_iterator end() const;
+		const_iterator cbegin() const;
+		const_iterator cend() const;
 
 		iterator begin();
 		iterator end();
@@ -548,9 +549,9 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
-	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::begin() const {
+	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::cbegin() const {
 		if (root == nil) {
-			return { nullptr, nil };
+			return { nil, nil };
 		}
 		const typename rbtree<K, V, C>::node* min_node = root;
 		while (min_node->left_child != nil) {
@@ -560,7 +561,7 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
-	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::end() const {
+	typename rbtree<K, V, C>::const_iterator rbtree<K, V, C>::cend() const {
 		if (root == nil) {
 			return { nil, nil };
 		}

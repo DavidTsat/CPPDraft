@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE(myTestCase4)
 		bstd.insert(p);
 	}
 
-	DSTL::btree<int, int>::const_iterator itb = bdstl.begin();
-	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itb != bdstl.end(); ++its, ++itb) {
+	DSTL::btree<int, int>::iterator itb = bdstl.begin();
+	for (std::map<int, int>::iterator its = bstd.begin(); its != bstd.end() && itb != bdstl.end(); ++its, ++itb) {
 		BOOST_CHECK(itb->first == its->first);
 		BOOST_CHECK(itb->second == its->second);
 		//	std::cout << itb->first << ' ' << itb->first << ' ' << its->second << ' ' << itb->second;
@@ -135,8 +135,8 @@ BOOST_AUTO_TEST_CASE(myTestCase5)
 		its->second = rv;
 	}
 	
-	DSTL::btree<int, int>::const_iterator itbb = bdstl.begin();
-	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itbb != bdstl.end(); ++its, ++itbb) {
+	DSTL::btree<int, int>::iterator itbb = bdstl.begin();
+	for (std::map<int, int>::iterator its = bstd.begin(); its != bstd.end() && itbb != bdstl.end(); ++its, ++itbb) {
 		BOOST_CHECK(itbb->first == its->first);
 		BOOST_CHECK(itbb->second == its->second);
 	}
@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE(myTestCase6)
 		bdstl.delete_entry(rand_key);
 	}
 
-	DSTL::btree<int, int>::const_iterator itbb = bdstl.begin();
-	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itbb != bdstl.end(); ++its, ++itbb) {
+	DSTL::btree<int, int>::iterator itbb = bdstl.begin();
+	for (std::map<int, int>::iterator its = bstd.begin(); its != bstd.end() && itbb != bdstl.end(); ++its, ++itbb) {
 		BOOST_CHECK(itbb->first == its->first);
 		BOOST_CHECK(itbb->second == its->second);
 	}
@@ -244,8 +244,8 @@ BOOST_AUTO_TEST_CASE(myTestCase10)
 		bstd.insert(p);
 	}
 
-	DSTL::rbtree<int, int>::const_iterator itb = bdstl.begin();
-	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itb != bdstl.end(); ++its, ++itb) {
+	DSTL::rbtree<int, int>::const_iterator itb = bdstl.cbegin();
+	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itb != bdstl.cend(); ++its, ++itb) {
 		BOOST_CHECK(itb->first == its->first);
 		BOOST_CHECK(itb->second == its->second);
 		//	std::cout << itb->first << ' ' << itb->first << ' ' << its->second << ' ' << itb->second;
@@ -277,8 +277,8 @@ BOOST_AUTO_TEST_CASE(myTestCase11)
 		its->second = rv;
 	}
 
-	DSTL::rbtree<int, int>::const_iterator itbb = bdstl.begin();
-	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itbb != bdstl.end(); ++its, ++itbb) {
+	DSTL::rbtree<int, int>::const_iterator itbb = bdstl.cbegin();
+	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itbb != bdstl.cend(); ++its, ++itbb) {
 		BOOST_CHECK(itbb->first == its->first);
 		BOOST_CHECK(itbb->second == its->second);
 	}
@@ -335,8 +335,8 @@ BOOST_AUTO_TEST_CASE(myTestCase13)
 	BOOST_CHECK(b.get_size() == b2.get_size());
 
 
-	DSTL::rbtree<std::string, int>::const_iterator it2 = b2.begin();
-	for (DSTL::rbtree<std::string, int>::const_iterator it = b.begin(); it != b.end(), it2 != b2.end(); ++it, ++it2) {
+	DSTL::rbtree<std::string, int>::const_iterator it2 = b2.cbegin();
+	for (DSTL::rbtree<std::string, int>::const_iterator it = b.cbegin(); it != b.cend(), it2 != b2.cend(); ++it, ++it2) {
 	//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
 	//	std::cout << std::endl;
 		BOOST_CHECK(it->first == it2->first);
@@ -373,8 +373,8 @@ BOOST_AUTO_TEST_CASE(myTestCase14)
 	BOOST_CHECK(b.get_size() == b2.get_size());
 
 
-	DSTL::rbtree<int, int>::const_iterator it2 = b2.begin();
-	for (DSTL::rbtree<int, int>::const_iterator it = b.begin(); it != b.end(), it2 != b2.end(); ++it, ++it2) {
+	DSTL::rbtree<int, int>::const_iterator it2 = b2.cbegin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b.cbegin(); it != b.cend(), it2 != b2.cend(); ++it, ++it2) {
 		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
 		//	std::cout << std::endl;
 		BOOST_CHECK(it->first == it2->first);
@@ -397,8 +397,8 @@ BOOST_AUTO_TEST_CASE(myTestCase15)
 		std::cout << std::endl;
 	}
 	*/
-	DSTL::rbtree<std::string, int>::const_iterator it2 = b2.begin();
-	for (DSTL::rbtree<std::string, int>::const_iterator it = b3.begin(); it != b3.end(), it2 != b2.end(); ++it, ++it2) {
+	DSTL::rbtree<std::string, int>::const_iterator it2 = b2.cbegin();
+	for (DSTL::rbtree<std::string, int>::const_iterator it = b3.cbegin(); it != b3.cend(), it2 != b2.cend(); ++it, ++it2) {
 	//		std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
 	//		std::cout << std::endl;
 		BOOST_CHECK(it->first == it2->first);
@@ -438,8 +438,8 @@ BOOST_AUTO_TEST_CASE(myTestCase16)
 	BOOST_CHECK(b3.get_size() == b2.get_size());
 
 
-	DSTL::rbtree<int, int>::const_iterator it2 = b2.begin();
-	for (DSTL::rbtree<int, int>::const_iterator it = b3.begin(); it != b3.end(), it2 != b2.end(); ++it, ++it2) {
+	DSTL::rbtree<int, int>::const_iterator it2 = b2.cbegin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b3.cbegin(); it != b3.cend(), it2 != b2.cend(); ++it, ++it2) {
 		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
 		//	std::cout << std::endl;
 		BOOST_CHECK(it->first == it2->first);
@@ -481,8 +481,8 @@ BOOST_AUTO_TEST_CASE(myTestCase17)
 	BOOST_CHECK(time_move < time_copy);
 
 	// check values
-	DSTL::rbtree<int, int>::const_iterator it2 = b2.begin();
-	for (DSTL::rbtree<int, int>::const_iterator it = b3.begin(); it != b3.end(), it2 != b2.end(); ++it, ++it2) {
+	DSTL::rbtree<int, int>::const_iterator it2 = b2.cbegin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b3.cbegin(); it != b3.cend(), it2 != b2.cend(); ++it, ++it2) {
 		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
 		//	std::cout << std::endl;
 		BOOST_CHECK(it->first == it2->first);
@@ -516,8 +516,8 @@ BOOST_AUTO_TEST_CASE(myTestCase18)
 
 	b1 = b2;
 	
-	DSTL::rbtree<int, int>::const_iterator it2 = b2.begin();
-	for (DSTL::rbtree<int, int>::const_iterator it = b1.begin(); it != b1.end(), it2 != b2.end(); ++it, ++it2) {
+	DSTL::rbtree<int, int>::const_iterator it2 = b2.cbegin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b1.cbegin(); it != b1.cend(), it2 != b2.cend(); ++it, ++it2) {
 		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
 		//	std::cout << std::endl;
 		BOOST_CHECK(it->first == it2->first);
@@ -553,8 +553,8 @@ BOOST_AUTO_TEST_CASE(myTestCase19)
 
 	b1 = std::move(b2);
 
-	DSTL::rbtree<int, int>::const_iterator it2 = b.begin();
-	for (DSTL::rbtree<int, int>::const_iterator it = b1.begin(); it != b1.end(), it2 != b.end(); ++it, ++it2) {
+	DSTL::rbtree<int, int>::const_iterator it2 = b.cbegin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b1.cbegin(); it != b1.cend(), it2 != b.cend(); ++it, ++it2) {
 		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
 		//	std::cout << std::endl;
 		BOOST_CHECK(it->first == it2->first);
@@ -616,8 +616,8 @@ BOOST_AUTO_TEST_CASE(myTestCase20)
 	BOOST_CHECK(time_move < time_copy);
 
 	// check values
-	DSTL::rbtree<int, int>::const_iterator it2 = b2.begin();
-	for (DSTL::rbtree<int, int>::const_iterator it = b1.begin(); it != b1.end(), it2 != b2.end(); ++it, ++it2) {
+	DSTL::rbtree<int, int>::const_iterator it2 = b2.cbegin();
+	for (DSTL::rbtree<int, int>::const_iterator it = b1.cbegin(); it != b1.cend(), it2 != b2.cend(); ++it, ++it2) {
 		//	std::cout << it->first << " " << it->second << " " << it2->first << " " << it2->second;
 		//	std::cout << std::endl;
 		BOOST_CHECK(it->first == it2->first);
@@ -730,8 +730,8 @@ BOOST_AUTO_TEST_CASE(myTestCase24)
 	std::cout << "height: " << bdstl.get_height() << std::endl;
 #endif
 	BOOST_CHECK(bdstl.get_size() == bstd.size());
-	DSTL::rbtree<int, int>::const_iterator itbb = bdstl.begin();
-	for (std::map<int, int>::const_iterator its = bstd.begin(); its != bstd.end() && itbb != bdstl.end(); ++its, ++itbb) {
+	DSTL::rbtree<int, int>::const_iterator itbb = bdstl.cbegin();
+	for (std::map<int, int>::const_iterator its = bstd.cbegin(); its != bstd.cend() && itbb != bdstl.cend(); ++its, ++itbb) {
 		BOOST_CHECK(itbb->first == its->first);
 		BOOST_CHECK(itbb->second == its->second);
 	}

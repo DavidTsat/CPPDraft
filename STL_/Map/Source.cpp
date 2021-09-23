@@ -32,7 +32,7 @@ int main() {
 		b.insert(entry);
 	}
 
-	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b.begin(); it != b.end(); ++it) {
+	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b.cbegin(); it != b.cend(); ++it) {
 		std::cout << it->first << ":" << it->second << ' ';
 	}
 	std::cout << std::endl;
@@ -44,7 +44,7 @@ int main() {
 	}
 	
 
-	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b.begin(); it != b.end(); ++it) {
+	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b.cbegin(); it != b.cend(); ++it) {
 		std::cout << it->first << ":" << it->second << ' ';
 	}
 
@@ -58,7 +58,7 @@ int main() {
 	std::cout << std::endl;
 	std::cout << std::endl;
 
-	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b.begin(); it != b.end(); ++it) {
+	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b.cbegin(); it != b.cend(); ++it) {
 		std::cout << it->first << ":" << it->second << ' ';
 	}
 
@@ -74,7 +74,7 @@ int main() {
 	std::cout << std::endl;
 	std::cout << std::endl;
 
-	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b2.begin(); it != b2.end(); ++it) {
+	for (DSTL::rbtree<double, double, std::less<double>>::const_iterator it = b2.cbegin(); it != b2.cend(); ++it) {
 		std::cout << it->first << ":" << it->second << ' ';
 	}
 	std::cout << std::endl;
