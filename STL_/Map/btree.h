@@ -36,7 +36,8 @@ namespace DSTL {
 
 		ComparisonPredicate compare = ComparisonPredicate();
 		node* root = nullptr;
-
+		std::size_t height = 0;
+		std::size_t size = 0;
 	public:
 
 		class iterator {
@@ -77,8 +78,10 @@ namespace DSTL {
 		std::pair<const K, V>& insert(const V&);
 		std::pair<const K, V>& insert(const std::pair<const K, V>&);
 		void delete_entry(const K&);
-		void inorder_traverse(node* starting_node, std::function<void(std::pair<const K, V>&)>);
-		void postorder_traverse(node* starting_node, std::function<void(std::pair<const K, V>&)>);
+		void inorder_traverse(std::function<void(std::pair<const K, V>&)>);
+		void postorder_traverse(std::function<void(std::pair<const K, V>&)>);
+		std::size_t get_height() const;
+		std::size_t get_size() const;
 		std::pair<const K, V>& operator[](const K&);
 
 		const_iterator begin() const;
@@ -89,6 +92,9 @@ namespace DSTL {
 
 	private:
 		void __postorder___traverse__(node*, std::function<void(node*)>);
+		void __postorder___traverse__(node*, std::function<void(std::pair<const K, V>&)>);
+		void __inorder___traverse__(node*, std::function<void(std::pair<const K, V>&)>);
+
 		node* __search__(node*, const K&);
 		void __release__btree__(node*);
 		void __transplant__(node*, node*);
@@ -107,6 +113,24 @@ namespace DSTL {
 			__postorder___traverse__(starting_node->left_child, f);
 			__postorder___traverse__(starting_node->right_child, f);
 			f(starting_node);
+		}
+	}
+
+	template <typename K, typename V, typename C>
+	void btree<K, V, C>::__postorder___traverse__(btree<K, V, C>::node* starting_node, std::function<void(std::pair<const K, V>&)> f) {
+		if (starting_node != nullptr) {
+			__postorder___traverse__(starting_node->left_child, f);
+			__postorder___traverse__(starting_node->right_child, f);
+			f(starting_node->entry);
+		}
+	}
+
+	template <typename K, typename V, typename C>
+	void btree<K, V, C>::__inorder___traverse__(btree<K, V, C>::node* starting_node, std::function<void(std::pair<const K, V>&)> f) {
+		if (starting_node != nullptr) {
+			__inorder___traverse__(starting_node->left_child, f);
+			f(starting_node->entry);
+			__inorder___traverse__(starting_node->right_child, f);
 		}
 	}
 
@@ -251,6 +275,7 @@ namespace DSTL {
 
 	template <typename K, typename V, typename C>
 	std::pair<const K, V>& btree<K, V, C>::insert(const std::pair<const K, V>& entry_) noexcept(false) {
+		std::size_t height_counter = 1;
 		node* temp_parent_node = nullptr;
 		node* temp_current_node = root;
 
@@ -268,6 +293,7 @@ namespace DSTL {
 			else {
 				temp_current_node = temp_current_node->right_child;
 			}
+			++height_counter;
 		}
 
 		node* new_node = new node(temp_parent_node, nullptr, nullptr, entry_);
@@ -280,6 +306,11 @@ namespace DSTL {
 		}
 		else {
 			temp_parent_node->right_child = new_node;
+		}
+
+		++size;
+		if (height < height_counter) {
+			height = height_counter;
 		}
 
 		return new_node->entry;
@@ -295,21 +326,13 @@ namespace DSTL {
 	}
 
 	template <typename K, typename V, typename C>
-	void btree<K, V, C>::inorder_traverse(node* starting_node, std::function<void(std::pair<const K, V>&)> f) {
-		if (starting_node != nullptr) {
-			inorder_traverse(starting_node->left_child, f);
-			f(starting_node->entry);
-			inorder_traverse(starting_node->right_child, f);
-		}
+	void btree<K, V, C>::inorder_traverse(std::function<void(std::pair<const K, V>&)> f) {
+		__inorder___traverse__(root, f);
 	}
 
 	template <typename K, typename V, typename C>
-	void btree<K, V, C>::postorder_traverse(node* starting_node, std::function<void(std::pair<const K, V>&)> f) {
-		if (starting_node != nullptr) {
-			postorder_traverse(starting_node->left_child, f);
-			postorder_traverse(starting_node->right_child, f);
-			f(starting_node->entry);
-		}
+	void btree<K, V, C>::postorder_traverse(std::function<void(std::pair<const K, V>&)> f) {
+		__postorder___traverse__(root, f);
 	}
 
 	template <typename K, typename V, typename C>
@@ -317,6 +340,15 @@ namespace DSTL {
 		return __search__(root, key)->entry;
 	}
 
+	template <typename K, typename V, typename C>
+	std::size_t btree<K, V, C>::get_height() const {
+		return height;
+	}
+
+	template <typename K, typename V, typename C>
+	std::size_t btree<K, V, C>::get_size() const {
+		return size;
+	}
 
 	template <typename K, typename V, typename C>
 	typename btree<K, V, C>::const_iterator btree<K, V, C>::begin() const {
