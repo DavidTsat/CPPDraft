@@ -81,28 +81,30 @@ void check_sorted(It begin, It end) {
 	}
 }
 
-#define M 500
-#define N 500
+template <int m, int n>
+using mat = std::array<std::array<int, n>, m>;
 
-using mat = std::array<std::array<int, N>, M>;
-using vec = std::array<int, N>;
+template <int n>
+using vec = std::array<int, n>;
 
-vec mat_vec(const mat& m, const vec& v) {
-	vec y{0};
-	for (int i = 0; i < M; ++i) {
-		for (int j = 0; j < N; ++j) {
-			y[i] += m[i][j] * v[i];
+template <int m, int n>
+vec<m> mat_vec(const mat<m,n>& a, const vec<n>& v) {
+	vec<m> y{0};
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < n; ++j) {
+			y[i] += a[i][j] * v[j];
 		}
 	}
 	return y;
 }
 
-vec p_mat_vec(const mat& m, const vec& v) {
-	vec y{ 0 };
-	for (int i = 0; i < M; ++i) {
-		std::thread t([&m, &v, &y, &i] {
-			for (int j = 0; j < N; ++j) {
-				y[i] += m[i][j] * v[i];
+template <int m, int n>
+vec<m> p_mat_vec(const mat<m, n>& a, const vec<n>& v) {
+	vec<m> y{ 0 };
+	for (int i = 0; i < m; ++i) {
+		std::thread t([&a, &v, &y, &i] {
+			for (int j = 0; j < n; ++j) {
+				y[i] += a[i][j] * v[j];
 			}
 			});
 		t.join();
@@ -111,8 +113,10 @@ vec p_mat_vec(const mat& m, const vec& v) {
 }
 
 int main() {
-	mat m;
-	vec v;
+	constexpr int M = 500;
+	constexpr int N = 300;
+	mat<M,N> m;
+	vec<N> v;
 
 	std::random_device rnd_device;
 	std::mt19937 mersenne_engine(rnd_device());
@@ -142,16 +146,21 @@ int main() {
 	*/
 
 	auto started = std::chrono::high_resolution_clock::now();
-	vec vv = mat_vec(m, v);
+
+	vec<M> vv = mat_vec<M,N>(m, v);
 	auto done = std::chrono::high_resolution_clock::now();
 	std::cout << "single threaded: " << std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count() << " ms" << std::endl;
 
 	
+	
 	auto started1 = std::chrono::high_resolution_clock::now();
-	vec vv1 = p_mat_vec(m, v);
+	vec<M> vv1 = p_mat_vec<M,N>(m, v);
 	auto done1 = std::chrono::high_resolution_clock::now();
 	std::cout << "multithreaded: " << std::chrono::duration_cast<std::chrono::milliseconds>(done1 - started1).count() << " ms" << std::endl;
 	
+
+
+
 	/*
 	std::copy(vv.cbegin(), vv.cend(), std::ostream_iterator<int>(std::cout));
 	*/
