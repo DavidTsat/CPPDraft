@@ -21,9 +21,8 @@ public:
 template<typename Iterator, typename T>
 struct accumulate_block {
     void operator()(Iterator first, Iterator last, T & result) {
-        std::cout << result << std::endl << std::flush;
         result = std::accumulate(first, last, result);
-        result += 5;
+        std::cout << result << std::endl << std::flush;
     }
 };
 
@@ -43,9 +42,12 @@ T parallel_accumulate(Iterator first, Iterator last, T& init, unsigned int block
         Iterator block_end = block_start;
         std::advance(block_end, block_size);
         //pool.submit([&block_start, &block_end, &init] {accumulate_block<Iterator, T>()(block_start, block_end, init); });
-        pool.submit(std::bind(accumulate_block<Iterator, T>(), block_start, block_end, init));
+        pool.submit(std::bind(accumulate_block<Iterator, T>(), block_start, block_end, std::ref(init)));
         block_start = block_end;
     }
+    accumulate_block<Iterator, T>()(block_start, last, std::ref(init));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
     /*
     T last_result = accumulate_block<Iterator, T>()(block_start, last);
     T result = init;
@@ -76,8 +78,9 @@ int main() {
 
     int c = parallel_accumulate<std::vector<int>::const_iterator, int>(v.cbegin(), v.cend(), r, block_size);
 
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    //std::this_thread::sleep_for(std::chrono::seconds(2));
     std::cout << r << std::endl;
+    std::cout << "accum: " << std::accumulate(v.cbegin(), v.cend(), 0) <<std::endl;
     return 0;
 }
 
