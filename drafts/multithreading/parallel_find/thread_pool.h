@@ -13,7 +13,6 @@ public:
 		for (unsigned long i = 0; i < threads.size(); ++i) {
 			if (threads[i].joinable()) {
 				threads[i].join();
-				std::cout << "joinged\n";
 			}
 		}
 	}
