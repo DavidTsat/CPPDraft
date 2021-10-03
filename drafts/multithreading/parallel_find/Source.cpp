@@ -1,8 +1,8 @@
 #include "find.h"
 #include <chrono>
 #include <numeric>
-#include "thread_pool.h"
 #include <mutex>
+#include "thread_pool.h"
 
 template <typename It, typename T>
 class accumulate_block_ {
@@ -21,10 +21,11 @@ public:
 
 std::mutex m;
 
+/*
 template<typename Iterator, typename T>
 struct accumulate_block {
 
-    void operator()(Iterator first, Iterator last, T & result) {
+    T operator()(Iterator first, Iterator last, T & result) {
 
         T rr{};
         for (; first != last; ++first) {
@@ -33,8 +34,16 @@ struct accumulate_block {
 
         std::unique_lock<std::mutex> u(m);
         result += rr;
-        
+        return result;
     //    std::cout << result << " ::: " << std::this_thread::get_id() << std::endl;
+    }
+};
+*/
+
+template<typename Iterator, typename T>
+struct accumulate_block {
+    T operator()(Iterator first, Iterator last) {
+        return std::accumulate(first, last, T());
     }
 };
 
@@ -56,15 +65,22 @@ T parallel_accumulate(Iterator first, Iterator last, T& init, unsigned int block
         std::advance(block_end, block_size);
         //pool.submit([&block_start, &block_end, &init] {accumulate_block<Iterator, T>()(block_start, block_end, init); });
         
-        pool.submit(std::bind(a, block_start, block_end, std::ref(init)));
+        futures[i] = pool.submit(std::bind(a, block_start, block_end));
         block_start = block_end;
     }
 
-    a(block_start, last, std::ref(init));
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    T result = init;
+    T last_result = a(block_start, last);
+   
+
+    for (unsigned int i = 0; i < (num_blocks - 1); ++i) {
+        result += futures[i].get();
+    }
+    result += last_result;
+    return result;
+    //std::this_thread::sleep_for(std::chrono::milliseconds(10));
    // std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    return init;
     /*
     T last_result = accumulate_block<Iterator, T>()(block_start, last);
     T result = init;
@@ -96,7 +112,7 @@ int main() {
     int c = parallel_accumulate<std::vector<int>::const_iterator, int>(v.cbegin(), v.cend(), r, block_size);
 
     //std::this_thread::sleep_for(std::chrono::seconds(2));
-    std::cout << "rrrrr: " << r << std::endl;
+    std::cout << "rrrrr: " << c << " " << r << std::endl;
     std::cout << "accum: " << std::accumulate(v.cbegin(), v.cend(), 0) <<std::endl;
     return 0;
 }
