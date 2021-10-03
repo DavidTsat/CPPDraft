@@ -94,7 +94,7 @@ T parallel_accumulate(Iterator first, Iterator last, T& init, unsigned int block
 
 int main() {
     int r = 0;
-    unsigned int block_size = 20;
+    unsigned int block_size = 1000000;
     unsigned int vec_size = std::thread::hardware_concurrency() * block_size;
  
     std::vector<int> v(vec_size);
@@ -109,11 +109,24 @@ int main() {
 
     std::generate(begin(v), end(v), gen);
 
+
+    auto start_time1 = std::chrono::high_resolution_clock::now();
+
     int c = parallel_accumulate<std::vector<int>::const_iterator, int>(v.cbegin(), v.cend(), r, block_size);
 
-    //std::this_thread::sleep_for(std::chrono::seconds(2));
-    std::cout << "rrrrr: " << c << " " << r << std::endl;
-    std::cout << "accum: " << std::accumulate(v.cbegin(), v.cend(), 0) <<std::endl;
+    auto end_time1 = std::chrono::high_resolution_clock::now();
+    auto time1 = end_time1 - start_time1;
+
+    // -----------------------------------------
+
+    auto start_time2 = std::chrono::high_resolution_clock::now();
+
+    int cc = std::accumulate(v.cbegin(), v.cend(), 0);
+    auto end_time2 = std::chrono::high_resolution_clock::now();
+    auto time2 = end_time2 - start_time2;
+    
+    std::cout << "mine with thread pool: " << c << " time: " << time1 / std::chrono::milliseconds(1) << std::endl;
+    std::cout << "std sequential : " << cc << " time: " << time2 / std::chrono::milliseconds(1) << std::endl;
     return 0;
 }
 
