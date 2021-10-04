@@ -20,6 +20,7 @@ public:
 };
 
 class function_wrapper {
+
 	struct impl_base {
 		virtual void call() = 0;
 		virtual ~impl_base() {}
