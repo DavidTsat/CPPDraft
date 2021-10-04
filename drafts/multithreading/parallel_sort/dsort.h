@@ -2,6 +2,7 @@
 #include <iterator>
 #include <algorithm>
 #include <vector>
+#include <list>
 
 namespace DSTL {
 	/*
@@ -37,15 +38,15 @@ namespace DSTL {
 	}
 	*/
 
-	template <typename It>
-	It partition(It p, It r) {
-		typedef typename std::iterator_traits<It>::value_type value_type;
-		const It start = p;
+	template <typename RandIt>
+	RandIt partition(RandIt p, RandIt r) {
+		typedef typename std::iterator_traits<RandIt>::value_type value_type;
+		const RandIt start = p;
 		value_type x = *r;
 		bool i_changed = false;
 
-		It i{};
-		for (It j = p; j <= r - 1; ++j) {
+		RandIt i{};
+		for (RandIt j = p; j <= r - 1; ++j) {
 			if (*j <= x) {
 				if (!i_changed) {
 					i_changed = true;
@@ -56,7 +57,6 @@ namespace DSTL {
 				++i;
 				std::swap(*i, *j);
 			}
-
 		}
 
 		if (!i_changed) {
@@ -70,10 +70,10 @@ namespace DSTL {
 		return i + 1;
 	}
 
-	template <typename It>
-	void _quick_sort_(It p, It r) {
+	template <typename RandIt>
+	void _quick_sort_(RandIt p, RandIt r) {
 		if (std::distance(p, r) > 0) {
-			It q = partition(p, r);
+			RandIt q = partition(p, r);
 			if (q != p) {
 				_quick_sort_(p, q - 1);
 			}
@@ -81,8 +81,27 @@ namespace DSTL {
 		}
 	}
 
-	template <typename It>
-	void quick_sort(It p, It r) {
+	template <typename RandIt>
+	void quick_sort(RandIt p, RandIt r) {
 		_quick_sort_(p, --r);
 	}
+
+	template <typename T>
+	std::list<T> sequential_quick_sort(std::list<T> input) {
+		if (input.empty()) {
+			return input;
+		}
+		std::list<T> result;
+		result.splice(result.begin(), input, input.begin());
+		T const& pivot = *result.begin();
+		auto divide_point = std::partition(input.begin(), input.end(), [&](T const& t) {return t < pivot; });
+		std::list<T> lower_part;
+		lower_part.splice(lower_part.end(), input, input.begin(), divide_point);
+		auto new_lower(sequential_quick_sort(std::move(lower_part)));
+		auto new_higher(sequential_quick_sort(std::move(input)));
+		result.splice(result.end(), new_higher);
+		result.splice(result.begin(), new_lower);
+		return result;
+	}
+
 }
