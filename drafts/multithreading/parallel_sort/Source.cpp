@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cassert>
 #include <list>
+#include <functional>
+#include <type_traits>
 
 #include "dsort.h"
 
@@ -21,43 +23,56 @@ void random_fill(ForwardIt f, ForwardIt l, int left_bound = -99999, int right_bo
     generate(f, l, gen);
 }
 
-
-int main() {
-
-    
+template <typename F, typename... Fargs>
+auto measure_performance(F f, Fargs... fargs) {
     auto start_time = std::chrono::high_resolution_clock::now();
-
-    std::vector<int> v(1000);
-    random_fill(v.begin(), v.end());
-
-    DSTL::quick_sort(v.begin(), v.end(), DSTL::run_policy::sequential);
-
+    f(std::forward<Fargs>(fargs)...);
     auto end_time = std::chrono::high_resolution_clock::now();
     auto time = end_time - start_time;
 
-    std::cout << "sequential qsort: " << time / std::chrono::milliseconds(1) << "ms to run.\n";
+    return time / std::chrono::milliseconds(1);
+}
 
 
-    auto start_time1 = std::chrono::high_resolution_clock::now();
+int main() {
+    constexpr int sz = 1000;
+    std::vector<int> v(sz);
+    std::vector<int> v2(sz);
 
-    std::vector<int> vv(1000);
     random_fill(v.begin(), v.end());
+    random_fill(v2.begin(), v2.end());
 
-    DSTL::quick_sort(vv.begin(), vv.end(), DSTL::run_policy::parallel);
+    auto t = measure_performance (DSTL::quick_sort<std::vector<int>::iterator>, v.begin(), v.end(), DSTL::run_policy::sequential);
 
-    auto end_time1 = std::chrono::high_resolution_clock::now();
-    auto time1 = end_time1 - start_time1;
+    auto t2 = measure_performance(DSTL::quick_sort<std::vector<int>::iterator>, v2.begin(), v2.end(), DSTL::run_policy::parallel);
 
-    std::cout << "parallel qsort: " << time1 / std::chrono::milliseconds(1) << "ms to run.\n";
+    std::cout << "sequential qsort: " << t << "ms to run.\n";
+    std::cout << "parallel qsort: " << t2 << "ms to run.\n";
     
-
-    /*
     
-    std::list<int> l(100);
+    std::list<int> l(sz);
     random_fill(l.begin(), l.end());
-    std::list<int> ll(l);
+    std::list<int> l2(sz);
     
-    for (int i = 0; i < 10; ++i) {
+    random_fill(l.begin(), l.end());
+    random_fill(l2.begin(), l2.end());
+
+    auto tl = measure_performance(DSTL::sequential_quick_sort<int>, l);
+
+    auto tl2 = measure_performance(DSTL::parallel_quick_sort<int>, l2);
+
+    std::cout << std::endl;
+
+    std::cout << "sequential qsort: " << tl << "ms to run.\n";
+    std::cout << "parallel qsort: " << tl2 << "ms to run.\n";
+
+
+  /*
+  * std::list<int> l3(l);
+  *  l3.sort();
+    assert(l == l2);
+    assert(l == l3);
+  * for (int i = 0; i < 10; ++i) {
         std::vector<int> v(2000);
         random_fill(v.begin(), v.end());
         std::vector<int> vv(v);
@@ -68,16 +83,6 @@ int main() {
         std::cout << i << std::endl;
     }
 
-    l = DSTL::sequential_quick_sort(l);
-    ll.sort();
-    assert(l == ll);
-
-    for (int i : l) {
-        std::cout << i << ' ';
-    }
-    std::cout << std::endl;
-    */
-  /*
     for (int i : vv) {
         std::cout << i << ' ';
     }
