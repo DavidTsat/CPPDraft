@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <vector>
 #include <list>
+#include <thread>
+#include <future>
+#include <chrono>
 
 namespace DSTL {
 	/*
@@ -70,6 +73,24 @@ namespace DSTL {
 		return i + 1;
 	}
 
+
+	template <typename RandIt>
+	void _quick_sort_p_(RandIt p, RandIt r) {
+		if (std::distance(p, r) > 0) {
+
+			std::thread t_left;
+
+			RandIt q = partition(p, r);
+			if (q != p) {
+				t_left = std::thread(_quick_sort_p_<RandIt>, p, q - 1);
+			}
+			_quick_sort_p_(q + 1, r);
+			if (t_left.joinable()) {
+				t_left.join();
+			}
+		}
+	}
+
 	template <typename RandIt>
 	void _quick_sort_(RandIt p, RandIt r) {
 		if (std::distance(p, r) > 0) {
@@ -81,9 +102,16 @@ namespace DSTL {
 		}
 	}
 
+	enum run_policy { sequential, parallel };
+
 	template <typename RandIt>
-	void quick_sort(RandIt p, RandIt r) {
-		_quick_sort_(p, --r);
+	void quick_sort(RandIt p, RandIt r, run_policy policy) {
+		if (policy == run_policy::parallel) {
+			_quick_sort_p_(p, --r);
+		}
+		else {
+			_quick_sort_(p, --r);
+		}
 	}
 
 	template <typename T>
