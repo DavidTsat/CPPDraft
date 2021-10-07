@@ -35,21 +35,35 @@ auto measure_performance(F f, Fargs... fargs) {
 
 
 int main() {
-    constexpr int sz = 1000;
+    constexpr int sz = 500;
     std::vector<int> v(sz);
     std::vector<int> v2(sz);
+    std::vector<int> v3(sz);
 
     random_fill(v.begin(), v.end());
     random_fill(v2.begin(), v2.end());
+    random_fill(v3.begin(), v3.end());
 
     auto t = measure_performance (DSTL::quick_sort<std::vector<int>::iterator>, v.begin(), v.end(), DSTL::run_policy::sequential);
 
     auto t2 = measure_performance(DSTL::quick_sort<std::vector<int>::iterator>, v2.begin(), v2.end(), DSTL::run_policy::parallel);
+    
+
+    auto vvd(v3);
+
+    auto t3 = measure_performance(DSTL::parallel_quick_sort_<std::vector<int>::iterator>, v3.begin(), v3.end());
+
+    
+
+    std::sort(vvd.begin(), vvd.end());
+    std::cout << (vvd == v3);
 
     std::cout << "sequential qsort: " << t << "ms to run.\n";
-    std::cout << "parallel qsort: " << t2 << "ms to run.\n";
+    std::cout << "parallel qsort recursive threads: " << t2 << "ms to run.\n";
+    std::cout << "parallel qsort optimal threads: " << t3 << "ms to run.\n";
     
-    
+
+    /*
     std::list<int> l(sz);
     random_fill(l.begin(), l.end());
     std::list<int> l2(sz);
@@ -61,11 +75,13 @@ int main() {
 
     auto tl2 = measure_performance(DSTL::parallel_quick_sort<int>, l2);
 
+
     std::cout << std::endl;
 
     std::cout << "sequential qsort: " << tl << "ms to run.\n";
     std::cout << "parallel qsort: " << tl2 << "ms to run.\n";
 
+    */
 
   /*
   * std::list<int> l3(l);

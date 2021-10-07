@@ -6,6 +6,7 @@
 #include <thread>
 #include <future>
 #include <chrono>
+#include "threadsafe_queue.h"
 
 namespace DSTL {
 	/*
@@ -150,4 +151,87 @@ namespace DSTL {
 		return result;
 	}
 
+	template <typename RandIt>
+	struct sorter {
+		struct chunk_to_sort {
+			//RandIt data_begin, data_end;
+			std::pair<RandIt, RandIt> data_bounds;
+			std::promise<bool> promise;
+
+			chunk_to_sort(const std::pair<RandIt, RandIt>& r) : data_bounds(r) {}
+			chunk_to_sort(std::pair<RandIt, RandIt>&& r) : data_bounds(std::move(r)) {}
+		};
+		threadsafe_queue <chunk_to_sort> chunks;
+		std::vector<std::thread> threads;
+		const unsigned int max_thread_count;
+		std::atomic<bool> end_of_data;
+		
+		sorter() : max_thread_count(std::thread::hardware_concurrency() - 1), end_of_data(false) {}
+		~sorter() {
+			end_of_data = true;
+			for (unsigned int i = 0; i < threads.size(); ++i) {
+				threads[i].join();
+			}
+		}
+
+		void try_sort_chunk() {
+			std::shared_ptr<chunk_to_sort> chunk = chunks.try_pop();
+			if (chunk) {
+				sort_chunk(chunk);
+			}
+		}
+
+		bool do_sort(RandIt p, RandIt r) {
+			//assert(std::distance(p, r) >= 0);
+
+			if (std::distance(p, r) <= 0) {
+				return true;
+			}
+			RandIt q = partition(p, r);
+
+		
+			if (q != p) {
+				chunk_to_sort left_chunk({ p, q - 1 });
+				std::future<bool> done = left_chunk.promise.get_future();
+				chunks.push(std::move(left_chunk));
+			
+				if (threads.size() < max_thread_count) {
+					threads.push_back(std::thread(&sorter<RandIt>::sort_thread, this));
+				}
+			
+				while (done.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+					try_sort_chunk();
+				}
+			}
+			
+			chunk_to_sort right_chunk({ q + 1, r });
+			do_sort(right_chunk.data_bounds.first, right_chunk.data_bounds.second);
+
+		
+			
+			return true;
+			//std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+
+		void sort_chunk(std::shared_ptr<chunk_to_sort> const& chunk) {
+			chunk->promise.set_value(do_sort(chunk->data_bounds.first, chunk->data_bounds.second));
+		}
+
+		void sort_thread() {
+			while (!end_of_data) {
+				try_sort_chunk();
+				std::this_thread::yield();
+			}
+		}
+	};
+
+	
+	template <typename RandIt>
+	void parallel_quick_sort_(RandIt p, RandIt r) {
+		sorter<RandIt> s;
+		s.do_sort(p, --r);
+		return;
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+	}
+	
 }
