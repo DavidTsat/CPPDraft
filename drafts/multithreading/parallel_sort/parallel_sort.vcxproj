@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="dsort.h" />
     <ClInclude Include="threadsafe_queue.h" />
+    <ClInclude Include="thread_pool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

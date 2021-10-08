@@ -7,6 +7,7 @@
 #include <future>
 #include <chrono>
 #include "threadsafe_queue.h"
+#include "thread_pool.h"
 
 namespace DSTL {
 	/*
@@ -220,12 +221,42 @@ namespace DSTL {
 		}
 	};
 
+	template <typename RandIt>
+	struct sorter_tp {
+		thread_pool pool;
+
+		bool do_sort(RandIt p, RandIt r) {
+			if (std::distance(p, r) <= 0) {
+				return true;
+			}
+			RandIt q = partition(p, r);
+
+			if (q != p) {
+				std::future<bool> done = pool.submit(std::bind(&sorter_tp::do_sort, this, p, q - 1));
+				
+				while (done.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+					pool.run_pending_task();
+				}
+			}
+
+			do_sort(q + 1, r);
+
+			return true;
+		}
+	};
+
 	
 	template <typename RandIt>
-	void parallel_quick_sort_(RandIt p, RandIt r) {
+	void parallel_quick_sort_with_intergrated_tp(RandIt p, RandIt r) {
 		sorter<RandIt> s;
 		s.do_sort(p, --r);
 		return;
 	}
-	
+
+	template <typename RandIt>
+	void parallel_quick_sort_with_tp(RandIt p, RandIt r) {
+		sorter_tp<RandIt> s;
+		s.do_sort(p, --r);
+		return;
+	}
 }
