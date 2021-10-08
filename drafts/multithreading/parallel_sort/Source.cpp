@@ -27,6 +27,7 @@ template <typename F, typename... Fargs>
 auto measure_performance(F f, Fargs... fargs) {
     auto start_time = std::chrono::high_resolution_clock::now();
     f(std::forward<Fargs>(fargs)...);
+
     auto end_time = std::chrono::high_resolution_clock::now();
     auto time = end_time - start_time;
 
@@ -35,7 +36,7 @@ auto measure_performance(F f, Fargs... fargs) {
 
 
 int main() {
-    constexpr int sz = 500;
+    constexpr int sz = 100000;
     std::vector<int> v(sz);
     std::vector<int> v2(sz);
     std::vector<int> v3(sz);
@@ -48,22 +49,18 @@ int main() {
 
     auto t2 = measure_performance(DSTL::quick_sort<std::vector<int>::iterator>, v2.begin(), v2.end(), DSTL::run_policy::parallel);
     
-
-    auto vvd(v3);
+    std::this_thread::yield();
 
     auto t3 = measure_performance(DSTL::parallel_quick_sort_<std::vector<int>::iterator>, v3.begin(), v3.end());
 
     
-
-    std::sort(vvd.begin(), vvd.end());
-    std::cout << (vvd == v3);
-
     std::cout << "sequential qsort: " << t << "ms to run.\n";
     std::cout << "parallel qsort recursive threads: " << t2 << "ms to run.\n";
     std::cout << "parallel qsort optimal threads: " << t3 << "ms to run.\n";
     
 
     /*
+    sz = 1000;
     std::list<int> l(sz);
     random_fill(l.begin(), l.end());
     std::list<int> l2(sz);

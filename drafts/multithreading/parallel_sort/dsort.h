@@ -182,14 +182,12 @@ namespace DSTL {
 		}
 
 		bool do_sort(RandIt p, RandIt r) {
-			//assert(std::distance(p, r) >= 0);
-
+			
 			if (std::distance(p, r) <= 0) {
 				return true;
 			}
 			RandIt q = partition(p, r);
-
-		
+			
 			if (q != p) {
 				chunk_to_sort left_chunk({ p, q - 1 });
 				std::future<bool> done = left_chunk.promise.get_future();
@@ -198,7 +196,7 @@ namespace DSTL {
 				if (threads.size() < max_thread_count) {
 					threads.push_back(std::thread(&sorter<RandIt>::sort_thread, this));
 				}
-			
+
 				while (done.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
 					try_sort_chunk();
 				}
@@ -207,10 +205,7 @@ namespace DSTL {
 			chunk_to_sort right_chunk({ q + 1, r });
 			do_sort(right_chunk.data_bounds.first, right_chunk.data_bounds.second);
 
-		
-			
 			return true;
-			//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 
 		void sort_chunk(std::shared_ptr<chunk_to_sort> const& chunk) {
