@@ -226,7 +226,6 @@ namespace DSTL {
 		sorter<RandIt> s;
 		s.do_sort(p, --r);
 		return;
-	//	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 	}
 	
 }
