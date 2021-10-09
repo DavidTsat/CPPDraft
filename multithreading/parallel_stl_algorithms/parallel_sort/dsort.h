@@ -8,6 +8,7 @@
 #include <chrono>
 #include "threadsafe_queue.h"
 #include "thread_pool.h"
+#include "improved_thread_pool.h"
 
 namespace DSTL {
 	/*
@@ -221,9 +222,9 @@ namespace DSTL {
 		}
 	};
 
-	template <typename RandIt>
+	template <typename RandIt, typename TP>
 	struct sorter_tp {
-		thread_pool pool;
+		TP pool;
 
 		bool do_sort(RandIt p, RandIt r) {
 			if (std::distance(p, r) <= 0) {
@@ -255,7 +256,14 @@ namespace DSTL {
 
 	template <typename RandIt>
 	void parallel_quick_sort_with_tp(RandIt p, RandIt r) {
-		sorter_tp<RandIt> s;
+		sorter_tp<RandIt, thread_pool> s;
+		s.do_sort(p, --r);
+		return;
+	}
+
+	template <typename RandIt>
+	void parallel_quick_sort_with_improved_tp(RandIt p, RandIt r) {
+		sorter_tp<RandIt, improved_thread_pool> s;
 		s.do_sort(p, --r);
 		return;
 	}

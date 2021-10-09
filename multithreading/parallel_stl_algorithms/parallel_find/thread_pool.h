@@ -88,7 +88,6 @@ public:
 		std::packaged_task<result_type()> task(std::move(f));
 		std::future<result_type> res(task.get_future());
 		work_queue.push(std::move(task));
-		return res;
-		//work_queue.push(std::function<void()>(f));
+		return res;		
 	}
 };

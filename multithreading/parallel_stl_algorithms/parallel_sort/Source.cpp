@@ -36,16 +36,18 @@ auto measure_performance(F f, Fargs... fargs) {
 
 
 int main() {
-    constexpr int sz = 5000;
+    constexpr int sz = 100000;
     std::vector<int> v(sz);
     std::vector<int> v2(sz);
     std::vector<int> v3(sz);
     std::vector<int> v4(sz);
+    std::vector<int> v5(sz);
 
     random_fill(v.begin(),  v.end());
     random_fill(v2.begin(), v2.end());
     random_fill(v3.begin(), v3.end());
     random_fill(v4.begin(), v4.end());
+    random_fill(v5.begin(), v5.end());
 
     auto sv4(v4);
 
@@ -58,14 +60,22 @@ int main() {
     // with an integrated thread pool
     auto t3 = measure_performance(DSTL::parallel_quick_sort_with_intergrated_tp<std::vector<int>::iterator>, v3.begin(), v3.end());
 
+    std::this_thread::yield();
+
     // with a separate thread pool
     auto t4 = measure_performance(DSTL::parallel_quick_sort_with_tp<std::vector<int>::iterator>, v4.begin(), v4.end());
 
+    std::this_thread::yield();
+
+    // with an improved separate thread pool
+    auto t5 = measure_performance(DSTL::parallel_quick_sort_with_improved_tp<std::vector<int>::iterator>, v5.begin(), v5.end());
 
     std::cout << "sequential qsort: " << t << "ms to run.\n";
     std::cout << "parallel qsort recursive threads: " << t2 << "ms to run.\n";
     std::cout << "parallel qsort with an integrated thread pool: " << t3 << "ms to run.\n";
-    std::cout << "parallel qsort with a separate: " << t4 << "ms to run.\n";
+    std::cout << "parallel qsort with a separate thread pool: " << t4 << "ms to run.\n";
+
+    std::cout << "parallel qsort with a separate improved thread pool: " << t5 << "ms to run.\n";
 
     std::sort(sv4.begin(), sv4.end());
     std::cout << (sv4 == v4) << std::endl;
