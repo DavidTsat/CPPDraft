@@ -46,7 +46,8 @@ public:
 		return res;
 	}
 	bool empty() const {
-		std::lock_guard<std::mutex>
+		std::lock_guard<std::mutex> lk(mut);
+		return data_queue.empty();
 	}
 };
 

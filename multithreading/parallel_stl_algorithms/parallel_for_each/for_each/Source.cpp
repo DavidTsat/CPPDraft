@@ -57,16 +57,11 @@ struct Foo {
 
 int main() {
 
-    
 
     std::vector<int> v(10);
 
     random_fill(v.begin(), v.end());
-    
-    Foo ff;
-    ff.display_greeting();
-    auto dd = std::mem_fn(&Foo::display_greeting);
-    dd(ff);
+
 
     for (int i : v) {
         std::cout << i << ' ';
