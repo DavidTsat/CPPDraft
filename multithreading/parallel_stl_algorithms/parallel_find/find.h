@@ -8,60 +8,73 @@
 #include <future>
 #include <cassert>
 
+namespace DSTL {
 
-template <typename It, typename T>
-It dfind(It begin, It end, T t) {
-    while (begin != end) {
-        if (*begin++ == t) {
-            return --begin;
+    class join_threads {
+        std::vector<std::thread>& threads;
+    public:
+        explicit join_threads(std::vector<std::thread>& threads_) : threads(threads_) {}
+        ~join_threads() {
+            for (unsigned long i = 0; i < threads.size(); ++i) {
+                if (threads[i].joinable()) {
+                    threads[i].join();
+                }
+            }
         }
-    }
-    return end;
-}
+    };
 
-template <typename It, typename T>
-It pdfind(It begin, It end, T t) {
-    unsigned int n = std::thread::hardware_concurrency();
-    assert(std::distance(begin, end) % n == 0);
+	template <typename It, typename Match>
+	It find(It begin, It end, Match m) {
+        
+        struct find_in_chunk {
+            void operator()(It chunk_begin, It chunk_end, Match m_, std::promise<It>* res, std::atomic<bool>* done) {
+                try {
+                    for (; chunk_begin != chunk_end && !done->load(); ++chunk_begin) {
+                        if (*chunk_begin == m_) {
+                            res->set_value(chunk_begin);
+                            done->store(true);
+                            return;
+                        }
+                    }
+                }
+                catch (...) {
+                    res->set_exception(std::current_exception());
+                    done->store(true);
+                }
+            }
+        };
+        std::atomic<bool> done = false;
+        std::promise<It> res;
+        std::vector<std::thread> threads;
+        join_threads j(threads);
 
-    std::vector<std::future<It>> r;
+        auto range_length = std::distance(begin, end);
+        auto thread_max_count = std::thread::hardware_concurrency() - 1;
 
-    for (; begin < end; begin += n) {
-        r.push_back(std::async(dfind<It, T>, begin, begin + n, t));
-    }
+        unsigned chunk_length = unsigned(range_length / thread_max_count);
+     
+        threads.reserve(thread_max_count);
+        
+        It& chunk_begin = begin;
+        for (unsigned i = 0; i < thread_max_count; ++i) {
+            It chunk_end = chunk_begin;
+            std::advance(chunk_end, chunk_length);
+            
+            std::thread t(find_in_chunk(), chunk_begin, chunk_end, m, &res, &done);
 
-    for (std::future<It>& f : r) {
-        auto p = f.get();
-        if (p != end && *p == t) {
-            return p;
+            threads.push_back(std::move(t));
+            chunk_begin = chunk_end;
         }
-    }
-    return end;
-}
 
-template <typename Pred, typename Record>
-Record* find_rec(std::vector<Record>& vr, int first, int last, Pred pr) {
-	typename std::vector<Record>::iterator p = std::find_if(vr.begin() + first, vr.begin() + last, pr);
-	if (p == vr.begin() + last) {
-		return nullptr;
-	}
-	return &*p;
-}
-
-template <typename Pred, typename Record>
-Record* pfind(std::vector<Record>& vr, Pred pr) {
-    unsigned int grain = std::thread::hardware_concurrency();
-	assert(vr.size() % grain == 0);
-	std::vector<std::future<Record*>> res;
-
-	for (int i = 0; i != vr.size(); i += grain) {
-		res.push_back(std::async(find_rec<Pred, Record>, std::ref(vr), i, i + grain, pr));
+        find_in_chunk()(chunk_begin, end, m, &res, &done);
+        
+        if (done) {
+            return res.get_future().get();
+        }
+        else {
+            return end;
+        }
 	}
 
-	for (int i = 0; i != res.size(); ++i) {
-		if (auto p = res[i].get()) {
-			return p;
-		}
-	}
-    return nullptr;
+
 }

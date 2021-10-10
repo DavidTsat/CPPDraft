@@ -7,8 +7,8 @@
 #include <thread>
 #include <future>
 
-template <typename ForIt, typename F>
-inline void dfor_each(ForIt begin, ForIt end, F f) {
+template <typename It, typename F>
+inline void dfor_each(It begin, It end, F f) {
 	for (; begin != end; ++begin) {
 		f(*begin);
 	}
@@ -27,86 +27,6 @@ public:
     }
 };
 
-/*
-without futures and bind - most optimal
-*/
-template <typename ForIt, typename F>
-F d_parallel_for_each(ForIt begin, ForIt end, F&& f) {
-    auto range_length = std::distance(begin, end);
-    auto thread_max_count = std::thread::hardware_concurrency() - 1;
-
-    unsigned chunk_length = unsigned(range_length / thread_max_count);
-    std::vector<std::thread> threads;
-    join_threads j(threads);
-    threads.reserve(thread_max_count);
-   
-    for (unsigned i = 0; i < thread_max_count; ++i) {
-        ForIt chunk_end = begin;
-        std::advance(chunk_end, chunk_length);
-        std::thread t(std::for_each<ForIt, F>, begin, chunk_end, f);
-        threads.push_back(std::move(t));
-        begin = chunk_end;
-    }
- 
-    dfor_each(begin, end, f);
-
-    return f;
-}
-
-/*
-using bind
-*/
-template <typename ForIt, typename F>
-F d_parallel_for_each1(ForIt begin, ForIt end, F&& f) {
-    auto range_length = std::distance(begin, end);
-    auto thread_max_count = std::thread::hardware_concurrency()-1;
-
-    unsigned chunk_length = unsigned (range_length / thread_max_count);
-    std::vector<std::future<void>> futures;
-    futures.reserve(thread_max_count);
-
-    for (unsigned i = 0; i < thread_max_count; ++i) {
-        std::packaged_task<void()> seq_for_each(std::bind(dfor_each<ForIt,F>, begin + i * chunk_length, begin + (i + 1) * chunk_length, f));
-        futures.push_back(seq_for_each.get_future());
-        std::thread t(std::move(seq_for_each));
-        t.detach();
-    }
-    dfor_each(begin + thread_max_count * chunk_length, end, f);
-
-    for (auto& future : futures) {
-        future.get();
-    }
-    
-    return f;
-}
-
-/*
-without bind, using direct call
-*/
-template <typename ForIt, typename F>
-F d_parallel_for_each2(ForIt begin, ForIt end, F&& f) {
-    auto range_length = std::distance(begin, end);
-    auto thread_max_count = std::thread::hardware_concurrency() - 1;
-
-    unsigned chunk_length = unsigned(range_length / thread_max_count);
-    std::vector<std::future<void>> futures;
-    futures.reserve(thread_max_count);
-
-    for (unsigned i = 0; i < thread_max_count; ++i) {
-        std::packaged_task<void(ForIt, ForIt, F)> seq_for_each(dfor_each<ForIt, F>);
-        futures.push_back(seq_for_each.get_future());
-        std::thread t(std::move(seq_for_each), begin + i * chunk_length, begin + (i + 1) * chunk_length, f);
-        t.detach();
-    }
-    dfor_each(begin + thread_max_count * chunk_length, end, f);
-
-    for (auto& future : futures) {
-        future.get();
-    }
-
-    return f;
-}
-
 template <typename ForwardIt>
 void random_fill(ForwardIt f, ForwardIt l, int left_bound = -99999, int right_bound = 99999) {
     std::random_device rnd_device;
@@ -124,12 +44,95 @@ void random_fill(ForwardIt f, ForwardIt l, int left_bound = -99999, int right_bo
 template <typename F, typename... Fargs>
 auto measure_performance(F f, Fargs&&... fargs) {
     auto start_time = std::chrono::high_resolution_clock::now();
-    f(std::forward<Fargs&&>(fargs)...);
+    f(std::forward<Fargs>(fargs)...);
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto time = end_time - start_time;
 
     return time / std::chrono::milliseconds(1);
+}
+
+/*
+without futures and bind - most optimal
+*/
+template <typename It, typename F>
+F d_parallel_for_each(It begin, It end, F f) {
+    std::vector<std::thread> threads;
+    join_threads j(threads);
+
+    auto range_length = std::distance(begin, end);
+    auto thread_max_count = std::thread::hardware_concurrency() - 1;
+
+    unsigned chunk_length = unsigned(range_length / thread_max_count);
+ 
+    threads.reserve(thread_max_count);
+   
+    It& chunk_begin = begin;
+    for (unsigned i = 0; i < thread_max_count; ++i) {
+        It chunk_end = chunk_begin;
+        std::advance(chunk_end, chunk_length);
+        std::thread t(std::for_each<It, F>, chunk_begin, chunk_end, f);
+        threads.push_back(std::move(t));
+        chunk_begin = chunk_end;
+    }
+ 
+    dfor_each(chunk_begin, end, f);
+
+    return f;
+}
+
+/*
+using bind
+*/
+template <typename It, typename F>
+F d_parallel_for_each1(It begin, It end, F&& f) {
+    auto range_length = std::distance(begin, end);
+    auto thread_max_count = std::thread::hardware_concurrency()-1;
+
+    unsigned chunk_length = unsigned (range_length / thread_max_count);
+    std::vector<std::future<void>> futures;
+    futures.reserve(thread_max_count);
+
+    for (unsigned i = 0; i < thread_max_count; ++i) {
+        std::packaged_task<void()> seq_for_each(std::bind(dfor_each<It,F>, begin + i * chunk_length, begin + (i + 1) * chunk_length, f));
+        futures.push_back(seq_for_each.get_future());
+        std::thread t(std::move(seq_for_each));
+        t.detach();
+    }
+    dfor_each(begin + thread_max_count * chunk_length, end, f);
+
+    for (auto& future : futures) {
+        future.get();
+    }
+    
+    return f;
+}
+
+/*
+without bind, using direct call
+*/
+template <typename It, typename F>
+F d_parallel_for_each2(It begin, It end, F&& f) {
+    auto range_length = std::distance(begin, end);
+    auto thread_max_count = std::thread::hardware_concurrency() - 1;
+
+    unsigned chunk_length = unsigned(range_length / thread_max_count);
+    std::vector<std::future<void>> futures;
+    futures.reserve(thread_max_count);
+
+    for (unsigned i = 0; i < thread_max_count; ++i) {
+        std::packaged_task<void(It, It, F)> seq_for_each(dfor_each<It, F>);
+        futures.push_back(seq_for_each.get_future());
+        std::thread t(std::move(seq_for_each), begin + i * chunk_length, begin + (i + 1) * chunk_length, f);
+        t.detach();
+    }
+    dfor_each(begin + thread_max_count * chunk_length, end, f);
+
+    for (auto& future : futures) {
+        future.get();
+    }
+
+    return f;
 }
 
 int main() {

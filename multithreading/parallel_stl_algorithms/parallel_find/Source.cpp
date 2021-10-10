@@ -17,10 +17,10 @@ void random_fill(ForwardIt f, ForwardIt l, int left_bound = -99999, int right_bo
 }
 
 template <typename F, typename... Fargs>
-auto measure_performance(F&& f, Fargs&&... fargs) {
+auto measure_performance(F f, Fargs&&... fargs) {
     auto start_time = std::chrono::high_resolution_clock::now();
     f(std::forward<Fargs>(fargs)...);
-   
+
     auto end_time = std::chrono::high_resolution_clock::now();
     auto time = end_time - start_time;
 
@@ -29,34 +29,21 @@ auto measure_performance(F&& f, Fargs&&... fargs) {
 
 
 int main() {
-    int r = 0;
-    unsigned int block_size = 10000;
-    unsigned int vec_size = std::thread::hardware_concurrency() * block_size;
- 
-    std::vector<int> v(vec_size);
 
-    random_fill(v.begin(), v.end(), -10*(int)block_size, 10*(int)block_size);
+    std::vector<int> v(10000000);
 
-
-    int find_val = 50;
-
-    
-    auto t1 = measure_performance(pdfind<std::vector<int>::const_iterator, int>, v.cbegin(), v.cend(), find_val);
-   
-    std::cout << "\ntime with parallel pdfind: " << t1 << std::endl;
-   
-
- 
-    auto t2 = measure_performance(std::find<std::vector<int>::const_iterator, int>, v.cbegin(), v.cend(), find_val);
-
-    std::cout << "\ntime with sequential std find: " << t2 << std::endl;
-
-    
-
-    auto t3 = measure_performance(pfind<std::function<bool(int)>, int>, v, [&find_val](int v) {return v == find_val; });
+    random_fill(v.begin(), v.end(), -99, 99);
   
-    std::cout << "\ntime with parallel pfind: " << t3 << std::endl;
- 
+
+    auto t1 = measure_performance(DSTL::find<std::vector<int>::const_iterator, int>, v.cbegin(), v.cend(), 0);
+    auto t2 = measure_performance(std::find<std::vector<int>::const_iterator, int>, v.cbegin(), v.cend(), 0);
+
+
+    std::cout << "parallel time: " << t1 << std::endl;
+    std::cout << "std::for_each time: " << t2 << std::endl;
+
+    std::cout << std::endl;
+
    
 	return 0;
 }

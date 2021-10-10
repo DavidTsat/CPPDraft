@@ -143,9 +143,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="find.h" />
-    <ClInclude Include="threadsafe_queue_simple.h" />
-    <ClInclude Include="thread_pool.h" />
-    <ClInclude Include="thread_pool_old.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
