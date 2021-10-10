@@ -4,13 +4,106 @@
 #include <chrono>
 #include <random>
 #include <functional>
+#include <thread>
+#include <future>
 
 template <typename ForIt, typename F>
-F dfor_each(ForIt begin, ForIt end, F f) {
-
+inline void dfor_each(ForIt begin, ForIt end, F f) {
 	for (; begin != end; ++begin) {
 		f(*begin);
 	}
+}
+
+class join_threads {
+    std::vector<std::thread>& threads;
+public:
+    explicit join_threads(std::vector<std::thread>& threads_) : threads(threads_) {}
+    ~join_threads() {
+        for (unsigned long i = 0; i < threads.size(); ++i) {
+            if (threads[i].joinable()) {
+                threads[i].join();
+            }
+        }
+    }
+};
+
+/*
+without futures and bind - most optimal
+*/
+template <typename ForIt, typename F>
+F d_parallel_for_each(ForIt begin, ForIt end, F&& f) {
+    auto range_length = std::distance(begin, end);
+    auto thread_max_count = std::thread::hardware_concurrency() - 1;
+
+    unsigned chunk_length = unsigned(range_length / thread_max_count);
+    std::vector<std::thread> threads;
+    join_threads j(threads);
+    threads.reserve(thread_max_count);
+   
+    for (unsigned i = 0; i < thread_max_count; ++i) {
+        ForIt chunk_end = begin;
+        std::advance(chunk_end, chunk_length);
+        std::thread t(std::for_each<ForIt, F>, begin, chunk_end, f);
+        threads.push_back(std::move(t));
+        begin = chunk_end;
+    }
+ 
+    dfor_each(begin, end, f);
+
+    return f;
+}
+
+/*
+using bind
+*/
+template <typename ForIt, typename F>
+F d_parallel_for_each1(ForIt begin, ForIt end, F&& f) {
+    auto range_length = std::distance(begin, end);
+    auto thread_max_count = std::thread::hardware_concurrency()-1;
+
+    unsigned chunk_length = unsigned (range_length / thread_max_count);
+    std::vector<std::future<void>> futures;
+    futures.reserve(thread_max_count);
+
+    for (unsigned i = 0; i < thread_max_count; ++i) {
+        std::packaged_task<void()> seq_for_each(std::bind(dfor_each<ForIt,F>, begin + i * chunk_length, begin + (i + 1) * chunk_length, f));
+        futures.push_back(seq_for_each.get_future());
+        std::thread t(std::move(seq_for_each));
+        t.detach();
+    }
+    dfor_each(begin + thread_max_count * chunk_length, end, f);
+
+    for (auto& future : futures) {
+        future.get();
+    }
+    
+    return f;
+}
+
+/*
+without bind, using direct call
+*/
+template <typename ForIt, typename F>
+F d_parallel_for_each2(ForIt begin, ForIt end, F&& f) {
+    auto range_length = std::distance(begin, end);
+    auto thread_max_count = std::thread::hardware_concurrency() - 1;
+
+    unsigned chunk_length = unsigned(range_length / thread_max_count);
+    std::vector<std::future<void>> futures;
+    futures.reserve(thread_max_count);
+
+    for (unsigned i = 0; i < thread_max_count; ++i) {
+        std::packaged_task<void(ForIt, ForIt, F)> seq_for_each(dfor_each<ForIt, F>);
+        futures.push_back(seq_for_each.get_future());
+        std::thread t(std::move(seq_for_each), begin + i * chunk_length, begin + (i + 1) * chunk_length, f);
+        t.detach();
+    }
+    dfor_each(begin + thread_max_count * chunk_length, end, f);
+
+    for (auto& future : futures) {
+        future.get();
+    }
+
     return f;
 }
 
@@ -29,9 +122,9 @@ void random_fill(ForwardIt f, ForwardIt l, int left_bound = -99999, int right_bo
 }
 
 template <typename F, typename... Fargs>
-auto measure_performance(F f, Fargs... fargs) {
+auto measure_performance(F f, Fargs&&... fargs) {
     auto start_time = std::chrono::high_resolution_clock::now();
-    f(std::forward<Fargs>(fargs)...);
+    f(std::forward<Fargs&&>(fargs)...);
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto time = end_time - start_time;
@@ -39,42 +132,21 @@ auto measure_performance(F f, Fargs... fargs) {
     return time / std::chrono::milliseconds(1);
 }
 
-
-struct Foo {
-    void display_greeting() {
-        std::cout << "Hello, world.\n";
-    }
-    void display_number(int i) {
-        std::cout << "number: " << i << '\n';
-    }
-    int add_xy(int x, int y) {
-        return data + x + y;
-    }
-
-
-    int data = 7;
-};
-
 int main() {
 
-
-    std::vector<int> v(10);
+    std::vector<int> v(10000000);
 
     random_fill(v.begin(), v.end());
+    auto vv(v);
 
+    auto t1 = measure_performance(d_parallel_for_each<std::vector<int>::iterator,std::function<void(int&)>>, v.begin(), v.end(), [](int& i) {++i; });
+    auto t2 = measure_performance(std::for_each<std::vector<int>::iterator, std::function<void(int&)>>, vv.begin(), vv.end(), [](int& i) {++i; });
 
-    for (int i : v) {
-        std::cout << i << ' ';
-    }
+  
+    std::cout << "parallel time: " << t1 << std::endl;
+    std::cout << "std::for_each time: " << t2 << std::endl;
+
+    std::cout << (v == vv) << std::endl;
     std::cout << std::endl;
-
-    auto d = dfor_each<std::vector<int>::iterator, std::function<void(int&)>>;
-    d(v.begin(), v.end(), [](int& i) {++i; });
-
-
-    for (int i : v) {
-        std::cout << i << ' ';
-    }
-    std::cout << std::endl;
-
+    return 0;
 }
