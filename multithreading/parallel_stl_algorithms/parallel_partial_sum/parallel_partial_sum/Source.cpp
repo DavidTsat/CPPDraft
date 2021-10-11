@@ -1,6 +1,9 @@
+﻿#include <iostream>
 #include <chrono>
-#include <iostream>
-#include "find.h"
+#include <random>
+#include <vector>
+
+#include "parallel_partial_sum.h"
 
 template <typename ForwardIt>
 void random_fill(ForwardIt f, ForwardIt l, int left_bound = -99999, int right_bound = 99999) {
@@ -27,23 +30,21 @@ auto measure_performance(F f, Fargs&&... fargs) {
     return time / std::chrono::milliseconds(1);
 }
 
-
 int main() {
+    std::vector<int> v(99999999);
 
-    std::vector<int> v(10000000);
-
-    random_fill(v.begin(), v.end(), -99, 99);
-  
-
-    auto t1 = measure_performance(DSTL::find<std::vector<int>::const_iterator, int>, v.cbegin(), v.cend(), 1000);
-    auto t2 = measure_performance(std::find<std::vector<int>::const_iterator, int>, v.cbegin(), v.cend(), 1000);
-
-
-    std::cout << "parallel time: " << t1 << std::endl;
-    std::cout << "std::for_each time: " << t2 << std::endl;
-
-    std::cout << std::endl;
+    random_fill(v.begin(), v.end(), 1, 10);
 
    
-	return 0;
+    std::vector<int> vv(v);
+    
+ 
+    auto t1 = measure_performance(DSTL::parallel_partial_sum<std::vector<int>::iterator, std::vector<int>::iterator>, v.begin(), v.end(), v.begin());
+	
+    auto t2 = measure_performance(std::partial_sum< std::vector<int>::iterator, std::vector<int>::iterator>, vv.begin(), vv.end(), vv.begin());
+
+    std::cout << "parallel partial_sum time: " << t1 << std::endl;
+    std::cout << "std partial_sum time: " << t2 << std::endl;
+
+    return 0;
 }

@@ -75,6 +75,4 @@ namespace DSTL {
             return end;
         }
 	}
-
-
 }
