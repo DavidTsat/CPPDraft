@@ -31,9 +31,9 @@ auto measure_performance(F f, Fargs&&... fargs) {
 }
 
 int main() {
-    std::vector<int> v(99999999);
+    std::vector<int> v(5000000);
 
-    random_fill(v.begin(), v.end(), 1, 10);
+    random_fill(v.begin(), v.end());
 
    
     std::vector<int> vv(v);
@@ -45,6 +45,19 @@ int main() {
 
     std::cout << "parallel partial_sum time: " << t1 << std::endl;
     std::cout << "std partial_sum time: " << t2 << std::endl;
+    std::cout << std:: endl << (v == vv) <<std::endl;
+
+   
+   /*
+    for (int i : v) {
+        std::cout << i << ' ';
+    }
+    std::cout << std::endl;
+    for (int i : vv) {
+        std::cout << i << ' ';
+    }
+    */
+    std::cout << std::endl;
 
     return 0;
 }
