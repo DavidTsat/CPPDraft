@@ -2,6 +2,7 @@
 #include <chrono>
 #include <random>
 #include <vector>
+#include <list>
 
 #include "parallel_partial_sum.h"
 
@@ -30,25 +31,31 @@ auto measure_performance(F f, Fargs&&... fargs) {
     return time / std::chrono::milliseconds(1);
 }
 
-int main() {
-    std::vector<int> v(5000000);
 
-    random_fill(v.begin(), v.end());
+int main() {
+    std::list<int> v(2400007);
+
+    random_fill(v.begin(), v.end(), 0,5);
 
    
-    std::vector<int> vv(v);
-    
+    std::list<int> vv(v);
+    std::list<int> vvv(v);
  
-    auto t1 = measure_performance(DSTL::parallel_partial_sum<std::vector<int>::iterator, std::vector<int>::iterator>, v.begin(), v.end(), v.begin());
+    auto t1 = measure_performance(DSTL::parallel_partial_sum_improved<std::list<int>::iterator, std::list<int>::iterator>, v.begin(), v.end(), v.begin());
 	
-    auto t2 = measure_performance(std::partial_sum< std::vector<int>::iterator, std::vector<int>::iterator>, vv.begin(), vv.end(), vv.begin());
+   // auto t2 = measure_performance(std::partial_sum< std::list<int>::iterator, std::list<int>::iterator>, vv.begin(), vv.end(), vv.begin());
+
+    auto t2 = measure_performance(DSTL::parallel_partial_sum_<std::list<int>::iterator>, vv.begin(), vv.end());
+
+    auto t3 = measure_performance(std::partial_sum< std::list<int>::iterator, std::list<int>::iterator>, vvv.begin(), vvv.end(), vvv.begin());
 
     std::cout << "parallel partial_sum time: " << t1 << std::endl;
-    std::cout << "std partial_sum time: " << t2 << std::endl;
-    std::cout << std:: endl << (v == vv) <<std::endl;
+    std::cout << "parallel partial_sum_ time: " << t2 << std::endl;
+    std::cout << "std partial_sum time: " << t3 << std::endl;
+    std::cout << std:: endl << (v == vvv) <<std::endl;
 
    
-   /*
+  /*
     for (int i : v) {
         std::cout << i << ' ';
     }
