@@ -23,6 +23,7 @@ namespace DSTL {
 		}
 	};
 
+	// bad implementation
 	template <typename InIt, typename OutIt>
 	void parallel_partial_sum(InIt begin, InIt end, OutIt out_begin) {
 		auto dist = std::distance(begin, end);
@@ -118,47 +119,6 @@ namespace DSTL {
 
 		{
 			struct process_chunk {
-				/*
-				void operator()(InIt begin, InIt last,
-					std::future<value_type>* previous_end_value,
-					std::promise<value_type>* end_value)
-				{
-					try
-					{
-						InIt end = last;
-						++end;
-						std::partial_sum(begin, end, begin);
-						if (previous_end_value)
-						{
-							auto addend = previous_end_value->get();
-							*last += addend;
-							if (end_value)
-							{
-								end_value->set_value(*last);
-							}
-							std::for_each(begin, last, [addend](value_type& item)
-								{
-									item += addend;
-								});
-						}
-						else if (end_value)
-						{
-							end_value->set_value(*last);
-						}
-					}
-					catch (...)
-					{
-						if (end_value)
-						{
-							end_value->set_exception(std::current_exception());
-						}
-						else
-						{
-							throw;
-						}
-					}
-				}
-				*/
 				void operator()(InIt chunk_begin, InIt chunk_end, OutIt out_chunk_begin, std::future<value_type>* previous_last_value, std::promise<value_type>* current_last_value) {
 					
 					
@@ -173,16 +133,17 @@ namespace DSTL {
 							const value_type& prev_last_val = previous_last_value->get();
 
 							*out_chunk_begin_reversed += prev_last_val;
-							current_last_value->set_value(*out_chunk_begin_reversed);
+							if (current_last_value) {
+								current_last_value->set_value(*out_chunk_begin_reversed);
+							}
 
 							std::for_each(++out_chunk_begin_reversed, out_chunk_end_reversed, [&prev_last_val](value_type& v) { v += prev_last_val; });
 						}
-						else if (current_last_value != nullptr){
+						else if (current_last_value){
 							current_last_value->set_value(*out_chunk_begin_reversed);
 						}
 					}
-					catch (std::exception& e) {
-						std::cout << e.what() << std::endl;
+					catch (...) {
 						current_last_value->set_exception(std::current_exception());
 					}
 					
@@ -211,31 +172,18 @@ namespace DSTL {
 				
 				previous_last_values.push_back(current_last_values[i].get_future());
 			}
+
 			assert(chunk_begin == chunk_end);
 
-			std::partial_sum(chunk_begin, end, chunk_out_begin);
-			const value_type& lv = previous_last_values.back().get();
-			std::for_each(chunk_begin, end, [&lv](value_type& v) {v += lv; });
-
-		//	process_chunk()(chunk_begin, end, chunk_out_begin, &previous_last_values.back(), nullptr);
-//			chunk_workers.emplace_back(process_chunk(), chunk_begin, end, chunk_out_begin, &previous_last_values[chunks_number - 1], nullptr);
-
-	//		std::partial_sum(chunk_begin, end, chunk_out_begin);
+			if (chunk_begin != end) {
+				process_chunk()(chunk_begin, end, chunk_out_begin, &previous_last_values.back(), nullptr);
+				//	chunk_workers.emplace_back(process_chunk(), chunk_begin, end, chunk_out_begin, &previous_last_values.back(), nullptr);
+			}
 		}
 
-		/*
-		InIt chunk_begin = out_begin;
-		std::advance(chunk_begin, chunk_length);
-		InIt chunk_end = chunk_begin;
-		std::advance(out_begin, chunk_length - 1);
-
-
-		std::advance(out_begin, chunk_length);
-		std::for_each(chunk_begin, end, [&out_begin](typename std::iterator_traits<OutIt>::value_type& v) {v += *out_begin; });
-		*/
 	}
 
-
+	// implementation of the book
     template<typename Iterator>
     void parallel_partial_sum_(Iterator first, Iterator last)
     {
