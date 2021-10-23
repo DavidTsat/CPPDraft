@@ -17,7 +17,7 @@ void random_fill(ForwardIt f, ForwardIt l, int left_bound = -99999, int right_bo
 }
 
 template <typename F, typename... Fargs>
-auto measure_performance(F f, Fargs... fargs) {
+auto measure_performance(F f, Fargs&&... fargs) {
     auto start_time = std::chrono::high_resolution_clock::now();
     f(std::forward<Fargs>(fargs)...);
 
@@ -28,18 +28,20 @@ auto measure_performance(F f, Fargs... fargs) {
 }
 
 int main() {
-    unsigned int block_size = 1000000;
-    unsigned int vec_size = std::thread::hardware_concurrency() * block_size;
+    unsigned int vec_size = 120257005;
 
     std::vector<int> v(vec_size);
 
     random_fill(v.begin(), v.end()); 
 
-    auto t = measure_performance(DSTL::parallel_accumulate<std::vector<int>::const_iterator, int>, v.cbegin(), v.cend(), 0);
+    auto t = measure_performance(DSTL::parallel_accumulate<std::vector<int>::const_iterator, int, std::plus<int>>, v.cbegin(), v.cend(), 0, std::plus<int>());
     auto tt = measure_performance(std::accumulate<std::vector<int>::const_iterator, int>, v.cbegin(), v.cend(), 0);
 
-    std::cout << "time with custom thread pool: " << t << std::endl;
-    std::cout << "time with sequential stl implementation: " << tt << std::endl;
+    std::cout << "parallel_accumulate time: " << t << std::endl;
+    std::cout << "std::accumulate time: " << tt << std::endl;
 
+    auto aa = DSTL::parallel_accumulate(v.cbegin(), v.cend(), 0);
+    auto aaa = std::accumulate(v.cbegin(), v.cend(), 0);
+    std::cout << (aa == aaa);
     return 0;
 }
