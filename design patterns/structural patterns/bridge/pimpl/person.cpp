@@ -14,21 +14,7 @@ public:
 	void greet();
 };
 
-
 person::person(std::string name, unsigned age) : impl(std::make_unique<person_impl>(name, age)) {}
-
-//person::person(const person& p) : impl(std::make_unique<person_impl>(p.impl)) {}
-
-//std::unique_ptr<person> person::person_factory::create_person_pointer(std::string name_, unsigned age_) {
-////	return std::make_unique<person>(name_, age_);
-//	return nullptr;
-//}
-//
-//person person::person_factory::create_person(std::string name_, unsigned age_) {
-//	//	return std::make_unique<person>(name_, age_);
-//	return person(name_, age_);
-//}
-
 
 void person::greet() {
 	impl->greet();
@@ -37,7 +23,7 @@ void person::greet() {
 person::~person() { }
 
 
-// ///////////////////////////////////////////////////////////
+//###########################################################################################
 
 
 person::person_impl::person_impl(std::string name_, unsigned age_) : name(name_), age(age_) {}
