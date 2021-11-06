@@ -24,6 +24,7 @@
     <ProjectGuid>{b21752a2-335b-4777-aaff-9bfdd66ce56c}</ProjectGuid>
     <RootNamespace>threadsafequeue</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>producer_consumer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
