@@ -26,5 +26,8 @@
     <ClInclude Include="second_approach.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="third_approach.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

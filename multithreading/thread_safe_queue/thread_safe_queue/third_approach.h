@@ -6,7 +6,7 @@
 #include <future>
 
 /*
-* second approach to the producer/consumer problem
+* third approach to the producer/consumer problem
 */
 class producer_consumer {
 	using data_type = int;
@@ -14,7 +14,7 @@ class producer_consumer {
 	constexpr static unsigned MAX_SIZE = 10;
 
 	std::mutex buffer_guard;
-	std::condition_variable buffer_condition;
+	std::condition_variable buffer_empty_condition, buffer_full_condition;
 public:
 	data_type prepare_data() const {
 		static data_type data = 0;
@@ -29,23 +29,23 @@ public:
 	void produce() {
 		for (int i = 0; i < 1000; ++i) {
 			std::unique_lock<std::mutex> buffer_guard_lock(buffer_guard);
-			buffer_condition.wait(buffer_guard_lock, [this]() { return buffer.size() < MAX_SIZE; });
+			buffer_full_condition.wait(buffer_guard_lock, [this]() { return buffer.size() < MAX_SIZE; });
 
 			data_type data = prepare_data();
 			buffer.push(data);
 
-			buffer_condition.notify_one();
+			buffer_empty_condition.notify_one();
 		}
 	}
 
 	void consume() {
 		for (int i = 0; i < 1000; ++i) {
 			std::unique_lock<std::mutex> buffer_guard_lock(buffer_guard);
-			buffer_condition.wait(buffer_guard_lock, [this]() {return !buffer.empty(); });
+			buffer_empty_condition.wait(buffer_guard_lock, [this]() {return !buffer.empty(); });
 			data_type d = buffer.front();
 			buffer.pop();
 			buffer_guard_lock.unlock();
-			buffer_condition.notify_one();
+			buffer_full_condition.notify_one();
 			use_data(d);
 		}
 	}

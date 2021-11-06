@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="first_approach.h" />
     <ClInclude Include="second_approach.h" />
+    <ClInclude Include="third_approach.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
