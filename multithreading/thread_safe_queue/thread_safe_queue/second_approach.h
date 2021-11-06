@@ -1,19 +1,22 @@
 #pragma once
+#pragma once
 #include <queue>
 #include <iostream>
 #include <thread>
 #include <future>
-#include <cassert>
 
 /*
-* First approach to the producer/consumer problem
+* second approach to the producer/consumer problem
 */
 class producer_consumer {
 	using data_type = int;
 	std::queue<data_type> buffer;
-	constexpr static unsigned MAX_SIZE = 10;
+	constexpr static unsigned MAX_SIZE = 1;
+
+	std::mutex buffer_guard;
+	std::condition_variable buffer_condition;
 public:
-	// 1. Without any synchronization. Just the idea
+
 	data_type prepare_data() {
 		static data_type data = 0;
 		std::cout << "producing data: " << data << std::endl;
@@ -25,18 +28,25 @@ public:
 	}
 
 	void produce() {
-		while (true) {
-			assert(buffer.size() < MAX_SIZE, "buffer overflow!");
+		for (int i = 0; i < 1000; ++i) {
+			std::unique_lock<std::mutex> buffer_guard_lock(buffer_guard);
+			buffer_condition.wait(buffer_guard_lock, [this]() { return buffer.size() < MAX_SIZE; });
+
 			data_type data = prepare_data();
 			buffer.push(data);
+
+			buffer_condition.notify_one();
 		}
 	}
 
 	void consume() {
-		while (true) {
-			assert(!buffer.empty(), "buffer unferflow!");
+		for (int i = 0; i < 1000; ++i) {
+			std::unique_lock<std::mutex> buffer_guard_lock(buffer_guard);
+			buffer_condition.wait(buffer_guard_lock, [this]() {return !buffer.empty(); });
 			data_type d = buffer.front();
 			buffer.pop();
+			buffer_guard_lock.unlock();
+			buffer_condition.notify_one();
 			use_data(d);
 		}
 	}

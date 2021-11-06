@@ -1,9 +1,10 @@
+//#include "first_approach.h"
+#include "second_approach.h"
 #include <iostream>
-#include "first_approach.h"
-
 
 int main() {
-
+	
 	test();
+	
 	return 0;
 }
