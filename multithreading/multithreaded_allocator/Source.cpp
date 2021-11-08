@@ -26,7 +26,6 @@ public:
 	my_simple_allocator(const my_simple_allocator<Q>&) noexcept { }
 
 	T* allocate(size_type n) {
-		
 		std::unique_lock<std::mutex> l(memory_guard);
 		memory_guard_condition.wait(l, [this, n]() {return memory_left >= n * sizeof(T); });
 		auto p = static_cast<T*>(::operator new(n * sizeof(T)));
@@ -106,7 +105,7 @@ void test() {
 
 	t2.join();
 	v.clear();
-	v.shrink_to_fit(); // освободит весь память 100 и сигнализирует потоку 1
+	v.shrink_to_fit(); // освободит всю память 100 и сигнализирует потоку 1
 	t1.join();
 }
 int main() {
