@@ -46,7 +46,6 @@ class flyweight {
 public:
 	flyweight() = default;
 	flyweight(const car::shared_data* s_) : s(std::make_shared<car::shared_data>(*s_)) {}
-	//flyweight(const flyweight& r) : s(std::make_shared<car::shared_data>(*r.s)) {}
 	flyweight(const flyweight& r) = delete;
 
 	void operation(const car::unique_data& unique_part) const {
@@ -55,26 +54,23 @@ public:
 };
 
 class flyweight_factory {
-	std::set<std::shared_ptr<flyweight>> flyweights_;
-
-	std::shared_ptr<flyweight> add_flyweight_element(const car::shared_data& new_elem) {
-		for (const std::shared_ptr<flyweight>& existing_elem : flyweights_) {
-			if (*(existing_elem->s) == new_elem) {
-				return existing_elem;
-			}
+	struct flyweight_comp {
+		bool operator()(const std::shared_ptr<flyweight>& l, const std::shared_ptr<flyweight>& r) const {
+			return l->s < r->s;
 		}
-		return *flyweights_.insert(std::make_shared<flyweight>(&new_elem)).first;
-	}
+	};
+	std::set<std::shared_ptr<flyweight>, flyweight_comp> flyweights_;
+
 public:
 	flyweight_factory() = default;
 
 	flyweight_factory(std::initializer_list<car::shared_data> shared_states) {
 		for (const car::shared_data& ss : shared_states) {
-			add_flyweight_element(ss);
+			flyweights_.insert(std::make_shared<flyweight>(&ss));
 		}
 	}
 	std::shared_ptr<flyweight> add_flyweight(const car::shared_data& new_elem) { // the same as get_flyweight
-		return add_flyweight_element(new_elem);
+		return *flyweights_.insert(std::make_shared<flyweight>(&new_elem)).first;
 	}
 	void list_flyweights() const {
 		size_t count = this->flyweights_.size();
