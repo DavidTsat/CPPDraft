@@ -2,93 +2,85 @@
 #include <iostream>
 #include <string>
 #include <ostream>
-#include <unordered_map>
+#include <set>
+#include <memory>
 
-struct car {
-	//std::array<std::string, 2> unique_data; // owner, plates;
-	//std::array<std::string, 3> shared_data; // brand, model, color, owner, plates;
+class car {
 	struct unique_data {
 		std::string owner, plates;
 	};
-	struct shared_data {
+	struct shared_data { // flyweight will work on shared data
 		std::string brand, model, color;
 	};
 
 	unique_data u;
 	shared_data s;
 
-	car(const unique_data& u_, const shared_data& s_) : u(u_), s(s_) {}
-};
-
-struct shared_state {
-	car::shared_data s;
-	
-	shared_state(const car::shared_data& s_) : s(s_) {}
-	friend std::ostream& operator<<(std::ostream& os, const shared_state& ss) {
-		return os << "[ " << ss.s.brand << " , " << ss.s.model << " , " << ss.s.color << " ]";
-	}
-};
-
-struct unique_state {
-	car::unique_data u;
-
-	unique_state(const car::unique_data& u_) : u(u_) {}
-	friend std::ostream& operator<<(std::ostream& os, const unique_state& us) {
-		return os << "[ " << us.u.owner << " , " << us.u.plates << " ]";
-	}
-};
-
-// flyweight keeps a reference on the shared data
-class flyweight {
-	shared_state* s;
+	friend class flyweight;
+	friend class flyweight_factory;
+	friend class police_database;
 public:
-	flyweight(const shared_state* s_) : s(new shared_state(*s_)) {}
-	flyweight(const flyweight& r) : s(new shared_state(*r.s)) {}
-	~flyweight() {
-		delete s;
+	car(std::string&& owner, std::string&& plates, std::string&& brand, std::string&& model, std::string&& color) {
+		u.owner  = std::move(owner);
+		u.plates = std::move(plates);
+		s.brand  = std::move(brand);
+		s.model  = std::move(model);
+		s.color  = std::move(color);
 	}
-	void operation(const unique_state& unique_part) const {
+
+	friend std::ostream& operator<<(std::ostream& os, const unique_data& us) {
+		return os << "[ " << us.owner << " , " << us.plates << " ]";
+	}
+	friend std::ostream& operator<<(std::ostream& os, const shared_data& ss) {
+		return os << "[ " << ss.brand << " , " << ss.model << " , " << ss.color << " ]";
+	}
+	friend bool operator==(const shared_data& l, const shared_data& r) {
+		return l.brand == r.brand && l.color == r.color && l.model == r.model;
+	}
+	// other methods
+};
+
+class flyweight {
+	std::shared_ptr<car::shared_data> s; // flyweight keeps a reference on the shared data
+	friend class flyweight_factory;
+public:
+	flyweight() = default;
+	flyweight(const car::shared_data* s_) : s(std::make_shared<car::shared_data>(*s_)) {}
+	//flyweight(const flyweight& r) : s(std::make_shared<car::shared_data>(*r.s)) {}
+	flyweight(const flyweight& r) = delete;
+
+	void operation(const car::unique_data& unique_part) const {
 		std::cout << "Flyweight: Displaying shared (" << *s << ") and unique (" << unique_part << ") state.\n";
 	}
 };
 
 class flyweight_factory {
-	std::unordered_map<std::string, flyweight> flyweights_;
+	std::set<std::shared_ptr<flyweight>> flyweights_;
 
-	std::string get_key(const shared_state& ss) const {
-		return ss.s.brand + '_' + ss.s.model + '_' + ss.s.color;
+	std::shared_ptr<flyweight> add_flyweight_element(const car::shared_data& new_elem) {
+		for (const std::shared_ptr<flyweight>& existing_elem : flyweights_) {
+			if (*(existing_elem->s) == new_elem) {
+				return existing_elem;
+			}
+		}
+		return *flyweights_.insert(std::make_shared<flyweight>(&new_elem)).first;
 	}
 public:
-	flyweight_factory(std::initializer_list<shared_state> shared_states) {
-		for (const shared_state& ss : shared_states) {
-			flyweights_.insert(std::make_pair<std::string, flyweight>(get_key(ss), flyweight(&ss)));
+	flyweight_factory() = default;
+
+	flyweight_factory(std::initializer_list<car::shared_data> shared_states) {
+		for (const car::shared_data& ss : shared_states) {
+			add_flyweight_element(ss);
 		}
 	}
-
-	flyweight get_flyweight(const shared_state& s) {
-		std::string key = get_key(s);
-		if (flyweights_.find(key) == flyweights_.end()) {
-			std::cout << "FlyweightFactory: Can't find a flyweight, creating new one \n";
-			flyweights_.insert(std::make_pair(key, flyweight(&s)));
-		}
-		else {
-			std::cout << "FlyweightFactory: Reusing existing flyweight.\n";
-		}
-		return flyweights_.at(key);
+	std::shared_ptr<flyweight> add_flyweight(const car::shared_data& new_elem) { // the same as get_flyweight
+		return add_flyweight_element(new_elem);
 	}
-
 	void list_flyweights() const {
 		size_t count = this->flyweights_.size();
 		std::cout << "\nFlyweightFactory: I have " << count << " flyweights:\n";
-		for (const std::pair<std::string, flyweight>& pair : flyweights_) {
-			std::cout << pair.first << "\n";
+		for (const std::shared_ptr<flyweight>& f : flyweights_) {
+			std::cout << *f->s << "\n";
 		}
 	}
 };
-
-void add_car_to_police_database(flyweight_factory& ff, const car& c) {
-	std::cout << "\nClient: Adding a car to database.\n";
-	const flyweight& f = ff.get_flyweight(c.s);
-
-	f.operation(c.u);
-}
