@@ -60,7 +60,6 @@ class flyweight_factory {
 		}
 	};
 	std::set<std::shared_ptr<flyweight>, flyweight_comp> flyweights_;
-
 public:
 	flyweight_factory() = default;
 
