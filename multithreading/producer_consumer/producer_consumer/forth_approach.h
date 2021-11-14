@@ -1,21 +1,19 @@
 #pragma once
-#pragma once
-#include <queue>
+#include "thread_safe_queue.h"
 #include <iostream>
 #include <thread>
 #include <future>
 
 /*
-* third approach to the producer/consumer problem
+* forth approach to the producer/consumer problem
 */
 class producer_consumer {
 	using data_type = int;
-	std::queue<data_type> buffer;
-	constexpr static unsigned MAX_SIZE = 10;
-
-	std::mutex buffer_guard;
-	std::condition_variable buffer_empty_condition, buffer_full_condition;
+	threadsafe_queue<data_type> threadsafe_buffer;
+	constexpr static std::size_t MAX_SIZE = 10;
 public:
+	producer_consumer() : threadsafe_buffer(MAX_SIZE) {} 
+
 	data_type prepare_data() const {
 		static data_type data = 0;
 		std::cout << "producing data: " << data << std::endl;
@@ -29,23 +27,14 @@ public:
 	void produce() {
 		for (int i = 0; i < 1000; ++i) {
 			data_type data = prepare_data();
-			std::unique_lock<std::mutex> buffer_guard_lock(buffer_guard);
-			buffer_full_condition.wait(buffer_guard_lock, [this]() { return buffer.size() < MAX_SIZE; });
-			buffer.push(data);
-
-			buffer_empty_condition.notify_one();
+			threadsafe_buffer.push(data);
 		}
 	}
 
 	void consume() {
 		for (int i = 0; i < 1000; ++i) {
-			std::unique_lock<std::mutex> buffer_guard_lock(buffer_guard);
-			buffer_empty_condition.wait(buffer_guard_lock, [this]() {return !buffer.empty(); });
-			data_type d = buffer.front();
-			buffer.pop();
-			buffer_guard_lock.unlock();
-			buffer_full_condition.notify_one();
-			use_data(d);
+			std::shared_ptr<data_type> d = threadsafe_buffer.wait_and_pop();
+			use_data(*d);
 		}
 	}
 };

@@ -21,10 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{b21752a2-335b-4777-aaff-9bfdd66ce56c}</ProjectGuid>
+    <ProjectGuid>{378e72ee-03d8-45a5-9682-9d9362cab940}</ProjectGuid>
     <RootNamespace>threadsafequeue</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>producer_consumer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -143,10 +142,6 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="first_approach.h" />
-    <ClInclude Include="forth_approach.h" />
-    <ClInclude Include="second_approach.h" />
-    <ClInclude Include="third_approach.h" />
     <ClInclude Include="thread_safe_queue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
