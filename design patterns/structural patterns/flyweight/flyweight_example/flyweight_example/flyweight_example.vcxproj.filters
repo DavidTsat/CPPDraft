@@ -23,5 +23,8 @@
     <ClInclude Include="user.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="string_range.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
