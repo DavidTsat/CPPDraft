@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{fba6718a-bdb2-4290-bd11-bf79702efa92}</ProjectGuid>
-    <RootNamespace>reverselinkedlist</RootNamespace>
+    <ProjectGuid>{49e8b225-14af-409b-8ee1-5ad1918f4ef2}</ProjectGuid>
+    <RootNamespace>validatebinarysearchtree</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
