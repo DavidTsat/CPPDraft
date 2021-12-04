@@ -1,6 +1,6 @@
 #include <vector>
 #include <list>
-#include <algorithm>
+#include <numeric>
 #include <iostream>
 
 using namespace std;
@@ -44,3 +44,9 @@ public:
         return v;
     }
 };
+
+
+int main() {
+
+    return 0;
+}
