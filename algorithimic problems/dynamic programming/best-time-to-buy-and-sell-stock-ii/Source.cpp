@@ -44,6 +44,20 @@ class Solution {
         return max(tab[prices.size() - 1][0], tab[prices.size() - 1][1]);
     }
 
+    int maxProfitIterGreedy(vector<int>& prices) {
+        int max_prof_wo = 0;                // without stock 
+        int max_prof_ws = -prices[0];       // with stock
+
+
+        for (int i = 1; i < prices.size(); ++i)
+        {
+            max_prof_wo = max(max_prof_ws + prices[i], max_prof_wo); // sell or nothing if not bought
+            max_prof_ws = max(max_prof_wo - prices[i], max_prof_ws); // buy or hold
+        }
+
+        return max(max_prof_wo, max_prof_ws);
+    }
+
     int maxProfitIterGreedy(const vector<int>& prices) {
         int max_prof = 0;
         int prev = prices[0];
@@ -61,8 +75,8 @@ class Solution {
 
 public:
     int maxProfit(const vector<int>& prices) {
-        //    if (prices.size() < 2) return 0;
-        return maxProfitIterDP(prices);
+        return maxProfitIterGreedy(prices);
+        //return maxProfitIterDP(prices);
         //   vector<vector<int>> v(2, vector<int>(prices.size(), -1));
         //   return  maxProfitRec(0, true, v, prices);
     }
