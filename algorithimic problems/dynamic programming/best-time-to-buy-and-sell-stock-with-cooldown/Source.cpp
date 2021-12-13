@@ -63,6 +63,27 @@ class Solution {
         return max(tab[prices.size() - 1][0], tab[prices.size() - 1][1]);
     }
 
+    int maxProfitCooldownIterGreedy(const vector<int>& prices) {
+
+        int max_prof_wo_day_before = 0;
+        int max_prof_ws_day_before = -prices[0];
+        int max_prof_wo_prev_day = max(max_prof_wo_day_before, max_prof_ws_day_before + prices[1]);
+        int max_prof_ws_prev_day = max(-prices[1], max_prof_ws_day_before);
+
+        for (int i = 2; i < prices.size(); ++i)
+        {
+            int max_prof_wo_cur_day = max(max_prof_ws_prev_day + prices[i], max_prof_wo_prev_day); // sell or nothing if not bought
+            int max_prof_ws_cur_day = max(max_prof_wo_day_before - prices[i], max_prof_ws_prev_day); // buy or hold
+
+            max_prof_wo_day_before = max_prof_wo_prev_day;
+            max_prof_ws_day_before = max_prof_ws_prev_day;
+            max_prof_wo_prev_day = max_prof_wo_cur_day;
+            max_prof_ws_prev_day = max_prof_ws_cur_day;
+        }
+
+        return max(max_prof_wo_prev_day, max_prof_ws_prev_day);
+    }
+
     int maxProfitRec(int i, bool buy, vector<vector<int>>& v, const vector<int>& prices) {
         if (i >= prices.size())
         {
@@ -89,7 +110,8 @@ class Solution {
 public:
     int maxProfit(const vector<int>& prices) {
         if (prices.size() < 2) return 0;
-        return maxProfitCooldownIterDP(prices);
+        return maxProfitCooldownIterGreedy(prices);
+       // return maxProfitCooldownIterDP(prices);
        // vector<vector<int>> v(2, vector<int>(prices.size(), -1));
        // return  maxProfitRec(0, true, v, prices);
     }
