@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{c34902bc-36be-4872-b534-e9820affed43}</ProjectGuid>
-    <RootNamespace>searcha2dmatrix</RootNamespace>
+    <ProjectGuid>{973807b7-5cb8-4d25-9063-e9c73fc657ac}</ProjectGuid>
+    <RootNamespace>findminimuminrotatedsortedarray</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
