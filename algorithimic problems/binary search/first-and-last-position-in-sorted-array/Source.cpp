@@ -4,12 +4,11 @@
 using namespace std;
 
 class Solution {
-    template <typename ForwardIt, typename T>
-    ForwardIt lower_bound_(ForwardIt first, const ForwardIt last, const T& value)
+    template <typename It, typename T>
+    It lower_bound_(It first, It last, T value)
     {
-        auto count = std::distance(first, last);
+        auto count = distance(first, last);
         decltype(count) step = 0;
-
         auto it = first;
 
         while (count > 0)
@@ -17,10 +16,9 @@ class Solution {
             it = first;
             step = count / 2;
             advance(it, step);
-
             if (*it < value)
             {
-                first = ++it;
+                advance(first, step + 1);
                 count -= step + 1;
             }
             else
@@ -28,8 +26,7 @@ class Solution {
                 count = step;
             }
         }
-
-        return it;
+        return first;
     }
 
     template <typename ForwardIt, typename T>
