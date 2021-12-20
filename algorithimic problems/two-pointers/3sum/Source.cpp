@@ -32,18 +32,19 @@ class Solution {
 
     vector<vector<int>> threeSumOptimized(vector<int>& nums) {
         vector<vector<int>> v;
+  
         sort(nums.begin(), nums.end());
 
-        int ii = INT_MIN;
+        int i_prev_val = INT_MIN;
         for (auto i = nums.cbegin(); i != nums.cend(); ++i)
         {
             if (*i > 0) break;
-            if (*i == ii) continue;
+            if (*i == i_prev_val) continue;
   
-            int jj = INT_MIN;
+            int j_prev_val = INT_MIN;
             for (auto j = next(i, 1); j != nums.cend(); ++j)
             {
-                if (jj == *j) continue;
+                if (*j == j_prev_val) continue;
                 int c = *i + *j;
                 if (c > 0) break;
 
@@ -52,9 +53,9 @@ class Solution {
                 {
                     v.push_back({ *i, *j, *k });
                 }
-                jj = *j;
+                j_prev_val = *j;
             }
-            ii = *i;
+            i_prev_val = *i;
         }
 
         return v;
