@@ -83,6 +83,9 @@ public:
     }
 
     vector<int> findAnagrams(string s, string p) {
+        /*
+        same can be done with vectors vector<int> mp(26, 0);
+        */
         vector<int> res;
 
         map<char, int> s_map;
