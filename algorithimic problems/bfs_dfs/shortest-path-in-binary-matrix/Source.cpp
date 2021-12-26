@@ -118,8 +118,11 @@ class Solution {
     
     int visitBFS(vector<vector<int>>& g, queue<pair<pair<int, int>, int>>& q)
     {
+        if (q.empty())
+            return -1;
         //   while (!q.empty())
         //   {
+
 
         pair<pair<int, int>, int > p = q.front();
         q.pop();
