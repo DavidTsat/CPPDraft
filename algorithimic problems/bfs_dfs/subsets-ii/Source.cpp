@@ -1,5 +1,6 @@
-#include <vector>
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -10,7 +11,11 @@ class Solution {
     {
         if (s == v.size())
         {
-            r.push_back(v);
+            sort(v.begin(), v.end());
+            if (find(r.cbegin(), r.cend(), v) == r.cend())
+            {
+                r.push_back(v);
+            }
             return;
         }
 
@@ -21,10 +26,8 @@ class Solution {
             v.pop_back();
         }
     }
-
 public:
-    vector<vector<int>> subsets(vector<int>& nums) {
-
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
         for (int s = 0; s <= nums.size(); ++s)
         {
             getSubsets(nums, {}, s, 0);
@@ -32,13 +35,12 @@ public:
         return r;
     }
 };
-
 int main()
 {
     Solution s;
-    vector<int> v({ 1,2,3,4,5 });
+    vector<int> v({ 4,4,4,1,4 });
 
-    vector<vector<int>> r = s.subsets(v);
+    vector<vector<int>> r = s.subsetsWithDup(v);
 
     for (auto& rr : r)
     {
