@@ -2,6 +2,7 @@
 #include <vector>
 #include <sstream>
 #include <memory>
+#include "strategy.h"
 
 using namespace std;
 
@@ -85,6 +86,14 @@ public:
 
 int main()
 {
+	vector<string> v({ "a", "e", "c", "b", "d" });
+
+	context c(strategy_type::A);
+	c.do_some_business_logic(v);
+	c.set_strategy(strategy_type::B);
+	c.do_some_business_logic(v);
+
+	/*
 	TextProcessor tp;
 	tp.set_output_format(OutputFormat::markdown);
 	tp.append_list({ "foo", "bar", "baz" });
@@ -95,6 +104,9 @@ int main()
 	tp.set_output_format(OutputFormat::html);
 	tp.append_list({ "foo", "bar", "baz" });
 	cout << tp.str() << endl;
+	*/
+
+
 
 	return 0;
 }
