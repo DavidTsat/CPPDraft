@@ -23,5 +23,11 @@
     <ClInclude Include="crtp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ex1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="counter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -25,6 +25,24 @@ public:
 };
 FILE* file_writer::mfile = nullptr;
 
+class file_writer2 : public writer<file_writer2>
+{
+	FILE* mfile;
+public:
+	file_writer2(FILE* m)
+	{
+		mfile = m;
+	}
+	~file_writer2()
+	{
+		fclose(mfile);
+	}
+	void write_impl(const char* str) const
+	{
+		fprintf(mfile, "%s\n", str);
+	}
+};
+
 class console_writer : public writer<console_writer>
 {
 public:
