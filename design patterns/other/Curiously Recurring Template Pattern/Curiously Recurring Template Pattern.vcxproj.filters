@@ -29,5 +29,8 @@
     <ClInclude Include="counter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="crtp_singleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

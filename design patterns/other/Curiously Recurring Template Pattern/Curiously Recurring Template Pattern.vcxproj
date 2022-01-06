@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="counter.h" />
     <ClInclude Include="crtp.h" />
+    <ClInclude Include="crtp_singleton.h" />
     <ClInclude Include="ex1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

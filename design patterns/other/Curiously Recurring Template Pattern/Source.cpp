@@ -2,12 +2,21 @@
 #include "crtp.h"
 #include "ex1.h"
 #include "counter.h"
+#include "crtp_singleton.h"
 
 using namespace std;
 
-
 int main()
 {
+	
+
+	test_singl* t = test_singl::get_instance();
+	t->set_s("David");
+	cout << t->get_s() << endl;
+	test_singl* t2 = test_singl::get_instance();
+	t2->set_s("David2");
+	cout << t->get_s() << endl;
+
 	A a;
 	A a2;
 	B b;
