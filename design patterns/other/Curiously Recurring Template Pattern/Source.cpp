@@ -8,7 +8,6 @@ using namespace std;
 
 int main()
 {
-	
 
 	test_singl* t = test_singl::get_instance();
 	t->set_s("David");
