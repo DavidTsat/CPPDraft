@@ -14,7 +14,7 @@ class Solution {
 
     void f(vector<vector<char>>& v, const string& w, int i, int j, int s_i)
     {
-        if (b) return;
+
         if (s_i == w.size())
         {
             b = true;

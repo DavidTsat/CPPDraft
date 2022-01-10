@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="abstract_factory.h" />
     <ClInclude Include="factory.h" />
   </ItemGroup>
   <ItemGroup>
