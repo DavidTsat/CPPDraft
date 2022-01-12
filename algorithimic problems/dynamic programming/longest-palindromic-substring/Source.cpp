@@ -8,7 +8,7 @@ using namespace std;
 class Solution {
     string r;
 
-    pair<bool, bool> check_palindrome(string::const_iterator l, string::const_iterator r)
+    inline pair<bool, bool> check_palindrome(string::const_iterator l, string::const_iterator r) const
     {
         auto l_prev = l;
         bool same = true;
@@ -27,7 +27,7 @@ class Solution {
         return { l >= r, same };
     }
 
-    pair<pair<bool,bool>, string::const_iterator> longest_palindrome_before(const string& s, string::const_iterator itr)
+    pair<pair<bool, bool>, string::const_iterator> longest_palindrome_before(const string& s, string::const_iterator itr)
     {
         auto l = s.cbegin();
 
@@ -140,7 +140,7 @@ class Solution {
     }
 public:
     string longestPalindrome(string s) {
-       
+
         return longestPalindrome_imrpoved_slow(s);
     }
 };
@@ -155,6 +155,6 @@ int main()
     //lqlvciwekzxapmjxyddlaoqhfhwphamsyfwjinkfvciucjhdgwodvmnpkibumexvlsxxumvrznuuyqfavmgwfnsvfbrvqhlvhpxaqehsiwxzlvvtxsnmlilbnmvnxyxitxwoahjricdjdncvartepfpdfndxqoozkfpdmlpvshzzffsspdjzlhmamqooooor
     //azwdzwmwcqzgcobeeiphemqbjtxzwkhiqpbrprocbppbxrnsxnwgikiaqutwpftbiinlnpyqstkiqzbggcsdzzjbrkfmhgtnbujzszxsycmvipjtktpebaafycngqasbbhxaeawwmkjcziybxowkaibqnndcjbsoehtamhspnidjylyisiaewmypfyiqtwlmejkpzlieolfdjnxntonnzfgcqlcfpoxcwqctalwrgwhvqvtrpwemxhirpgizjffqgntsmvzldpjfijdncexbwtxnmbnoykxshkqbounzrewkpqjxocvaufnhunsmsazgibxedtopnccriwcfzeomsrrangufkjfzipkmwfbmkarnyyrgdsooosgqlkzvorrrsaveuoxjeajvbdpgxlcrtqomliphnlehgrzgwujogxteyulphhuhwyoyvcxqatfkboahfqhjgujcaapoyqtsdqfwnijlkknuralezqmcryvkankszmzpgqutojoyzsnyfwsyeqqzrlhzbc
     //"abbcccbbbcaaccbababcbcabca"
-    cout << s.longestPalindrome("aacabdkacaa"); // "ddtattarrattatdd" // ooooo
+    cout << s.longestPalindrome("abacdfgdcaba"); // "ddtattarrattatdd" // ooooo
     return 0;
 }
