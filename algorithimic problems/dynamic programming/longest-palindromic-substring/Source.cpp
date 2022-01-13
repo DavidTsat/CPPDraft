@@ -3,6 +3,8 @@
 #include <iterator>
 #include <set>
 #include <algorithm>
+#include <vector>
+
 using namespace std;
 
 class Solution {
@@ -138,10 +140,55 @@ class Solution {
 
         return !r.empty() ? r : s.substr(0, 1);
     }
+
+    void longest_common_palindromic_substr(const string& a, const string& b, string& s_) // again slooow
+    {
+        vector<vector<int>> v(a.size(), vector<int>(b.size()));
+        int m = -1;
+        string s;
+
+        for (int i = 0; i < a.size(); ++i)
+        {
+            for (int j = 0; j < b.size(); ++j)
+            {
+                if (a[i] == b[j])
+                {
+                    if (i == 0 || j == 0)
+                    {
+                        v[i][j] = 1;
+                    }
+                    else
+                    {
+                        v[i][j] = v[i - 1][j - 1] + 1;
+                    }
+                }
+                else
+                {
+                    v[i][j] = 0;
+                }
+     
+                if (v[i][j] > m && i - v[i][j] +1== (int)a.size() - j-1)
+                {
+                    m = v[i][j];
+                    s = a.substr(i - m + 1, m);
+                }
+            }
+        }
+        s_ = s;
+    }
+
+    string longestPalindrome_longest_c_substring(string s)
+    {
+        string s_rev = s;
+        reverse(s_rev.begin(), s_rev.end());
+
+        longest_common_palindromic_substr(s, s_rev, r);
+        return r;
+    }
 public:
     string longestPalindrome(string s) {
 
-        return longestPalindrome_imrpoved_slow(s);
+        return longestPalindrome_longest_c_substring(s);
     }
 };
 
@@ -155,6 +202,6 @@ int main()
     //lqlvciwekzxapmjxyddlaoqhfhwphamsyfwjinkfvciucjhdgwodvmnpkibumexvlsxxumvrznuuyqfavmgwfnsvfbrvqhlvhpxaqehsiwxzlvvtxsnmlilbnmvnxyxitxwoahjricdjdncvartepfpdfndxqoozkfpdmlpvshzzffsspdjzlhmamqooooor
     //azwdzwmwcqzgcobeeiphemqbjtxzwkhiqpbrprocbppbxrnsxnwgikiaqutwpftbiinlnpyqstkiqzbggcsdzzjbrkfmhgtnbujzszxsycmvipjtktpebaafycngqasbbhxaeawwmkjcziybxowkaibqnndcjbsoehtamhspnidjylyisiaewmypfyiqtwlmejkpzlieolfdjnxntonnzfgcqlcfpoxcwqctalwrgwhvqvtrpwemxhirpgizjffqgntsmvzldpjfijdncexbwtxnmbnoykxshkqbounzrewkpqjxocvaufnhunsmsazgibxedtopnccriwcfzeomsrrangufkjfzipkmwfbmkarnyyrgdsooosgqlkzvorrrsaveuoxjeajvbdpgxlcrtqomliphnlehgrzgwujogxteyulphhuhwyoyvcxqatfkboahfqhjgujcaapoyqtsdqfwnijlkknuralezqmcryvkankszmzpgqutojoyzsnyfwsyeqqzrlhzbc
     //"abbcccbbbcaaccbababcbcabca"
-    cout << s.longestPalindrome("abacdfgdcaba"); // "ddtattarrattatdd" // ooooo
+    cout << s.longestPalindrome("azwdzwmwcqzgcobeeiphemqbjtxzwkhiqpbrprocbppbxrnsxnwgikiaqutwpftbiinlnpyqstkiqzbggcsdzzjbrkfmhgtnbujzszxsycmvipjtktpebaafycngqasbbhxaeawwmkjcziybxowkaibqnndcjbsoehtamhspnidjylyisiaewmypfyiqtwlmejkpzlieolfdjnxntonnzfgcqlcfpoxcwqctalwrgwhvqvtrpwemxhirpgizjffqgntsmvzldpjfijdncexbwtxnmbnoykxshkqbounzrewkpqjxocvaufnhunsmsazgibxedtopnccriwcfzeomsrrangufkjfzipkmwfbmkarnyyrgdsooosgqlkzvorrrsaveuoxjeajvbdpgxlcrtqomliphnlehgrzgwujogxteyulphhuhwyoyvcxqatfkboahfqhjgujcaapoyqtsdqfwnijlkknuralezqmcryvkankszmzpgqutojoyzsnyfwsyeqqzrlhzbc"); // "abacdgfdcaba" // ooooo // abacdgfdcaba
     return 0;
 }
