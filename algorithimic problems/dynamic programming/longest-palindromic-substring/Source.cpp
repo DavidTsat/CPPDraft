@@ -200,7 +200,6 @@ class Solution {
         }
         if (j == i + 1)
         {
-
             return v[i][j] = s[j] == s[i];
         }
 
