@@ -80,7 +80,36 @@ using namespace std;
          }
      }
 
-     void recoverTreeOpt(TreeNode* root, TreeNode*& prev, TreeNode*& max_, TreeNode*& min_)
+     void recoverTreeOpt(TreeNode* root, TreeNode*& prev, TreeNode*& max_, TreeNode*& min_, bool b) // O(1) - space && early finish - fastest one
+     {
+         if (root == nullptr)
+         {
+             return;
+         }
+
+         if (b) return;
+
+         recoverTreeOpt(root->left, prev, max_, min_, b);
+
+         if (prev && max_ == nullptr && prev->val > root->val)
+         {
+             max_ = prev;
+         }
+         if (prev && prev->val > root->val)
+         {
+
+             min_ = root;
+             if (prev != max_)
+             {
+                 b == true;
+             }
+         }
+
+         prev = root;
+         recoverTreeOpt(root->right, prev, max_, min_, b);
+     }
+
+     void recoverTreeOpt(TreeNode* root, TreeNode*& prev, TreeNode*& max_, TreeNode*& min_)  // O(1) - space without early finish - second fastest one
      {
          if (root == nullptr)
          {
@@ -109,17 +138,19 @@ using namespace std;
          TreeNode* max_ = nullptr;
          TreeNode* min_ = nullptr;
          TreeNode* prev = nullptr;
-         recoverTreeOpt(root, prev, max_, min_);
+         recoverTreeOpt(root, prev, max_, min_, false);
 
          swap(max_->val, min_->val);
 
          // debug
+         
          sorted_traversal(root);
          for (TreeNode* t : v)
          {
              cout << t->val << ' ';
          }
          cout << endl;
+         
      }
  };
 
