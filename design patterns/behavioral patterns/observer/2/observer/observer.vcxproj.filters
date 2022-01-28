@@ -23,5 +23,8 @@
     <ClInclude Include="person.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="clock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

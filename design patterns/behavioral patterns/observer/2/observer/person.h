@@ -26,11 +26,11 @@ protected:
 		}
 	}
 public:
-	void subscribe_observer(observer<T>* o)
+	void subscribe_observer(unique_ptr<observer<T>> o)
 	{
 		v.push_back(o);
 	}
-	void unsubscribe_observer(observer<T>* o)
+	void unsubscribe_observer(unique_ptr<observer<T>> o)
 	{
 		//todo
 	}
