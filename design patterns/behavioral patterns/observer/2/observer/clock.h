@@ -119,9 +119,6 @@ class date_drawer : public observer<date>
 public:
 	void state_changed(date* c, variant<string, int, bool> state) override
 	{
-		visit([](const auto& x) {cout << "date_drawer notified, new state is " << x << endl; }, state);
+		visit([c](const auto& x) {cout << "date_drawer notified, new state is " << x << ", new date is " << c->get_date() << endl; }, state);
 	}
-//	date_drawer() = default;
-//	date_drawer(date_drawer&&) = default;
-//	~date_drawer() {}
 };
