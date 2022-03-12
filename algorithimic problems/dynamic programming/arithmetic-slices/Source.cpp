@@ -20,7 +20,6 @@ public:
             else
             {
                 i = j - 1;
-             //   if (j >= nums.size()) break;
                 c = nums[i + 1] - nums[i];
             }
         }
