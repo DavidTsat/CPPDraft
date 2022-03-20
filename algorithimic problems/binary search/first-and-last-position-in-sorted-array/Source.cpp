@@ -4,79 +4,71 @@
 using namespace std;
 
 class Solution {
-    template <typename It, typename T>
-    It lower_bound_(It first, It last, T value)
+    template<typename It, typename T>
+    It lower_bound_(It f, It l, T v)
     {
-        auto count = distance(first, last);
-        decltype(count) step = 0;
-        auto it = first;
+        auto count = std::distance(f, l);
+        decltype(count) step = count / 2;
 
-        while (count > 0)
+        while (count)
         {
-            it = first;
-            step = count / 2;
-            advance(it, step);
-            if (*it < value)
+            auto f_next = std::next(f, step);
+            if (v > *f_next)
             {
-                advance(first, step + 1);
-                count -= step + 1;
+                f = next(f_next);
+                count = count - step - 1;
             }
             else
             {
                 count = step;
             }
+            step = count / 2;
         }
-        return first;
+        return f;
     }
 
-    template <typename ForwardIt, typename T>
-    ForwardIt upper_bound_(ForwardIt first, const ForwardIt last, const T& value)
+    template<typename It, typename T>
+    It upper_bound_(It f, It l, T v)
     {
-        auto count = std::distance(first, last);
-        decltype(count) step = 0;
+        auto count = std::distance(f, l);
+        decltype(count) step = count / 2;
 
-        auto it = first;
-
-        while (count > 0)
+        while (count)
         {
-            it = first;
-            step = count / 2;
-            advance(it, step);
-
-            if (*it <= value)
+            auto f_next = std::next(f, step);
+            if (v >= *f_next)
             {
-                first = ++it;
-                count -= step + 1;
+                f = next(f_next);
+                count = count - step - 1;
             }
             else
             {
                 count = step;
             }
+            step = count / 2;
         }
-
-        return it;
+        return f;
     }
 
-    template <typename ForwardIt, typename T>
-    std::pair<ForwardIt, ForwardIt> equal_range_(ForwardIt first, ForwardIt last, const T& value)
+    template<typename It, typename T>
+    pair<It, It> equal_range_(It f, It l, It e, T v)
     {
-        auto lb = lower_bound_(first, last, value);
-        if (lb == last || *lb > value)
-            return { last, last };
-
-        auto rb = upper_bound_(first, last, value);
-        return { lb, rb };
+        auto l_ = lower_bound_(f, l, v);
+        auto r_  = upper_bound_(f, l, v);
+        if (l_ == e || *l_ != v) 
+        {
+            return { e, e };
+        }
+        return { l_, next(r_, -1) };
     }
-
 public:
     vector<int> searchRange(vector<int>& nums, int target) {
-        auto p = equal_range_(nums.cbegin(), nums.cend(), target);
-        if (p.first == nums.cend())
-        {
-            return { -1, -1 };
-        }
-
-        return { (int)distance(nums.cbegin(), p.first), (int)distance(nums.cbegin(), p.second - 1) };
+        vector<int> v{ -1, -1 };
+        auto res = equal_range_(nums.cbegin(), nums.cend(), nums.cend(), target);
+        if (res.first == nums.cend()) return v;
+        v[0] = distance(nums.cbegin(), res.first);
+        v[1] = distance(nums.cbegin(), res.second);
+        return v;
     }
 };
 
@@ -84,7 +76,8 @@ int main()
 {
     Solution s;
     vector<int> v({ 5, 7, 7, 8, 8, 10 });
-    vector<int> p = s.searchRange(v, 8);
+    vector<int> v2({1}); // 0
+    vector<int> p = s.searchRange(v2, 1);
 
     cout << p[0] << ' ' << p[1] << endl;
     return 0;
