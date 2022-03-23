@@ -14,7 +14,7 @@ struct ListNode {
 };
 
 class Solution {
-    void reverse_list_recursive(/*TODO*/)
+    /*TODO*/ reverse_list_recursive(/*TODO*/)
     {
         /*TODO*/
     }
@@ -23,7 +23,7 @@ class Solution {
 public:
     ListNode* reverseList(ListNode* head) {
         ListNode* new_head = nullptr;
-        reverse_list_recursive(head, new_head);
+        reverse_list_recursive(/*TODO*/);
         return new_head;
     }
 };
@@ -49,7 +49,7 @@ int main()
 
     for (/*TODO*/ ln : v)
     {
-        ln = s.reverseList(ln); //разворачиваем списки
+        ln = s.reverseList(ln); //разворачиваем список
     }
 
     for (ListNode* ln : v)
@@ -104,11 +104,27 @@ class Solution {
         }
         return curr_;
     }
-public:
-    ListNode* reverseList(ListNode* head) {
-        ListNode* new_head = nullptr;
-        reverse_list_recursive(head, new_head);
-        return new_head;
+    ListNode* reverse_list_recursive(ListNode* head)
+    {
+        if (head->next == nullptr)
+        {
+            return head;
+        }
+        ListNode* prev = head;
+        ListNode* h = reverse_list_recursive(head->next);
+        head->next->next = prev;
+        prev->next = nullptr;
+        return h;
+    }
+
+    public:
+
+    ListNode* reverse_list(ListNode* head)
+    {
+        if (nullptr == head)
+            return nullptr;
+
+        return reverse_list_recursive(head);
     }
 };
 
