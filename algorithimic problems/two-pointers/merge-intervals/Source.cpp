@@ -5,8 +5,32 @@
 using namespace std;
 
 class Solution {
+    vector<vector<int>> f(vector<vector<int>>& nums)
+    {
+        vector<vector<int>> r;
+
+        sort(nums.begin(), nums.end(), [](const vector<int>& a, const vector<int>& b) {return a[0] < b[0]; });
+        int i = 0;
+        while (i < nums.size())
+        {
+            int j = i + 1;
+            int m = nums[i][1];
+            while (j < nums.size() && m >= nums[j][0])
+            {
+                m = max(m, nums[j][1]);
+                ++j;
+            }
+
+            r.push_back({ nums[i][0], m });
+            i = j;
+        }
+        return r;
+    }
+
 public:
     vector<vector<int>> merge(vector<vector<int>>& nums) {
+        return f(nums);
+        /*
         vector<vector<int>> r;
 
         sort(nums.begin(), nums.end(), [](const vector<int>& a, const vector<int>& b) {return a[0] < b[0]; });
@@ -15,6 +39,7 @@ public:
 
         while (j < nums.size())
         {
+           // int m = max(nums[i][1], nums[j][1]);
             int m = nums[i][1];
             int m_ = nums[i][0];
             bool b = false;
@@ -30,14 +55,14 @@ public:
             if (b)
             {
                 ++i; ++j;
-                if (r.empty() || (!r.empty() && r[r.size() - 1] != to_merge))
-                    r.push_back(to_merge);
+                if (r.empty() || (!r.empty() && r[r.size()-1] != to_merge))
+                r.push_back(to_merge);
                 continue;
             }
             else
             {
                 if (r.empty() || (!r.empty() && r[r.size() - 1] != nums[i]))
-                    r.push_back(nums[i]);
+                r.push_back(nums[i]);
                 ++i;
                 ++j;
             }
@@ -52,9 +77,10 @@ public:
                 return r;
             }
             if (r.empty())
-                r.push_back(nums[i]);
+            r.push_back(nums[i]);
         }
         return r;
+        */
     }
 };
 
