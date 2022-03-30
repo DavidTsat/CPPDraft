@@ -1,4 +1,4 @@
-#include <boost/algorithm/string/split.hpp>
+﻿#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
 #include <iostream>
@@ -134,7 +134,7 @@ public:
 
 void test_task3()
 {
-	C c();
+	C c;// ();
 	{
 		C c2(c);
 	}
@@ -181,9 +181,9 @@ void test_task4(double (*f_)(double, double))
 }
 
 // task 5
-struct A {
+struct AA {
 
-	~A() {
+	~AA() {
 		throw 1;
 	}
 };
@@ -192,7 +192,7 @@ void test_task5()
 {
 	try
 	{
-		A a;
+		AA a;
 		throw "abc";
 	}
 	catch (int a)
@@ -209,8 +209,55 @@ void test_task5()
 
 }
 
+// task 6
+
+/*
+Есть ли тут проблема ?
+Вопросы.
+1. Скомпилируется ? - Да, 5 строка легальна
+2. Что будет, если запустить ? - крашится
+3. Почему ? Где проблема ? - проблема на 3 строке, арифметика указателей. 
+4. Можешь переписать 3 строку без индексации (без квадратных скобок, а с помощью арифметики указателей) ? - arrayOfBase[1] == arrayOfBase + sizeof(Base)
+5. Видишь где проблем ? - arrayOfBase[1] == arrayOfBase + sizeof(Base) ссылается не на начало какого-либо объекта, а в середину каког-то объекта, ибо массив у нас из объектов Derived_, а sizeof(Derived) > sizeof(Base)
+6. (Этот вопрос можно задавать и в начале). Что будет, если закомментируем 2 строку (int i_; ) - напечатает Derived_::f
+*/
+
+class Base_ {
+public:
+	virtual void f()             // 1
+	{
+		std::cout << "Base_::f" << std::endl;
+	}
+};
+
+class Derived_ : public Base_ {
+public:
+	// ...
+private:
+	//int i_;                       // 2
+
+	void f() override
+	{
+		std::cout << "Derived_::f" << std::endl;
+	}
+};
+
+void userCode(Base_* arrayOfBase)
+{
+	arrayOfBase[1].f();           // 3
+}
+
+void test_task6()
+{
+	Derived_ arrayOfDerived[10];   // 4
+	userCode(arrayOfDerived);     // 5
+	// ...
+}
+
+
 int main()
 {
-	test_task4(p_1);
+	test_task6();
+	//test_task4(p_1);
 	return 0;
 }
