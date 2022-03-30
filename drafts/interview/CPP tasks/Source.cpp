@@ -129,23 +129,12 @@ public:
 		delete a_;
 		delete b_;
 	}
-	/*
-	C(const C& c)
-	{
-		a_ = new A(*c.a_);
-		b_ = new B(*c.b_);
-	}
-	*/
-	void f()
-	{
-		std::cout << "c::f()" << std::endl;
-	}
+
 };
 
 void test_task3()
 {
-	C c;// ();
-	//c.f();
+	C c();
 	{
 		C c2(c);
 	}
@@ -190,6 +179,36 @@ void test_task4(double (*f_)(double, double))
 	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << " ms" << std::endl;
 	//std::cout << "CCCCC: " << cc << std::endl;
 }
+
+// task 5
+struct A {
+
+	~A() {
+		throw 1;
+	}
+};
+
+void test_task5()
+{
+	try
+	{
+		A a;
+		throw "abc";
+	}
+	catch (int a)
+	{
+		std::cout << a << std::endl;
+	}
+	catch (const char* a)
+	{
+		std::cout << a << std::endl;
+	}
+
+
+	std::cout << "Hello World";
+
+}
+
 int main()
 {
 	test_task4(p_1);

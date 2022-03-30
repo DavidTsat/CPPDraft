@@ -5,6 +5,11 @@ using namespace std;
 
 // рекурсивно развернуть односвязный список
 
+/*
+(1,2,3,4,5) -> (5,4,3,2,1)
+(1,2) -> (2,1)
+() -> ()
+*/
 struct ListNode {
     int val;
     ListNode* next;
