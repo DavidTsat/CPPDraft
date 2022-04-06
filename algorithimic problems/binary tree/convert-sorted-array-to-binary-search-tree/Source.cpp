@@ -17,6 +17,7 @@ class Solution {
     {
         if (r == nullptr)
         {
+            // cout << v << endl;
             r = new TreeNode(v);
             return;
         }
@@ -33,28 +34,48 @@ class Solution {
 
     void f(TreeNode*& root, const vector<int>& n, int l, int r)
     {
-        if (r - l <= 1)
+        if (l >= r)
         {
-            if (l == 0)
-                insert(root, n[l]);
             return;
         }
 
-        int i = l + (r - l) / 2;
+        int i = (r + l) / 2;
 
         insert(root, n[i]);
 
         f(root, n, l, i);
-        f(root, n, i, r);
+        f(root, n, i + 1, r);
     }
-
-public:
-    TreeNode* sortedArrayToBST(vector<int>& nums) {
-
+    TreeNode* f1(const vector<int>& nums)
+    {
         TreeNode* r = nullptr;
         f(r, nums, 0, nums.size());
 
         return r;
+    }
+
+    TreeNode* f2(const vector<int>& nums, int l, int r) // nums is sorted
+    {
+        if (l == r)
+        {
+            return nullptr;
+            // return new TreeNode(nums[l]);
+        }
+
+        int i = (l + r) / 2;
+        TreeNode* root = new TreeNode(nums[i]);
+
+        root->left = f2(nums, l, i);
+        root->right = f2(nums, i + 1, r);
+
+        return root;
+    }
+public:
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+
+        //     return f2(nums, 0, nums.size());
+
+        return f1(nums);
     }
 };
 int main()
