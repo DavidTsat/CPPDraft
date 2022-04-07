@@ -15,35 +15,30 @@ using namespace std;
 };
 
 
-class Solution {
-    void path_sum(TreeNode* root, vector<vector<int>>& vv, list<int> l, const int targetSum)
-    {
-        if (root == nullptr)
-        {
-            return;
-        }
+ class Solution {
+     vector<vector<int>> rv;
+     void f(TreeNode* r, int t, vector<int>& v)
+     {
+         if (!r) return;
 
-        l.push_back(root->val);
+         v.push_back(r->val);
 
-        path_sum(root->left, vv, l, targetSum);
-        path_sum(root->right, vv, l, targetSum);
+         f(r->left, t, v);
+         f(r->right, t, v);
 
-        if (root->left == nullptr && root->right == nullptr)
-        {
-            if (accumulate(l.cbegin(), l.cend(), 0) == targetSum)
-            {
-                vv.push_back(vector<int>(l.cbegin(), l.cend()));
-            }
-        }
-        l.pop_back();
-    }
-public:
-    vector<vector<int>> pathSum(TreeNode* root, int targetSum) {
-        vector<vector<int>> v;
-        path_sum(root, v, {}, targetSum);
-        return v;
-    }
-};
+         if (accumulate(v.cbegin(), v.cend(), 0) == t && !r->left && !r->right)
+             rv.push_back(v);
+
+         v.pop_back();
+     }
+
+ public:
+     vector<vector<int>> pathSum(TreeNode* root, int targetSum) {
+         vector<int> v;
+         f(root, targetSum, v);
+         return rv;
+     }
+ };
 
 
 int main() {
