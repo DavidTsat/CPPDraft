@@ -1,6 +1,7 @@
 #include <climits>
 #include <algorithm>
 #include <numeric>
+#include <iostream>
 
 using namespace std;
 
@@ -14,62 +15,45 @@ using namespace std;
 };
 
 
-class Solution {
+ class Solution {
+     void dfs(TreeNode* r, long long& min_, long long& max_)
+     {
+         if (r == nullptr) return;
 
-    void traverse_subtree(TreeNode* root, long long& min_, long long& max_)
-    {
-        if (root == nullptr)
-        {
-            return;
-        }
+         min_ = min(min_, (long long)r->val);
+         max_ = max(max_, (long long)r->val);
 
-        traverse_subtree(root->left, min_, max_);
-        traverse_subtree(root->right, min_, max_);
+         dfs(r->left, min_, max_);
+         dfs(r->right, min_, max_);
+     }
 
-        min_ = min(min_, (long long)root->val);
-        max_ = max(max_, (long long)root->val);
-    }
-public:
-    void isValidBST(TreeNode* root, bool& b) {
-        if (root == nullptr) return;
+ public:
+     bool isValidBST(TreeNode* root)
+     {
+         if (root == nullptr) return true;
 
-        long long min_ = LLONG_MAX;
-        long long max_ = LLONG_MIN;
+         long long min_ = LLONG_MAX;
+         long long max_ = LLONG_MIN;
 
-        traverse_subtree(root->left, min_, max_);
-        long long left_min = min_;
-        long long left_max = max_;
+         dfs(root->left, min_, max_);
 
-        min_ = LLONG_MAX;
-        max_ = LLONG_MIN;
-        traverse_subtree(root->right, min_, max_);
-        long long right_min = min_;
-        long long right_max = max_;
+         if (max_ >= root->val) return false;
 
-        if (left_max >= root->val || right_min <= root->val)
-        {
-            b = false;
-            return;
-        }
+         min_ = LLONG_MAX;
+         max_ = LLONG_MIN;
 
-        isValidBST(root->left, b);
-        isValidBST(root->right, b);
-    }
+         dfs(root->right, min_, max_);
 
-    bool isValidBST(TreeNode* root)
-    {
-        bool b = true;
-        if (root == nullptr)
-        {
-            return true;
-        }
+         if (min_ <= root->val) return false;
 
-        isValidBST(root, b);
-        return b;
-    }
-};
+         return isValidBST(root->left) && isValidBST(root->right);
+     }
+ };
 
 int main() {
-
+    Solution s;
+    TreeNode* r = new TreeNode(2, new TreeNode(1), new TreeNode(3));
+    TreeNode* r1 = new TreeNode(2147483647);
+    cout << s.isValidBST(r1) << endl;
     return 0;
 }
