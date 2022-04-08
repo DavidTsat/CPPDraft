@@ -88,17 +88,13 @@ class Solution {
         int s = 0;
         unordered_map<int, int> m;
 
-      //  m[n[0]] = 1;
-
         for (int i = 0; i < n.size(); ++i)
         {
             s += n[i];
             if (s == k) ++c;
             auto p = m.find(s - k);
             if (p != m.end())
-              //  ++c;
                 c = c + p->second;
-          //  if (i != 0)
             ++m[s];
         }
         return c;
