@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{febd2e93-7a3f-440d-8b4e-5383b47bf33e}</ProjectGuid>
-    <RootNamespace>lowestcommonancestorofabinarytree</RootNamespace>
+    <ProjectGuid>{e57243e5-2a03-46f1-ab4e-d90d038fdc14}</ProjectGuid>
+    <RootNamespace>keysandrooms</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
