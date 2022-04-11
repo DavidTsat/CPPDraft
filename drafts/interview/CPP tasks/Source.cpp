@@ -61,18 +61,18 @@ public:
 */
 class Base
 {
-	virtual void print() {
+	void print() {
 		std::cout << "from base" << std::endl;
 	}
 public:
 	Base() { print(); }
-	virtual ~Base() { print(); }
+	~Base() { print(); }
 	void basePrint() { print(); }
 };
 
 class Derived : public Base
 {
-	virtual void print()
+	void print()
 	{
 		std::cout << "from Derived" << std::endl;
 	}
@@ -134,7 +134,7 @@ public:
 
 void test_task3()
 {
-	C c;// ();
+	C c();
 	{
 		C c2(c);
 	}
@@ -218,7 +218,7 @@ void test_task5()
 2. Что будет, если запустить ? - крашится
 3. Почему ? Где проблема ? - проблема на 3 строке, арифметика указателей. 
 4. Можешь переписать 3 строку без индексации (без квадратных скобок, а с помощью арифметики указателей) ? - arrayOfBase[1] == arrayOfBase + sizeof(Base)
-5. Видишь где проблем ? - arrayOfBase[1] == arrayOfBase + sizeof(Base) ссылается не на начало какого-либо объекта, а в середину каког-то объекта, ибо массив у нас из объектов Derived_, а sizeof(Derived) > sizeof(Base)
+5. Видишь где проблема ? - arrayOfBase[1] == arrayOfBase + sizeof(Base) ссылается не на начало какого-либо объекта, а в середину какого-то объекта, ибо массив у нас из объектов Derived_, а sizeof(Derived) > sizeof(Base)
 6. (Этот вопрос можно задавать и в начале). Что будет, если закомментируем 2 строку (int i_; ) - напечатает Derived_::f
 */
 

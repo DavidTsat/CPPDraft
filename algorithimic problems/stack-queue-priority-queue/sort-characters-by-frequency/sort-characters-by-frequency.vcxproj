@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{a8da4f7a-00ee-4899-bf35-2b124c4506e5}</ProjectGuid>
-    <RootNamespace>intersectionoftwolinkedlists</RootNamespace>
+    <ProjectGuid>{63898894-b3d5-4a55-a363-90ea55241a55}</ProjectGuid>
+    <RootNamespace>sortcharactersbyfrequency</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />

@@ -54,7 +54,7 @@ class Solution {
         if (k == i)
             c = r->val;
 
-        ++i;
+        i++;
         f(r->right, k, i);
     }
 
