@@ -26,9 +26,9 @@ string short_to_binary_string(short x)
 	return s;
 }
 
-int binary_string_to_int(string s)
+unsigned binary_string_to_int(string s)
 {
-	int x = 0;
+	unsigned x = 0;
 	for (int i = 0; i < s.size(); ++i)
 	{
 		x = x << 1;
@@ -96,6 +96,12 @@ int main()
 	cout << (short_to_binary_string(update_bit(set_bit(513, 2), 2, 0))) << endl;
 	cout << (short_to_binary_string(clear_bits_MSB_through_i(-7, 7))) << endl;
 	cout << (short_to_binary_string(clear_bits_i_through_zero(-7, 7))) << endl;
+
+	cout << binary_string_to_int("1000") <<endl;
+
+	cout << short_to_binary_string(1 << (((sizeof(int) * 8) - 1))) << endl;
+
+	cout << (1 << (((sizeof(int) * 8) - 1))) << endl;
 //	cout << short_to_binary_string(-1) << endl;
 	/*
 	string s;
