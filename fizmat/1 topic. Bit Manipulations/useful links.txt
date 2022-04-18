@@ -1,0 +1,4 @@
+understanding-big-and-little-endian-byte-order - https://betterexplained.com/articles/understanding-big-and-little-endian-byte-order/
+Bitwise operators and "endianness" - https://stackoverflow.com/questions/1041554/bitwise-operators-and-endianness
+Two's Complement - https://www.cs.cornell.edu/~tomf/notes/cps104/twoscomp.html
+Right shifting negative numbers in C - https://stackoverflow.com/questions/1857928/right-shifting-negative-numbers-in-c
