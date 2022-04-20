@@ -5,9 +5,28 @@ using namespace std;
 
 class Solution {
 public:
-    int findDuplicate(vector<int>& nums) {
+    int findDuplicateNegative(vector<int>& nums)
+    {
         int c = 0;
-        int cc = 0;
+
+        for (int i = 0; i < nums.size(); ++i)
+        {
+            int ind = abs(nums[i]);
+            if (nums[ind] < 0)
+            {
+                c = ind;
+                break;
+            }
+            else
+                nums[ind] = ~nums[ind] + 1;
+        }
+        return c;
+    }
+
+    int findDuplicateSwap(vector<int>& nums)
+    {
+        int c = 0;
+
         for (int i = 0; i < nums.size(); )
         {
             if (nums[i] - 1 != i)
@@ -17,7 +36,8 @@ public:
                     c = nums[i];
                     break;
                 }
-                else {
+                else
+                {
                     swap(nums[nums[i] - 1], nums[i]);
                 }
             }
@@ -28,6 +48,11 @@ public:
         }
 
         return c;
+    }
+
+    int findDuplicate(vector<int>& nums)
+    {
+        return findDuplicateNegative(nums);
     }
 };
 
