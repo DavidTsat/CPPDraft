@@ -234,7 +234,7 @@ class Derived_ : public Base_ {
 public:
 	// ...
 private:
-	//int i_;                       // 2
+	int i_;                       
 
 	void f() override
 	{
@@ -244,13 +244,13 @@ private:
 
 void userCode(Base_* arrayOfBase)
 {
-	arrayOfBase[1].f();           // 3
+	arrayOfBase[1].f();          
 }
 
 void test_task6()
 {
-	Derived_ arrayOfDerived[10];   // 4
-	userCode(arrayOfDerived);     // 5
+	Derived_ arrayOfDerived[10];   
+	userCode(arrayOfDerived);     
 	// ...
 }
 
