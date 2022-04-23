@@ -75,8 +75,32 @@ int update_bit(int num, int i, bool b)
 	return (num & clear_mask) | set_mask;
 }
 
+int if_negative(int x)
+{
+	// return 0 if 0, 1 if positive -1 if negative
+	
+	//if ((x & (1 << (sizeof(int) * 8 - 1))) == 0)
+	if ((x & 0x80000000) == 0)
+	{
+		return 1; //positive or zero
+	}
+	else
+	{
+		return 0;
+	}
+
+	// 2. return ((!!x) | (x >> (sizeof(int)*8 -1)));
+}
+
 int main()
 {
+	int x = -1;
+//	cout << (x >> 31) << endl;
+	cout << if_negative(x) << endl;
+	//cout << (1 << (sizeof(int) * 8 - 1)) << endl;
+	//cout << ((a & (1 << (sizeof(int)*8-1))) == 0) << endl;
+
+	/*
 	cout << short_to_binary_string(0) << endl;
 	cout << short_to_binary_string(1) << endl;
 	cout << short_to_binary_string(7) << endl;
@@ -102,6 +126,8 @@ int main()
 	cout << short_to_binary_string(1 << (((sizeof(int) * 8) - 1))) << endl;
 
 	cout << (1 << (((sizeof(int) * 8) - 1))) << endl;
+
+	*/
 //	cout << short_to_binary_string(-1) << endl;
 	/*
 	string s;
