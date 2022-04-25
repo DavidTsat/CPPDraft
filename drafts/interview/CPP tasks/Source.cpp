@@ -136,7 +136,7 @@ void test_task3()
 {
 	C c();
 	{
-		C c2(c);
+		C c2;//(c);
 	}
 }
 
@@ -254,10 +254,37 @@ void test_task6()
 	// ...
 }
 
+// Task 7.
+/*
+Объявить указатель на массив const char[3] = {'a', b', 'c'};
+*/
+
+void test_task7()
+{
+	const char a[3] = { 'a', 'b', 'c' };
+	const char(*p)[3] = &a;
+	std::cout << (*p)[0] << std::endl;
+}
+
+// Task 8.
+/*
+Объявить массив указателей на функции.
+Даны функции f и g, требуется записать их в массив и вызвать
+*/
+void f_(int, const char*) { std::cout << "f_\n"; }
+void g_(int, const char*) { std::cout << "g_\n"; }
+
+void test_task8()
+{
+	void (*m[2]) (int, const char*) = { f_, g_ };
+	m[0](7, nullptr);
+	m[1](8, nullptr);
+}
 
 int main()
 {
-	test_task6();
+	test_task8();
+	//test_task6();
 	//test_task4(p_1);
 	return 0;
 }
