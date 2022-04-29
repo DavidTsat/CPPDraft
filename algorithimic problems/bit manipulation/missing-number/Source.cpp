@@ -4,8 +4,18 @@
 using namespace std;
 
 class Solution {
+    int missingNumberMostOptimal(vector<int>& nums)
+    {
+        int xor_ = 0, i = 0;
+        for (; i < nums.size(); i++) {
+            xor_ = xor_ ^ i ^ nums[i];
+        }
+
+        return xor_ ^i;
+    }
 public:
-    int missingNumber(vector<int>& nums) {
+    int missingNumberAlmostOptimal(vector<int>& nums)
+    {
         vector<int> r(sizeof(int) * 8, 0);
 
         for (int i = 0; i < sizeof(int) * 8 - 1; ++i)
@@ -50,6 +60,11 @@ public:
             */
         return res;
     }
+    int missingNumber(vector<int>& nums) {
+       
+        return missingNumberMostOptimal(nums);
+    }
+
 };
 
 int main()
