@@ -20,6 +20,7 @@ public:
         for (int i = 0; i < arr.size(); ++i)
         {
             s.insert(arr[i]);
+ //           cout << "prev_ors.size(): " << prev_ors.size() << endl;
             vector<int> new_prev_ors;
             new_prev_ors.push_back(arr[i]);
             for (int p : prev_ors)
@@ -44,7 +45,6 @@ public:
     int subarrayBitwiseORsBad1(vector<int>& arr) {
 
         unordered_set<int> s;
-
 
         for (int i = 0; i < arr.size(); ++i)
         {
@@ -103,9 +103,9 @@ int main()
     vector<int> v5 = { 1,11,6,11 };                 // 4
     vector<int> v6 = { 13,4,2 };                    // 5
     vector<int> v7 = { 30, 126, 88, 97, 98, 66 };   // 10
+    vector<int> v8 = { 1,2,3,4,5,6,7,8,9 };         // 10
 
-    cout << s.subarrayBitwiseORs(v6) << endl;
-
+    
     cout << s.subarrayBitwiseORs(v1) << endl;
     cout << s.subarrayBitwiseORs(v2) << endl;
     cout << s.subarrayBitwiseORs(v3) << endl;
@@ -113,5 +113,7 @@ int main()
     cout << s.subarrayBitwiseORs(v5) << endl;
     cout << s.subarrayBitwiseORs(v6) << endl;
     cout << s.subarrayBitwiseORs(v7) << endl;
+    cout << s.subarrayBitwiseORs(v8) << endl;
+    
     return 0;
 }
