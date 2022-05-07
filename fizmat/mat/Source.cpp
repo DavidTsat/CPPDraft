@@ -65,9 +65,9 @@ public:
 		return v[i];
 	}
 
-	size_t size() const
+	pair<size_t, size_t> size() const
 	{
-		return M;
+		return { M, N };
 	}
 
 	vector<vector<T>> to_vec_of_vec() const
@@ -190,6 +190,8 @@ mat<T> generate_spiral_mat(int n)
 	int k = n % 2 == 0 ? n / 2 : n / 2 + 1;
 	int c = 1;
 
+	size_t M = v.size().first;
+
 	for (int p = 0; p < k; ++p)
 	{
 		for (int j = 0; j <= 3; ++j)
@@ -208,24 +210,24 @@ mat<T> generate_spiral_mat(int n)
 				// column; from up to bottom
 				for (int i = 1; i <= n; ++i)
 				{
-					if (!v[i - 1][v.size() - 1 - p])
-						v[i - 1][v.size() - 1 - p] = c++;
+					if (!v[i - 1][M - 1 - p])
+						v[i - 1][M - 1 - p] = c++;
 				}
 				break;
 			case 2:
 				// row; from right to left
 				for (int i = 1; i <= n; ++i)
 				{
-					if (!v[v.size() - 1 - p][v.size() - i])
-						v[v.size() - 1 - p][v.size() - i] = c++;
+					if (!v[M - 1 - p][M - i])
+						v[M - 1 - p][M - i] = c++;
 				}
 				break;
 			case 3:
 				// column; from bottom to up
 				for (int i = 1; i <= n; ++i)
 				{
-					if (!v[v.size() - i][p])
-						v[v.size() - i][p] = c++;
+					if (!v[M - i][p])
+						v[M - i][p] = c++;
 				}
 				break;
 			}
