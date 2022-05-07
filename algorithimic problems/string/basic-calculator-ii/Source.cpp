@@ -1,6 +1,8 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <stack>
+#include <ctype.h>
 
 using namespace std;
 
@@ -89,10 +91,60 @@ class Solution {
             }
         }
     }
+
+    int f_stack(string s)
+    {
+        stack<int> ss;
+        int r = 0;
+        int cur_num = 0;
+        char op = '+';
+        for (int i = 0; i < s.size(); ++i)
+        {
+            if (iswspace(s[i]) && i != ( s.size() -1)) continue;
+
+            if (isdigit(s[i]))
+            {
+                cur_num = cur_num * 10 + (s[i] - '0');
+            }
+            if (!isdigit(s[i]) || (i == (s.size() -1)))
+            {
+                if (op == '-') 
+                {
+                    ss.push(-cur_num);
+                }
+                else if (op == '+') 
+                {
+                    ss.push(cur_num);
+                }
+                else if (op == '*') 
+                {
+                    int l = ss.top();
+                    ss.pop();
+                    ss.push(l * cur_num);
+                }
+                else if (op == '/') 
+                {
+                    int l = ss.top();
+                    ss.pop();
+                    ss.push(l / cur_num);
+                }
+                op = s[i];
+                cur_num = 0;
+            }
+        }
+
+        while (!ss.empty())
+        {
+            r += ss.top();
+            ss.pop();
+        }
+        return r;
+    }
 public:
     int calculate(string ss) {
-        f(ss);
-        return rr;
+        return f_stack(ss); // calculatess(ss);
+        //   f(ss);
+     //   return rr;
     }
 };
 
