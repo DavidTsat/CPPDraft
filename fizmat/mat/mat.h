@@ -291,16 +291,34 @@ void swap_(mat<F>& m1, mat<F>& m2)
 template <typename F>
 ostream& operator<<(ostream& os, const mat<F>& m)
 {
-	for_each(m.v, m.v + m.N, [](const F* ptr) {
-		for_each(ptr, m.v + m.N, [](const F& elem) { cout << elem << ' '; });
-		cout << '\n';
+	for_each(m.v, m.v + m.N, [&m](const F* ptr) {
+		for_each(ptr, ptr + m.N, [&m](const F& elem) { cout << elem << ' '; });
+		cout << endl;
 		});
+	return os;
 }
 
 template <typename T>
-mat<T> mat_mul(const mat<T>&, const mat<T>&)
+mat<T> mat_mul(const mat<T>& m1, const mat<T>& m2)
 {
-	// TODO
+	if (m1.size().second != m2.size().first)
+	{
+		throw logic_error("Bad shapes!");
+	}
+
+	mat<T> r(m1.size().first, m2.size().second);
+
+	for (int i = 0; i < r.size().first; ++i)
+	{
+		for (int j = 0; j < m2.size().second; ++j)
+		{
+			for (int k = 0; k < m1.size().second; ++k)
+			{
+				r[i][j] += m1[i][k] * m2[k][j];
+			}
+		}
+	}
+	return r;
 }
 
 template <typename T>

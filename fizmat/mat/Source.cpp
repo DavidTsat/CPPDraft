@@ -128,6 +128,26 @@ void num_islands_tests()
 	}
 }
 
+void mat_mul_tests()
+{
+	vector<vector<int>> m1 = { {1,2,3}, {4,5,6}, {7,8,9}, {0,1,2}, {-1,4,5} };
+	vector<vector<int>> m2 = { {1,4,5,7},{0,2,3,1},{1,2,-1,4} };
+	vector<vector<int>> m_answ = { {4,14,8,21},{10,38,29,57},{16,62,50,93},{2,6,1,9},{4,14,2,17} };
+
+	mat<int> answ = mat_mul(mat<int>(m1), mat<int>(m2));
+
+	cout << boolalpha << (answ.to_vec_of_vec() == m_answ) << endl;
+
+	try
+	{
+		mat_mul(mat<int>(m1), mat<int>(m1));
+	}
+	catch (const logic_error& e)
+	{
+		//	cout << e.what() << endl;
+		cout << boolalpha << true << endl;
+	}
+}
 
 void run_tests()
 {
@@ -141,6 +161,8 @@ void run_tests()
 	max_square_tests();
 	cout << endl << "running num_islands_tests" << endl;
 	num_islands_tests();
+	cout << endl << "running mat_mul_tests" << endl;
+	mat_mul_tests();
 }
 
 int main()
