@@ -298,6 +298,12 @@ ostream& operator<<(ostream& os, const mat<F>& m)
 }
 
 template <typename T>
+mat<T> mat_mul(const mat<T>&, const mat<T>&)
+{
+	// TODO
+}
+
+template <typename T>
 mat<T> generate_spiral_mat(int n)
 {
 	mat<int> v(n, n);
