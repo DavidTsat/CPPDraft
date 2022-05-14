@@ -281,6 +281,29 @@ void test_task8()
 	m[1](8, nullptr);
 }
 
+
+#define show(x) cout <<  #x " = " << x << endl;
+// Test three
+struct Employee
+{
+	string email_;
+	string firstName_;
+	string lastName_;
+
+	// В чем проблема и как можно исправить ?
+	Employee(const char* firstName, const char* lastName)
+		: firstName_(firstName), lastName_(lastName), email_(firstName_ + "." + lastName_ + "@gmail.com") {}
+};
+
+void test_task9()
+{
+	Employee e("David", "Tsaturyan");
+
+	show(e.email_)
+	show(e.firstName_)
+	show(e.lastName_)
+}
+
 int main()
 {
 	test_task8();
