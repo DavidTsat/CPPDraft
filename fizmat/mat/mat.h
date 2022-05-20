@@ -132,65 +132,32 @@ public:
 
 	vector<int> spiral_order() const
 	{
-		enum class direction { right, down, left, up };
-
-		int m = M;
-		int n = N;
-
-		vector<int> r(m * n);
-		int k = 0;
-		direction cur_dir = direction::right;
-
-		while (k < r.size())
-		{
-			int cur_row = (M - m + 1) / 2;
-			int cur_col = (N - n + 1) / 2;
-			switch (cur_dir)
-			{
-			case direction::right:
-			{
-				for (int j = cur_col; j < cur_col + n; ++j)
-				{
-					r[k++] = v[cur_row][j];
-				}
-				--m;
-				cur_dir = direction::down;
+		int inside = 0, mxinsideM = M - 1, mxinsideN = N - 1, ind = 0, x, y,
+			layercnt = 2 * (N - 2) + 2 * M, cnt;
+		if (N == 1 || M == 1)
+			layercnt = N * M;
+		short dx[]{ 0, 1, 0, -1 }, dy[]{ 1, 0, -1, 0 };
+		vector<int> ans;
+		while (inside <= mxinsideN && inside <= mxinsideM) {
+			cnt = 0; x = inside; y = inside; ind = 0;
+			while (++cnt <= layercnt) {
+				ans.push_back(v[x][y]);
+				if (x + dx[ind] > mxinsideM || x + dx[ind] < 0 || \
+					y + dy[ind] > mxinsideN || y + dy[ind] < 0)
+					if (++ind > 3)
+						ind = 0;
+				x += dx[ind];
+				y += dy[ind];
 			}
-			break;
-			case direction::down:
-			{
-				//int cur_col = n - 1;
-				for (int j = cur_row; j < cur_row + m; ++j)
-				{
-					r[k++] = v[j][N - cur_col - 1];
-				}
-				--n;
-				cur_dir = direction::left;
-			}
-			break;
-			case direction::left:
-			{
-				for (int j = N - 1 - cur_col; j >= cur_col - 1; --j)
-				{
-					r[k++] = v[M - cur_row][j];
-				}
-				--m;
-				cur_dir = direction::up;
-			}
-			break;
-			case direction::up:
-			{
-				for (int j = M - 1 - cur_row; j >= cur_row; --j)
-				{
-					r[k++] = v[j][cur_col - 1];
-				}
-				--n;
-				cur_dir = direction::right;
-			}
-			break;
-			}
+			++inside; --mxinsideM; --mxinsideN;
+			if (N == M && mxinsideM - inside == 3)
+				layercnt = 1;
+			else
+				layercnt -= 8;
 		}
-		return r;
+		if (N == 3 && M == 3)
+			ans.push_back(v[1][1]);
+		return ans;
 	}
 
 	void rotate()

@@ -25,7 +25,7 @@ class priority_queue_;
 template <typename T, typename Compare>
 class heap
 {
-	friend class priority_queue_<T>;
+	friend class priority_queue_<T, Compare>;
 public:
 	using value_type = T;
 private:
@@ -34,7 +34,7 @@ private:
 	size_t heap_size;
 	bool is_heap;
 
-	size_t parent(size_t i) 
+	size_t parent(size_t i)
 	{
 		return i >> 1;
 	}
@@ -100,10 +100,11 @@ private:
 	}
 
 public:
-	
+
 	heap() : v(vector<T>(1, T())), cmp(Compare()), heap_size(0), is_heap(false) {}
+	heap(Compare cmp) : v(vector<T>(1, T())), cmp(cmp), heap_size(0), is_heap(false) {}
 	heap(const heap<T>& m2) : v(m2.v), cmp(m2.cmp), heap_size(m2.heap_size) { }
-	
+
 	heap(const vector<value_type>& v2) : heap()
 	{
 		for (const value_type& q : v2)
@@ -148,18 +149,18 @@ public:
 
 	value_type& operator[](size_t i) { return v[i]; }
 	const value_type& operator[](size_t i) const { return v[i]; }
-
+	
 	template <typename Q>
 	friend ostream& operator<<(ostream& os, const heap<Q>& h)
 	{
 		copy(next(h.v.cbegin()), h.v.cbegin() + h.heap_size + 1, ostream_iterator<Q>(os, " "));
 		return os;
 	}
-
+	
 	void heap_sort()
 	{
-	//	build_heap();
-		// TODO for min-heap
+		//	build_heap();
+			// TODO for min-heap
 		size_t hs = heap_size;
 		for (size_t i = heap_size; i >= 2; --i)
 		{
@@ -172,7 +173,54 @@ public:
 	}
 
 	const size_t size() const { return heap_size; }
-//	const vector<value_type>& get_vector() const { return v; }
+	//	const vector<value_type>& get_vector() const { return v; }
+};
+
+
+template<class T, class Compare, class Container>
+class priority_queue_
+{
+	Container m;
+	using value_type = typename Container::value_type;
+public:
+	priority_queue_() : m() {}
+
+	priority_queue_(Compare cmp) : m(cmp) {}
+
+	template <typename It>
+	priority_queue_(It begin, It end) : m(begin, end) { }
+
+	const value_type& top() const
+	{
+		return m[1];
+	}
+
+	void push(const value_type& value)
+	{
+		++m.heap_size;
+		m.v.push_back(numeric_limits<value_type>::min());
+		m.increase_val(m.heap_size, value);
+	}
+
+	template< class... Args >
+	void emplace(Args&&... args)
+	{
+
+	}
+
+	void pop()
+	{
+		if (m.heap_size == 0)
+		{
+			//throw an exception
+			return;
+		}
+		m[1] = m[m.heap_size];
+		--m.heap_size;
+		m.heapify(1);
+	}
+
+	const size_t empty() const { return m.heap_size == 0; }
 };
 
 
@@ -243,51 +291,6 @@ void heap_sort_tests()
 		cout << boolalpha << (m == v2) << endl;
 	}
 }
-
-template<class T, class Compare, class Container>
-class priority_queue_
-{
-	Container m;
-	using value_type = typename Container::value_type;
-public:
-	priority_queue_() : m() {}
-
-	template <typename It>
-	priority_queue_(It begin, It end) : m(begin, end) { }
-
-	const value_type& top() const
-	{
-		return m[1];
-	}
-	
-	void push(const value_type& value)
-	{
-		++m.heap_size;
-		m.v.push_back(numeric_limits<value_type>::min());
-		m.increase_val(m.heap_size, value);
-	}
-
-	template< class... Args >
-	void emplace(Args&&... args)
-	{
-
-	}
-
-	void pop()
-	{
-		if (m.heap_size == 0)
-		{
-			//throw an exception
-			return;
-		}
-		m[1] = m[m.heap_size];
-		--m.heap_size;
-		m.heapify(1);
-	}
-
-	const size_t empty() const { return m.heap_size == 0; }
-};
-
 
 void priority_queue_test()
 {
@@ -369,6 +372,8 @@ void priority_queue_tests()
 	}
 }
 
+//https://leetcode.com/problems/kth-largest-element-in-an-array/
+// QUESTION: Solution with min-heap ?
 
 int main()
 {
