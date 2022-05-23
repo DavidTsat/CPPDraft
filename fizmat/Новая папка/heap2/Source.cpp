@@ -49,17 +49,17 @@ class heap
 	Cmp cmp;
 	size_t heap_size;
 
-	size_t left(size_t i) const
+	static size_t left(size_t i)
 	{
 		return i << 1;
 	}
 
-	size_t right(size_t i) const
+	static size_t right(size_t i)
 	{
 		return (i << 1) | 1;
 	}
 
-	size_t parent(size_t i) const
+	static size_t parent(size_t i)
 	{
 		return i >> 1;
 	}
@@ -105,6 +105,8 @@ public:
 
 	heap() : data(vector<T>(1, T())), cmp(Cmp()), heap_size(0) {}
 	
+	heap(const Cmp& c) : data(vector<T>(1, T())), cmp(c), heap_size(0) {}
+
 	template <typename It>
 	heap(It begin, It end) : heap()
 	{
@@ -160,6 +162,7 @@ bool operator==(const heap<T, Cmp>& h1, const heap<T, Cmp>& h2)
 	{
 		if (h1[i] != h2[i]) return false;
 	}
+	return true;
 }
 
 template <typename FirstArgType, typename SecondArgType, typename... OtherArgTypes>
@@ -273,7 +276,9 @@ public:
 	using value_type = T;
 
 	priority_queue_() : h() {}
-	
+
+	priority_queue_(const Cmp& c) : h(c) {}
+
 	template <typename It>
 	priority_queue_(It begin, It end) : h(begin, end) {}
 
@@ -299,7 +304,6 @@ public:
 		
 		h.data.push_back(numeric_limits<value_type>::min());
 		++h.heap_size;
-//		h.increase_val(h.heap_size, v);
 
 		change_val(h.heap_size, v);
 	}
@@ -323,6 +327,7 @@ public:
 		{
 			if (pq1.h[i] != pq2.h[i]) return false;
 		}
+		return true;
 	}
 
 #ifdef DEBUG
