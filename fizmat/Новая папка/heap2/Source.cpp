@@ -302,7 +302,12 @@ public:
 	{
 		// max-priority_queue
 		
-		h.data.push_back(numeric_limits<value_type>::min());
+		if (h.heap_size < h.data.size() - 1)
+		{
+			h.data[h.heap_size] = numeric_limits<T>::min();
+		}
+		else
+			h.data.push_back(numeric_limits<T>::min());
 		++h.heap_size;
 
 		change_val(h.heap_size, v);
