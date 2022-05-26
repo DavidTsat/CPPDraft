@@ -7,6 +7,8 @@
 #include <map>
 #include <chrono>
 
+using namespace std;
+
 // task 1
 void update_count(std::map<std::string, int> storage, std::string str)
 {
@@ -136,7 +138,7 @@ void test_task3()
 {
 	C c();
 	{
-		C c2;//(c);
+		C c2;
 	}
 }
 
@@ -304,10 +306,96 @@ void test_task9()
 	show(e.lastName_)
 }
 
+struct AA_ {
+	int c;
+	//...
+	AA_() { cout << "A default" << endl; }
+	AA_(int cc) : c(cc) { cout << "A(int cc)" << endl; }
+	AA_(const AA_& aa) { c = aa.c;  cout << "A(const A&)" << endl; }
+	AA_(AA_&&) noexcept { cout << "A(A&&)" << endl; }
+	AA_& operator=(const AA_& aa) { c = aa.c; cout << "operator=(const A&)" << endl; return *this; }
+	AA_& operator=(AA_&&) noexcept { cout << "operator=(A&&)" << endl; return *this; }
+	~AA_() { cout << "~AA_()" << endl; }
+	operator int() { return c; }
+};
+// question 10 copy vs unitiliazed copy
+template<class InputIt, class OutputIt>
+OutputIt copy_(InputIt first, InputIt last, OutputIt d_first)
+{
+	for (; first != last; (void)++first, (void)++d_first)
+	{
+		*d_first = *first;
+	}
+	return d_first;
+}
+
+template<class InputIt, class OutputIt>
+OutputIt uninitialized_copy_(InputIt first, InputIt last, OutputIt d_first)
+{
+	using T = typename iterator_traits<OutputIt>::value_type;
+	OutputIt d = d_first;
+	try
+	{
+		for (; first != last; (void)++first, (void)++d_first)
+		{
+			::new (addressof(*d_first)) T(*first);
+		}
+		return d_first;
+	}
+	catch (...)
+	{
+		for (; d != d_first; ++d)
+		{
+			d->~T();
+			throw;
+		}
+	}
+}
+
+void test_task10()
+{
+	vector<int> v{ 1,2,3,4,5 };
+	AA_* p2 = (AA_*) operator new[](10 * sizeof(int));
+	uninitialized_copy_(v.cbegin(), v.cbegin() + 5, p2);
+	copy(p2, p2 + 5, ostream_iterator<int>(cout, " "));
+}
+
+template<typename A, typename B>
+void swap_(A& a, B& b)
+{
+	A temp(a);
+	a = b;
+	b = temp;
+}
+template <typename T1, typename T2>
+void construct(T1* p, const T2& v)
+{
+	new (p) T2(v);
+}
+
+template <typename T>
+void destroy(T& p)
+{
+	p.~T();
+}
+
+template<typename A, typename B>
+void swap2_(A& a, B& b)
+{
+	A temp(a);
+
+	destroy(a);
+	construct(&a, b);
+
+	destroy(b);
+	construct(&b, temp);
+}
+
 int main()
 {
-	test_task8();
+	//test_task8();
 	//test_task6();
 	//test_task4(p_1);
+	test_task10();
 	return 0;
 }
