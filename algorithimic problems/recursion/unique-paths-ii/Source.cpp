@@ -42,7 +42,6 @@ class Solution {
         }
 
         return dp[i][j] = m_;
-
     }
 
 public:
@@ -70,17 +69,17 @@ int main()
     vector<vector<int>> v3 = { {0,0}, {0,0} };
     vector<vector<int>> v4 = { {0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0} };
     vector<vector<int>> v5 = { {0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0} };
-
     vector<vector<int>> v6 = { {0} };
     vector<vector<int>> v7 = { {1,0} };
-    cout << s.uniquePathsWithObstacles(v7) << endl; // 6 2
+    vector<vector<int>> v8 = { {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 1}, {0, 0}, {0, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 1}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 1}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0} };
 
-    cout << s.uniquePathsWithObstacles(v1) << endl; // 6 2
-    
-    cout << s.uniquePathsWithObstacles(v2) << endl; // 10 4
+    cout << s.uniquePathsWithObstacles(v1) << endl; 
+    cout << s.uniquePathsWithObstacles(v2) << endl;
     cout << s.uniquePathsWithObstacles(v3) << endl;
-    cout << s.uniquePathsWithObstacles(v4) << endl; // 15
-    cout << s.uniquePathsWithObstacles(v5) << endl; // 15
-    
+    cout << s.uniquePathsWithObstacles(v4) << endl;
+    cout << s.uniquePathsWithObstacles(v5) << endl; 
+    cout << s.uniquePathsWithObstacles(v6) << endl;
+    cout << s.uniquePathsWithObstacles(v7) << endl;
+    cout << s.uniquePathsWithObstacles(v8) << endl;
     return 0;
 }

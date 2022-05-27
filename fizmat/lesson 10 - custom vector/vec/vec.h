@@ -11,14 +11,14 @@ template <typename T>
 class vec
 {
 public:
-	using value_type		= T;
-	using size_type			= size_t;
-	using reference			= value_type&;
-	using const_reference	= const value_type&;
+	using value_type = T;
+	using size_type = size_t;
+	using reference = value_type&;
+	using const_reference = const value_type&;
 
-	vec() : data(static_cast<value_type*> (operator new(sizeof(value_type)*default_init_capacity))), capacity_(default_init_capacity), size_used(0) { }
-	
-	explicit vec(size_type sz) : data(static_cast<value_type*> (operator new(sizeof(value_type) * sz * 2))), capacity_(sz * 2), size_used(sz) 
+	vec() : data(static_cast<value_type*> (operator new(sizeof(value_type)* default_init_capacity))), capacity_(default_init_capacity), size_used(0) { }
+
+	explicit vec(size_type sz) : data(static_cast<value_type*> (operator new(sizeof(value_type)* sz * 2))), capacity_(sz * 2), size_used(sz)
 	{
 		for (size_t i = 0; i < size_used; ++i)
 		{
@@ -35,7 +35,7 @@ public:
 		}
 	}
 
-	vec(const vec& v2) : data(static_cast<value_type*> (operator new(sizeof(value_type)* v2.capacity_))), capacity_(v2.capacity_), size_used(v2.size_used)
+	vec(const vec<value_type>& v2) : data(static_cast<value_type*> (operator new(sizeof(value_type)* v2.capacity_))), capacity_(v2.capacity_), size_used(v2.size_used)
 	{
 		for (size_t i = 0; i < size_used; ++i)
 		{
@@ -43,12 +43,12 @@ public:
 		}
 	}
 
-	vec(vec&& v2) noexcept : data(v2.data), capacity_(v2.capacity_), size_used(v2.size_used)
+	vec(const vec<value_type>&& v2) noexcept : data(v2.data), capacity_(v2.capacity_), size_used(v2.size_used)
 	{
 		v2.data = nullptr;
 	}
 
-	vec(const std::vector<T>& v) : data(static_cast<value_type*> (operator new(sizeof(value_type)* v.capacity()))), capacity_(v.capacity()), size_used(v.size())
+	vec(const std::vector<value_type>& v) : data(static_cast<value_type*> (operator new(sizeof(value_type)* v.capacity()))), capacity_(v.capacity()), size_used(v.size())
 	{
 		for (size_t i = 0; i < size_used; ++i)
 		{
@@ -56,9 +56,9 @@ public:
 		}
 	}
 
-	explicit operator std::vector<T>() const
+	explicit operator std::vector<value_type>() const
 	{
-		vector<T> v;
+		vector<value_type> v;
 		v.reserve(size_used);
 
 		for (size_t i = 0; i < size_used; ++i)
@@ -78,7 +78,7 @@ public:
 		operator delete(data);
 	}
 
-	vec& operator=(const vec& v2)
+	vec<value_type>& operator=(const vec<value_type>& v2)
 	{
 		this->~vec();
 		data = nullptr;
@@ -88,7 +88,7 @@ public:
 		return *this;
 	}
 
-	vec& operator=(vec&& v2) noexcept
+	vec<value_type>& operator=(vec<value_type>&& v2) noexcept
 	{
 		swap_(*this, v2);
 		return *this;
@@ -100,7 +100,7 @@ public:
 	void resize(size_t new_size)
 	{
 		value_type* d2 = static_cast<value_type*> (operator new(sizeof(value_type) * new_size));
-		
+
 		for (size_t i = 0; i < new_size; ++i)
 		{
 			new (d2 + i) value_type(data[i]);
@@ -110,7 +110,7 @@ public:
 
 		data = d2;
 		size_used = new_size;
-		
+
 		if (capacity_ > size_used)
 		{
 			for (size_t i = size_used; i < capacity_; ++i)
@@ -127,7 +127,7 @@ public:
 			return;
 		}
 
-		value_type* d2 = static_cast<value_type*> (operator new(sizeof(value_type) * size_used));
+		value_type* d2 = static_cast<value_type*> (operator new(sizeof(value_type) * new_capacity));
 
 		for (size_t i = 0; i < size_used; ++i)
 		{
@@ -166,7 +166,7 @@ public:
 				new (d2 + i) value_type(data[i]);
 			}
 			new (d2 + size_used) value_type(new_val);
-			
+
 			this->~vec();
 
 			data = d2;
@@ -177,7 +177,7 @@ public:
 	void pop_back()
 	{
 		if (size_used == 0) return;
-		
+
 		data[size_used - 1].~value_type();
 		--size_used;
 	}
@@ -202,6 +202,11 @@ public:
 		return data + size_used;
 	}
 
+	bool empty() const
+	{
+		return size_used == 0;
+	}
+
 	// emplace, etc.
 private:
 	value_type* data;
@@ -224,3 +229,17 @@ bool operator==(vec<T>& v1, vec<T>& v2)
 {
 	return v1.size() == v2.size() && v1.capacity() == v2.capacity() && equal(v1.cbegin(), v1.cend(), v2.cbegin(), v2.cend());
 }
+
+/*
+	Algorithmic Problems
+*/
+
+struct sol_unique_paths_with_obstacles
+{
+	int unique_paths_with_obstacles(vec<vec<int>>& grid)
+	{
+		// TODO
+		// don't use std::vectors inside, only vec
+		return 0;
+	}
+};
