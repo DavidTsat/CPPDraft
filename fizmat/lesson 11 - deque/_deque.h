@@ -25,7 +25,7 @@ public:
 
 		void advance(diff_type offset)
 		{
-			if (offset == 0) return;
+//			if (offset == 0) return;
 
 			diff_type chunk_size = last - first;
 			offset += current - first;
@@ -41,12 +41,16 @@ public:
 			{
 				diff_type map_offset;
 
-				if (offset > 0) {
+				if (offset > 0) 
+				{
 					map_offset = offset / chunk_size;
 				}
-				else {
-					map_offset = -((-offset - 1) / chunk_size) - 1;
+				else 
+				{
+					map_offset = -(chunk_size - offset - 1) / chunk_size;
+				//	map_offset = (offset + 1) / chunk_size - 1;
 				}
+
 				diff_type chunk_offset = offset - map_offset * chunk_size;
 
 				map_ptr += map_offset;

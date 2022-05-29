@@ -120,13 +120,14 @@ void _deque_tests_print()
 int main()
 {
 	_deque<int> d3(100);
-	cout << d3 << endl;
+//	cout << d3 << endl;
 	/*
 	d3.push_front(1);
 	d3.push_front(2);
 	d3.push_front(3);
 	cout << d3 << endl;
 	*/
+	_deque_tests_print();
 	_deque_tests();
 	return 0;
 }
