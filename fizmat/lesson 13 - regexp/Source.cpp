@@ -308,6 +308,35 @@ Valid email address matching
 
 /*
 Excercises
+0. match lines with even number lengths
+^(?=(..))\1+$
+a
+aa
+aaa
+aaaa
+aaaaa
+aaaaaa
+aaaaaaa
+aaaaaaaa
+aaaaaaaaa
+aaaaaaaaaa
+aaaaaaaaaaa
+...
+
+0. match first half only
+(?=^(a+)\1)\1
+a
+aa
+aaa
+aaaa
+aaaaa
+aaaaaa
+aaaaaaa
+aaaaaaaa
+aaaaaaaaa
+aaaaaaaaaa
+aaaaaaaaaaa
+
 1. https://regex.sketchengine.co.uk/cgi/ex1.cgi
 \b.*(pi)?(?(1)|s).*\b
 
@@ -325,7 +354,16 @@ ap(?!(e |[pd]))
 ^(?!(\w)+\1)\w*$|ef or ^(?!.*(\w)(\w)\2\1).*$
 
 6. https://alf.nu/RegexGolf?world=regex&level=r05
-^(\w)(\w)\w*(\2)(\1)$
+^(\w)(\w)\w*(\2)(\1)$ or (?=(\w)(\w)(\w)?(\2)(\1))    (?=(\w)(\w)[^r]?(\2)(\1))
+
+7. https://alf.nu/RegexGolf?world=regex&level=r06
+^(?!(..+)\1+$) or ^(?!(x{2,})\1+$)    (?!^(x{2,})\1+$)
+
+8. https://alf.nu/RegexGolf?world=regex&level=r07
+(?=(.).\1.\1.\1) or (.).\1.\1.\1.*
+
+9. https://alf.nu/RegexGolf?world=regex&level=r08
+^[^o]\w{4,5}$
 */
 
 void reg_match(const regex& re, const string& s)
