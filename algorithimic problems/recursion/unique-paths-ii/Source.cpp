@@ -73,13 +73,13 @@ int main()
     vector<vector<int>> v7 = { {1,0} };
     vector<vector<int>> v8 = { {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 1}, {0, 0}, {0, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 1}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 1}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0} };
 
-    cout << s.uniquePathsWithObstacles(v1) << endl; 
-    cout << s.uniquePathsWithObstacles(v2) << endl;
-    cout << s.uniquePathsWithObstacles(v3) << endl;
-    cout << s.uniquePathsWithObstacles(v4) << endl;
-    cout << s.uniquePathsWithObstacles(v5) << endl; 
-    cout << s.uniquePathsWithObstacles(v6) << endl;
-    cout << s.uniquePathsWithObstacles(v7) << endl;
-    cout << s.uniquePathsWithObstacles(v8) << endl;
+    cout << s.uniquePathsWithObstacles(v1) << endl;//2
+    cout << s.uniquePathsWithObstacles(v2) << endl;//4
+    cout << s.uniquePathsWithObstacles(v3) << endl;//2
+    cout << s.uniquePathsWithObstacles(v4) << endl;//15
+    cout << s.uniquePathsWithObstacles(v5) << endl;//70 
+    cout << s.uniquePathsWithObstacles(v6) << endl;//1
+    cout << s.uniquePathsWithObstacles(v7) << endl;//0
+    cout << s.uniquePathsWithObstacles(v8) << endl;//0
     return 0;
 }
