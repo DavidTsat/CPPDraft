@@ -766,6 +766,111 @@ public:
             assert(out == v.second[i]);
         }
     }
+
+
+    void bfs(node* t, queue<pair<node*, pair<bool, int>>>& q, int& d) const
+    {
+        if (t == nullptr || t == nil)
+        {
+            return;
+        }
+
+        q.push({ t, { true, d } });
+
+        q.push({ t->left,  {false, d + 1} });
+        q.push({ t->right, {false, d + 1} });
+
+        while (!q.empty())
+        {
+            pair<node*, pair<bool, int>>p = q.front();
+            q.pop();
+
+            if (p.second.first == false)
+            {
+                d = p.second.second;
+
+                bfs(p.first, q, d);
+            }
+        }
+    }
+
+    int max_subtree_len(node* t) const
+    {
+        int max_d = 0;
+        int depth = 0;
+
+        queue<pair<node*, pair<bool, int>>> q;
+
+        bfs(t, q, depth);
+
+        max_d = depth;
+
+        return max_d;
+    }
+
+    bool is_balanced(const node* p) const
+    {
+        if (p == nullptr || p == nil) return true;
+
+        int left_max_depth = max_subtree_len(p->left);
+        int right_max_depth = max_subtree_len(p->right);
+
+        int diff = abs(left_max_depth - right_max_depth);
+
+        if (diff > 1) return false;
+
+        int l = is_balanced(p->left);
+        int r = is_balanced(p->right);
+        return l && r;
+    }
+
+    void check_if_balanced() const
+    {
+        /*
+        *               10          true
+        *              / \
+        *             2  20
+        *               /  \
+        *              15   70
+        */
+        
+        /*              10          false
+        *              / \
+        *             8   30
+        *            / \
+        *           4   9
+        *          / \
+        *         3   7
+        */
+
+        node* r1 = new node({ 10,3 }, color::BLACK, nullptr, new node({ 2,9 }, color::BLACK), new node({ 20,20 }, color::BLACK, new node({ 15,15 }, color::BLACK), new node({ 70,7 }, color::BLACK)));
+        node* r2 = new node({ 10,1 }, color::BLACK, nullptr, new node({ 8,2 }, color::BLACK, nullptr, new node({ 4,3 }, color::BLACK, nullptr, new node({ 3,4 }, color::BLACK), new node({7,4}, color::BLACK)), new node({ 9,3 }, color::BLACK)), new node({ 30,2 }, color::BLACK));
+        
+        vector<node*> v = { r1, r2 };
+        vector<bool> answers = { true, false };
+
+        for (int i = 0; i < v.size(); ++i)
+        {
+            bool b = is_balanced(v[i]);
+            assert(b == answers[i]);
+        }
+
+        rbtree_map<int, int> m;
+        m[10] = 0;
+        m[54] = 1;
+        m[0] = 2;
+        m[3] = 3;
+        m[41] = 4;
+        m[78] = 5;
+        m[6] = 6;
+        m[777] = 7;
+        m[852] = 8;
+        m[90] = 9;
+
+        bool b = m.is_balanced(m.root);
+        assert(b == true);
+    }
+
 #endif
 
 };
