@@ -3,14 +3,13 @@
 
 #include <iostream>
 
-#define default_size 10
+//#define default_size 10
 
 #define default_size 20
 
 using namespace std;
 
 template <typename T>
-
 class _stack
 {
 public:
@@ -156,3 +155,60 @@ public:
 		std::swap(capacity, s.capacity);
 	}
 };
+
+// https://accu.org/journals/overload/9/43/radford_444/
+/*
+Basic: When your code throws an exception, your code does not leak resources, and objects remain destructible.
+Strong: When your code throws an exception, it leaves the state of the application unchanged.
+No throw: Your code never throws exceptions.
+
+template <typename T> class stack
+{
+public:
+  T pop();
+//...
+};
+
+void f(stack<my_type>& s)
+{
+  my_type mt;
+// ...
+  mt = s.pop();
+}
+
+template <typename T> class stack
+{
+public:
+  T const& top() const;
+  void pop();
+//...
+};
+void f(stack<my_type>& s)
+{
+  my_type mt;
+// ...
+  mt = s.top();
+  s.pop();
+}
+void f(stack<my_type>& s)
+{
+  s.pop();            // #1
+  my_type mt(s.top);  // #2
+}
+
+-----------------------------------------------------------------------------
+template <typename type> void f_unsafe(std::vector<type>& v)
+{
+// ...
+  v.insert(v.end(), first, last);
+// ...
+}
+
+template <typename type> void f_safe(std::vector<type>& v)
+{
+  std::vector<type> v_temp(v);
+  v_temp.insert(v.end(), first, last);
+  v.swap(v_temp);
+// ...
+}
+*/
